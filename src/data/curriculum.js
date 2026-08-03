@@ -121,7 +121,7 @@ const curriculum = {
                 { nl: 'B', word: 'bal', icon: '⚽', darija: 'كورة', darijaLat: 'koura', tip: 'Lippen samen mét stem (voel je keel trillen). Verschil met de P.', answer: 'bal' },
                 { nl: 'C', word: 'cadeau', icon: '🎁', darija: 'كادو', darijaLat: 'kadou', tip: 'De C klinkt hier als "k". Voor e/i klinkt ze als "s".', answer: 'cadeau' },
                 { nl: 'D', word: 'deur', icon: '🚪', darija: 'باب', darijaLat: 'bab', tip: 'Tongpunt tegen de boventanden, mét stem.', answer: 'deur' },
-                { nl: 'E', word: 'eend', icon: '🦆', darija: 'بطة', darijaLat: 'betta', tip: 'Korte "e", zoals in het Franse «est».', answer: 'eend' },
+                { nl: 'E', word: 'eend', icon: '🦆', darija: 'بطة', darijaLat: 'betta', tip: 'De letter E en "eend" hebben een lange "ee" (zoals in "zee").', answer: 'eend' },
               ],
             },
             {
@@ -133,7 +133,7 @@ const curriculum = {
               darijaNote: 'سمع، شوف نصيحة الفم، وقولي كل حرف مع الكلمة.',
               items: [
                 { nl: 'F', word: 'fiets', icon: '🚲', darija: 'بيسكليت', darijaLat: 'bishklit', tip: 'Boventanden op de onderlip, blazen zonder stem. Verschil met de V.', answer: 'fiets' },
-                { nl: 'G', word: 'geit', icon: '🐐', darija: 'معزة', darijaLat: 'm3iza', tip: 'De harde "g" is een keelklank, zoals de Arabische «خ».', answer: 'geit' },
+                { nl: 'G', word: 'geit', icon: '🐐', darija: 'معزة', darijaLat: 'm3iza', tip: 'In Vlaanderen/Gent is de "g" zacht (bijna een «h», /ɣ/). De harde keel-«g» zoals «خ» hoor je in Nederland.', answer: 'geit' },
                 { nl: 'H', word: 'huis', icon: '🏠', darija: 'دار', darijaLat: 'dar', tip: 'Zachte adem uit de keel, zoals de «ه».', answer: 'huis' },
                 { nl: 'I', word: 'iglo', icon: '🛖', darija: 'إغلو', darijaLat: 'iglou', tip: 'Korte, korte "i".', answer: 'iglo' },
                 { nl: 'J', word: 'jas', icon: '🧥', darija: 'جاكيطة', darijaLat: 'jakita', tip: 'De J klinkt als de «ي» (zoals "ya").', answer: 'jas' },
@@ -148,7 +148,7 @@ const curriculum = {
               darijaNote: 'قولي كل حرف مع الكلمة. التطبيق كيسمع وكيعاونك.',
               items: [
                 { nl: 'K', word: 'kat', icon: '🐱', darija: 'قطة', darijaLat: 'qetta', tip: 'Klank achter in de mond, zoals de «ك».', answer: 'kat' },
-                { nl: 'L', word: 'lamp', icon: '💡', darija: 'ضو', darijaLat: 'dou', tip: 'Tongpunt achter de boventanden.', answer: 'lamp' },
+                { nl: 'L', word: 'lamp', icon: '💡', darija: 'اللمبة', darijaLat: 'lamba', tip: 'Tongpunt achter de boventanden.', answer: 'lamp' },
                 { nl: 'M', word: 'maan', icon: '🌙', darija: 'قمر', darijaLat: 'qamar', tip: 'Lippen samen, neusklank, zoals de «م».', answer: 'maan' },
                 { nl: 'N', word: 'neus', icon: '👃', darija: 'نيف', darijaLat: 'nif', tip: 'Tong achter de tanden, neusklank, zoals de «ن».', answer: 'neus' },
                 { nl: 'O', word: 'oog', icon: '👁️', darija: 'عين', darijaLat: '3in', tip: 'Ronde lippen, volle "o".', answer: 'oog' },
@@ -179,7 +179,7 @@ const curriculum = {
               items: [
                 { nl: 'U', word: 'uur', icon: '⏰', darija: 'ساعة', darijaLat: 'sa3a', tip: 'Ronde lippen zoals bij «oe», maar zeg «i». Bestaat niet in het Darija.', answer: 'uur' },
                 { nl: 'V', word: 'vis', icon: '🐟', darija: 'حوت', darijaLat: 'hout', tip: 'Zoals de F, maar mét een beetje stem. In Vlaanderen zacht.', answer: 'vis' },
-                { nl: 'W', word: 'water', icon: '💧', darija: 'ما', darijaLat: 'lma', tip: 'Ronde lippen, zoals de «و».', answer: 'water' },
+                { nl: 'W', word: 'water', icon: '💧', darija: 'الما', darijaLat: 'lma', tip: 'Ronde lippen, zoals de «و».', answer: 'water' },
                 { nl: 'X', word: 'taxi', icon: '🚕', darija: 'طاكسي', darijaLat: 'taksi', tip: 'De X klinkt als "ks". Zeldzaam in het Nederlands.', answer: 'taxi' },
                 { nl: 'Y', word: 'yoghurt', icon: '🥛', darija: 'ياغورت', darijaLat: 'yaghourt', tip: 'De Y klinkt hier als "j" (zoals «ي»).', answer: 'yoghurt' },
                 { nl: 'Z', word: 'zon', icon: '☀️', darija: 'شمس', darijaLat: 'chems', tip: 'Zoemende "s" mét stem, zoals de «ز».', answer: 'zon' },
@@ -218,10 +218,11 @@ const curriculum = {
             },
             {
               id: '0.1.2',
-              title: 'Tweeklanken (UI, EU, IE, IJ/EI, OE, OU/AU)',
+              title: 'Lange klinkers & tweeklanken',
+              titleDarija: 'الحروف الطويلة والمركّبة',
               type: LESSON_TYPES.SPEAKING,
               intro:
-                'Tweeklanken zijn twee klinkers die samensmelten tot één klank. Let goed op de stand van je mond.',
+                'Sommige klinkers zijn lang (ie, oe, eu), andere smelten samen tot één klank — een echte tweeklank (ui, ij/ei, ou/au). Let goed op de stand van je mond.',
               darijaNote:
                 'الأصوات المركّبة (diftongen) غير موجودة بهذا الشكل في الدارجة — ركّزي على حركة الفم.',
               items: [
@@ -251,7 +252,7 @@ const curriculum = {
                 { nl: 'pen', pair: 'ben', ipa: '/pɛn/ – /bɛn/', tip: 'P is stemloos (geen trilling in de keel), B is stemhebbend. Leg je hand op je keel om te voelen.' },
                 { nl: 'pak', pair: 'bak', ipa: '/pɑk/ – /bɑk/', tip: 'Blaas een klein beetje lucht bij de "p", niet bij de "b".' },
                 { nl: 'fee', pair: 'vee', ipa: '/feː/ – /veː/', tip: 'F is stemloos, V is licht stemhebbend. In Vlaanderen liggen ze dicht bij elkaar.' },
-                { nl: 'gaan', ipa: '/ɣaːn/', tip: 'De harde "g/ch" is als de Arabische «خ» (khaa), diep in de keel.', darija: 'خ', darijaLat: 'zoals in «خبز» (khubz)' },
+                { nl: 'gaan', ipa: '/ɣaːn/', tip: 'In Vlaanderen is de "g" zacht /ɣ/ (bijna een «h»). In Nederland is het een harde keelklank zoals «خ».', darija: 'خ', darijaLat: 'zoals in «خبز» (khubz)' },
                 { nl: 'lachen', ipa: '/ˈlɑxə(n)/', tip: '"ch" = dezelfde keelklank als «خ». In Gent iets zachter dan in Nederland.' },
                 { nl: 'peer', pair: 'beer', ipa: '/peːr/ – /beːr/', tip: 'peer = لنجاصة (blaas lucht), beer = دب (geen lucht).', darija: 'لنجاصة', darijaLat: 'lenjassa (peer)' },
                 { nl: 'vel', pair: 'fel', ipa: '/vɛl/ – /fɛl/', tip: 'vel = جلد (licht stemhebbend), fel = قوي (stemloos).', darija: 'جلد', darijaLat: 'jeld (vel)' },
@@ -279,7 +280,7 @@ const curriculum = {
                 { nl: 'Hallo', darija: 'السلام', darijaLat: 'salam', tip: 'Neutraal, altijd goed.' },
                 { nl: 'Dag', darija: 'أهلا', darijaLat: 'ahlan', tip: 'Kan zowel "hallo" als "tot ziens" betekenen.' },
                 { nl: 'Goedemorgen', darija: 'صباح الخير', darijaLat: 'sbah lkhir', tip: 'Tot ongeveer 12u.' },
-                { nl: 'Goedemiddag', darija: 'مساء الخير', darijaLat: 'msa lkhir', tip: 'Van de middag tot de avond.' },
+                { nl: 'Goedemiddag', darija: 'مسا الخير', darijaLat: 'msa lkhir', tip: 'Overdag, na de middag. Het Darija maakt geen apart onderscheid met de avond.' },
                 { nl: 'Goedenavond', darija: 'مسا الخير', darijaLat: 'msa lkhir', tip: "'s Avonds." },
                 { nl: 'Tot ziens', darija: 'بسلامة', darijaLat: 'bslama', tip: 'Bij het afscheid.' },
                 { nl: 'Tot morgen', darija: 'نتلاقاو غدا', darijaLat: 'ntlaqaw ghedda' },
@@ -296,7 +297,7 @@ const curriculum = {
               intro: 'Beleefde woorden die je elke dag nodig hebt.',
               items: [
                 { nl: 'Alstublieft', darija: 'من فضلك', darijaLat: 'men fadlek', tip: 'Formeel (met "u").' },
-                { nl: 'Alsjeblieft', darija: 'عافاك', darijaLat: 'afak', tip: 'Informeel (met "je"). Ook: "hier je" als je iets geeft.' },
+                { nl: 'Alsjeblieft', darija: 'عافاك', darijaLat: '3afak', tip: 'Informeel (met "je"). Ook: "hier je" als je iets geeft.' },
                 { nl: 'Dank u wel', darija: 'شكرا', darijaLat: 'choukran', tip: 'Formeel bedanken.' },
                 { nl: 'Dank je wel', darija: 'شكرا بزاف', darijaLat: 'choukran bezzaf', tip: 'Informeel bedanken.' },
                 { nl: 'Graag gedaan', darija: 'بلا جميل', darijaLat: 'bla jmil', tip: 'Antwoord op "dank u".' },
@@ -306,7 +307,7 @@ const curriculum = {
                 { nl: 'Excuseer', darija: 'سمح ليا', darijaLat: 'smeh liya', tip: 'Typisch Vlaams voor "sorry" of "excuseer me".' },
                 { nl: 'Mag ik?', darija: 'واش يمكن؟', darijaLat: 'wach ymken?', tip: 'Om beleefd iets te vragen.' },
                 { nl: 'Geen probleem', darija: 'ماكاين مشكل', darijaLat: 'makayn mochkil' },
-                { nl: 'Natuurlijk', darija: 'بطبيعة الحال', darijaLat: 'tabi3i' },
+                { nl: 'Natuurlijk', darija: 'طبيعي', darijaLat: 'tabi3i' },
               ],
             },
             {
@@ -396,7 +397,7 @@ const curriculum = {
         {
           id: '0.4',
           title: 'Vraagwoorden & omgeving',
-          goal: 'De basisvraagwoorden en tien woorden in en om het huis.',
+          goal: 'De basisvraagwoorden en woorden in en om het huis.',
           icon: '🏠',
           lessons: [
             {
@@ -417,7 +418,7 @@ const curriculum = {
             },
             {
               id: '0.4.2',
-              title: 'In huis (10 basiswoorden)',
+              title: 'In en om het huis',
               type: LESSON_TYPES.VOCAB,
               intro: 'Tien dingen die je thuis ziet. Let op het lidwoord (de/het).',
               items: [
@@ -426,7 +427,7 @@ const curriculum = {
                 { nl: 'raam', article: 'het', darija: 'الشرجم', darijaLat: 'chergem' },
                 { nl: 'deur', article: 'de', darija: 'الباب', darijaLat: 'bab' },
                 { nl: 'bed', article: 'het', darija: 'الناموسية', darijaLat: 'namousiya' },
-                { nl: 'lamp', article: 'de', darija: 'الضو', darijaLat: 'dou' },
+                { nl: 'lamp', article: 'de', darija: 'اللمبة', darijaLat: 'lamba' },
                 { nl: 'keuken', article: 'de', darija: 'الكوزينة', darijaLat: 'kuzina' },
                 { nl: 'bad', article: 'het', darija: 'الحمام', darijaLat: 'hammam' },
                 { nl: 'muur', article: 'de', darija: 'الحيط', darijaLat: 'hit' },
@@ -440,7 +441,7 @@ const curriculum = {
                 { nl: 'lepel', article: 'de', darija: 'المعلقة', darijaLat: 'm3elqa' },
                 { nl: 'vork', article: 'de', darija: 'الفرشيطة', darijaLat: 'farchita' },
                 { nl: 'mes', article: 'het', darija: 'الموس', darijaLat: 'mous' },
-                { nl: 'tas', article: 'de', darija: 'الكاس', darijaLat: 'kas', tip: 'In Vlaanderen: een "tas" koffie = een kop koffie.' },
+                { nl: 'tas', article: 'de', darija: 'الساك / الشكارة', darijaLat: 'sak', tip: 'Vooral: handtas/zak. In Vlaanderen ook "een tas koffie" = een kopje.' },
               ],
             },
             {
@@ -493,8 +494,8 @@ const curriculum = {
               type: LESSON_TYPES.PHRASES,
               intro: 'De zinnen die je nodig hebt om jezelf voor te stellen in Gent.',
               items: [
-                { nl: 'Ik ben Fatima.', darija: 'أنا فاطمة', darijaLat: 'ana Fatima' },
-                { nl: 'Mijn naam is Fatima.', darija: 'سميتي فاطمة', darijaLat: 'smiti Fatima' },
+                { nl: 'Ik ben Oumayma.', darija: 'أنا أميمة', darijaLat: 'ana Oumayma' },
+                { nl: 'Mijn naam is Oumayma.', darija: 'سميتي أميمة', darijaLat: 'smiti Oumayma' },
                 { nl: 'Ik kom uit Marokko.', darija: 'أنا من المغرب', darijaLat: 'ana men lmaghrib' },
                 { nl: 'Ik kom uit Oujda.', darija: 'أنا من وجدة', darijaLat: 'ana men Oujda' },
                 { nl: 'Ik woon in Gent.', darija: 'أنا ساكنة فگاند', darijaLat: 'ana sakna f Gent' },
@@ -512,7 +513,7 @@ const curriculum = {
               type: LESSON_TYPES.SPEAKING,
               intro: 'Spreek de zinnen in. De app luistert (Whisper) en een AI-docent (Gemini) helpt je verbeteren.',
               items: [
-                { nl: 'Ik ben Fatima.', darija: 'أنا فاطمة (بدلي بسميتك)' },
+                { nl: 'Ik ben Oumayma.', darija: 'أنا أميمة (بدلي بسميتك)' },
                 { nl: 'Ik kom uit Oujda.', darija: 'أنا من وجدة' },
                 { nl: 'Ik woon in Gent.', darija: 'أنا ساكنة فگاند' },
                 { nl: 'Ik spreek een beetje Nederlands.', darija: 'كنهضر شوية بالهولندية' },
@@ -656,9 +657,9 @@ const curriculum = {
               type: LESSON_TYPES.GRAMMAR,
               intro:
                 'Deze twee werkwoorden zijn onregelmatig en heel belangrijk. Leer ze uit het hoofd.',
-              darijaNote: '«zijn» = كون (ana... )، «hebben» = عند.',
+              darijaNote: 'مهم: الدارجة ماعندهاش فعل «zijn» — كتقولي غير «ana». «hebben» = عند.',
               items: [
-                { nl: 'ik ben', darija: 'أنا كاين/ة', darijaLat: 'zijn' },
+                { nl: 'ik ben', darija: 'أنا', darijaLat: 'ana' },
                 { nl: 'jij bent', darijaLat: 'zijn' },
                 { nl: 'hij/zij is', darijaLat: 'zijn' },
                 { nl: 'wij zijn', darijaLat: 'zijn' },
@@ -680,7 +681,7 @@ const curriculum = {
               intro: 'Zeg de vormen van "zijn" en "hebben" hardop.',
               darijaNote: 'قولي تصريفات الفعلين "zijn" و "hebben" بصوت عالي.',
               items: [
-                { nl: 'ik ben', darija: 'أنا كاين', darijaLat: 'ana kayn' },
+                { nl: 'ik ben', darija: 'أنا', darijaLat: 'ana' },
                 { nl: 'jij bent', darijaLat: 'zijn' },
                 { nl: 'hij is', darijaLat: 'zijn' },
                 { nl: 'wij zijn', darijaLat: 'zijn' },
@@ -711,7 +712,7 @@ const curriculum = {
                 { nl: 'Woon jij in Gent?', example: 'van: jij woont in Gent' },
                 { nl: 'Spreek jij Nederlands?', example: 'van: jij spreekt Nederlands' },
                 { nl: 'Heb jij kinderen?', example: 'van: jij hebt kinderen' },
-                { nl: 'Ben jij van Oujda?', example: 'van: jij bent van Oujda' },
+                { nl: 'Kom jij uit Oujda?', example: 'van: jij komt uit Oujda' },
                 { nl: 'Werk jij in Gent?', example: 'van: jij werkt in Gent' },
                 { nl: 'Kom jij uit Marokko?', example: 'van: jij komt uit Marokko' },
                 { nl: 'Versta jij mij?', example: 'van: jij verstaat mij', tip: 'In Vlaanderen: "verstaan" = begrijpen.' },
@@ -749,7 +750,7 @@ const curriculum = {
               intro: 'Zinnen die je meteen kunt gebruiken bij de bakker of in de winkel in Gent.',
               items: [
                 { nl: 'Hoeveel kost dit?', darija: 'بشحال هادا؟', darijaLat: 'bch7al hada?' },
-                { nl: 'Ik wil graag een brood.', darija: 'بغيت خبزة عافاك', darijaLat: 'bghit khobza afak' },
+                { nl: 'Ik wil graag een brood.', darija: 'بغيت خبزة عافاك', darijaLat: 'bghit khobza 3afak' },
                 { nl: 'Mag ik een koffie?', darija: 'واش يمكن قهوة؟', darijaLat: 'wach ymken qahwa?' },
                 { nl: 'Dat is te duur.', darija: 'هادا غالي بزاف', darijaLat: 'hada ghali bezzaf' },
                 { nl: 'Heeft u wisselgeld?', darija: 'واش عندك الصرف؟', darijaLat: 'wach 3andek serf?' },
@@ -757,8 +758,8 @@ const curriculum = {
                 { nl: 'Ik zoek melk.', darija: 'كنقلب على الحليب', darijaLat: 'kanqelleb 3la lhalib' },
                 { nl: 'Waar is de kassa?', darija: 'فين الكاصة؟', darijaLat: 'fin lkassa?' },
                 { nl: 'Mag ik betalen?', darija: 'واش نخلص؟', darijaLat: 'wach nkhelles?' },
-                { nl: 'Met de kaart, alstublieft.', darija: 'بالكارطة عافاك', darijaLat: 'b lkarta afak' },
-                { nl: 'Een zakje, alstublieft.', darija: 'شكارة عافاك', darijaLat: 'chkara afak' },
+                { nl: 'Met de kaart, alstublieft.', darija: 'بالكارطة عافاك', darijaLat: 'b lkarta 3afak' },
+                { nl: 'Een zakje, alstublieft.', darija: 'شكارة عافاك', darijaLat: 'chkara 3afak' },
                 { nl: 'Bedankt, tot ziens.', darija: 'شكرا، بسلامة', darijaLat: 'choukran, bslama' },
               ],
             },
@@ -793,12 +794,12 @@ const curriculum = {
               intro: 'De zeven dagen, plus vandaag, morgen en gisteren.',
               items: [
                 { nl: 'maandag', darija: 'الاثنين', darijaLat: 'letnin' },
-                { nl: 'dinsdag', darija: 'الثلاثاء', darijaLat: 'ttlat' },
-                { nl: 'woensdag', darija: 'الأربعاء', darijaLat: 'larb3' },
+                { nl: 'dinsdag', darija: 'التلاتة', darijaLat: 'ttlat' },
+                { nl: 'woensdag', darija: 'لاربعا', darijaLat: 'larb3' },
                 { nl: 'donderdag', darija: 'الخميس', darijaLat: 'lekhmis' },
                 { nl: 'vrijdag', darija: 'الجمعة', darijaLat: 'jjem3a' },
                 { nl: 'zaterdag', darija: 'السبت', darijaLat: 'ssebt' },
-                { nl: 'zondag', darija: 'الأحد', darijaLat: 'lhedd' },
+                { nl: 'zondag', darija: 'لحد', darijaLat: 'lhedd' },
                 { nl: 'vandaag', darija: 'اليوم', darijaLat: 'lyoum' },
                 { nl: 'morgen', darija: 'غدا', darijaLat: 'ghedda' },
                 { nl: 'gisteren', darija: 'البارح', darijaLat: 'lbareh' },
@@ -852,7 +853,7 @@ const curriculum = {
               items: [
                 { nl: 'maandag', darija: 'الاثنين', darijaLat: 'letnin' },
                 { nl: 'vrijdag', darija: 'الجمعة', darijaLat: 'jjem3a' },
-                { nl: 'zondag', darija: 'الأحد', darijaLat: 'lhedd' },
+                { nl: 'zondag', darija: 'لحد', darijaLat: 'lhedd' },
                 { nl: 'vandaag', darija: 'اليوم', darijaLat: 'lyoum' },
                 { nl: 'morgen', darija: 'غدا', darijaLat: 'ghedda' },
                 { nl: 'Hoe laat is het?', darija: 'شحال فالساعة؟', darijaLat: 'ch7al f sa3a?' },
@@ -878,12 +879,12 @@ const curriculum = {
               items: [
                 { nl: 'de tram', darija: 'الطرام', darijaLat: 'tram' },
                 { nl: 'de bus', darija: 'الطوبيس', darijaLat: 'tobis' },
-                { nl: 'de trein', darija: 'القطار', darijaLat: 'tran' },
+                { nl: 'de trein', darija: 'التران', darijaLat: 'tran' },
                 { nl: 'het station', darija: 'المحطة', darijaLat: 'mahatta' },
                 { nl: 'de halte', darija: 'الأريي', darijaLat: 'arret' },
                 { nl: 'het ticket', darija: 'التيكي', darijaLat: 'tiki' },
                 { nl: 'Waar is de halte?', darija: 'فين الأريي؟', darijaLat: 'fin larret?' },
-                { nl: 'Een ticket, alstublieft.', darija: 'تيكي عافاك', darijaLat: 'tiki afak' },
+                { nl: 'Een ticket, alstublieft.', darija: 'تيكي عافاك', darijaLat: 'tiki 3afak' },
                 { nl: 'Hoeveel kost een ticket?', darija: 'بشحال التيكي؟', darijaLat: 'bch7al tiki?' },
               ],
             },
@@ -914,7 +915,7 @@ const curriculum = {
               intro: 'Oefen hardop de zinnen die je onderweg gebruikt.',
               items: [
                 { nl: 'Waar is de halte?', darija: 'فين الأريي؟', darijaLat: 'fin larret?' },
-                { nl: 'Een ticket, alstublieft.', darija: 'تيكي عافاك', darijaLat: 'tiki afak' },
+                { nl: 'Een ticket, alstublieft.', darija: 'تيكي عافاك', darijaLat: 'tiki 3afak' },
                 { nl: 'links', darija: 'على اليسار', darijaLat: '3la lisar' },
                 { nl: 'rechts', darija: 'على اليمين', darijaLat: '3la limin' },
                 { nl: 'rechtdoor', darija: 'نيشان', darijaLat: 'nichan' },
@@ -1037,13 +1038,13 @@ const curriculum = {
               type: LESSON_TYPES.PHRASES,
               intro: 'Bestellen, betalen en beleefd zijn op café of restaurant.',
               items: [
-                { nl: 'Een koffie, alstublieft.', darija: 'قهوة عافاك', darijaLat: 'qahwa afak' },
+                { nl: 'Een koffie, alstublieft.', darija: 'قهوة عافاك', darijaLat: 'qahwa 3afak' },
                 { nl: 'Mag ik de kaart?', darija: 'واش يمكن المونيو؟', darijaLat: 'wach ymken menu?' },
                 { nl: 'Ik heb honger.', darija: 'فيا الجوع', darijaLat: 'fiya jou3' },
                 { nl: 'Ik heb dorst.', darija: 'فيا العطش', darijaLat: 'fiya l3tech' },
                 { nl: 'Lekker!', darija: 'لذيذ', darijaLat: 'ldid' },
                 { nl: 'Smakelijk!', darija: 'بالصحة', darijaLat: 'b sahha' },
-                { nl: 'De rekening, alstublieft.', darija: 'الحساب عافاك', darijaLat: 'l7sab afak' },
+                { nl: 'De rekening, alstublieft.', darija: 'الحساب عافاك', darijaLat: 'l7sab 3afak' },
               ],
             },
             {
@@ -1053,9 +1054,9 @@ const curriculum = {
               type: LESSON_TYPES.SPEAKING,
               intro: 'Oefen hardop hoe je iets bestelt.',
               items: [
-                { nl: 'Een koffie, alstublieft.', darija: 'قهوة عافاك', darijaLat: 'qahwa afak' },
+                { nl: 'Een koffie, alstublieft.', darija: 'قهوة عافاك', darijaLat: 'qahwa 3afak' },
                 { nl: 'Mag ik de kaart?', darija: 'واش يمكن المونيو؟', darijaLat: 'wach ymken menu?' },
-                { nl: 'De rekening, alstublieft.', darija: 'الحساب عافاك', darijaLat: 'l7sab afak' },
+                { nl: 'De rekening, alstublieft.', darija: 'الحساب عافاك', darijaLat: 'l7sab 3afak' },
                 { nl: 'Smakelijk!', darija: 'بالصحة', darijaLat: 'b sahha' },
               ],
             },
