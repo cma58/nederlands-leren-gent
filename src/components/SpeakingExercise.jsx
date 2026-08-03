@@ -249,7 +249,15 @@ function errorKeyToText(e, t) {
   const msg = String(e?.message || e)
   if (msg.includes('GEEN_GROQ_SLEUTEL')) return t('errNoGroq')
   if (msg.includes('GEEN_GEMINI_SLEUTEL')) return t('errNoGemini')
-  if (msg.includes('401') || msg.includes('403')) return t('errKeyRejected')
+  // 400 / ongeldige sleutel (bv. een Gemini-sleutel die niet met AIza begint)
+  if (
+    msg.includes('401') ||
+    msg.includes('403') ||
+    msg.includes('400') ||
+    /api[_ ]?key/i.test(msg) ||
+    /invalid/i.test(msg)
+  )
+    return t('errKeyRejected')
   if (msg.includes('429')) return t('errTooMany')
   return t('errGeneric')
 }
