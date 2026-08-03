@@ -198,7 +198,7 @@ const curriculum = {
             {
               id: '0.1.1',
               title: 'Korte vs. lange klinkers',
-              type: LESSON_TYPES.PHONETICS,
+              type: LESSON_TYPES.SPEAKING,
               intro:
                 'In het Nederlands verandert de betekenis van een woord als een klinker kort of lang is. Luister goed naar het verschil.',
               darijaNote: 'الفرق بين الصوت القصير والطويل يغيّر معنى الكلمة في الهولندية.',
@@ -219,7 +219,7 @@ const curriculum = {
             {
               id: '0.1.2',
               title: 'Tweeklanken (UI, EU, IE, IJ/EI, OE, OU/AU)',
-              type: LESSON_TYPES.PHONETICS,
+              type: LESSON_TYPES.SPEAKING,
               intro:
                 'Tweeklanken zijn twee klinkers die samensmelten tot één klank. Let goed op de stand van je mond.',
               darijaNote:
@@ -242,7 +242,7 @@ const curriculum = {
             {
               id: '0.1.3',
               title: 'Moeilijke medeklinkers (P/B, F/V, G/CH)',
-              type: LESSON_TYPES.PHONETICS,
+              type: LESSON_TYPES.SPEAKING,
               intro:
                 'Sommige medeklinkers zijn lastig omdat ze in het Darija niet (zo) bestaan. Oefen ze met minimale paren.',
               darijaNote:

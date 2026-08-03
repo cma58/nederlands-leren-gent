@@ -25,6 +25,8 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   const speakable = item.answer && item.answer.includes('...') ? item.nl : target
   // Alfabet-item = een letter met voorbeeldwoord/icoon (Module 0.0).
   const isLetter = Boolean(item.word)
+  // Klank-/woorditem = een los woord met minimaal paar of IPA (Module 0.1).
+  const isWord = !isLetter && Boolean(item.pair || item.ipa)
 
   const recorder = useRecorder()
   const [status, setStatus] = useState('idle') // idle | busy | result | error
@@ -56,7 +58,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     try {
       const context = isLetter
         ? `De leerling oefent de uitspraak van de letter "${item.nl}" met het voorbeeldwoord "${item.word}". Geef korte, bemoedigende uitspraakfeedback in het Nederlands en in het Darija.`
-        : lesson.intro || item.nl
+        : isWord
+          ? `De leerling oefent de uitspraak van het Nederlandse woord "${item.nl}"${
+              item.pair ? ` (te onderscheiden van "${item.pair}")` : ''
+            }. Geef korte, bemoedigende uitspraakfeedback in het Nederlands en in het Darija.`
+          : lesson.intro || item.nl
       const result = await evaluateAnswer(answerText, target, context)
       setFeedback(result)
       setStatus('result')
@@ -140,14 +146,23 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
           </>
         ) : (
           <>
-            {/* De NL-zin blijft links-naar-rechts */}
+            {/* Klank/woord of zin — NL blijft links-naar-rechts */}
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              🎙️ {t('speakThisSentence')}
+              🎙️ {t(isWord ? 'speakThisWord' : 'speakThisSentence')}
             </p>
-            <p className="mt-2 text-2xl font-bold text-slate-900" dir="ltr">
+            <p className="mt-2 text-3xl font-bold text-slate-900" dir="ltr">
               {speakable}
+              {item.pair && <span className="text-xl font-normal text-slate-400"> ↔ {item.pair}</span>}
             </p>
-            {item.darija && <p className="rtl mt-1 text-slate-500">{item.darija}</p>}
+            {item.ipa && <p className="text-sm text-slate-400" dir="ltr">{item.ipa}</p>}
+            {(item.darija || item.darijaLat) && (
+              <p className="mt-1 text-slate-500">
+                {item.darija && <span className="rtl">{item.darija}</span>}
+                {item.darija && item.darijaLat && ' · '}
+                {item.darijaLat && <span className="italic">{item.darijaLat}</span>}
+              </p>
+            )}
+            {isWord && item.tip && <p className="mt-2 text-sm text-emerald-700">💡 {item.tip}</p>}
           </>
         )}
 
