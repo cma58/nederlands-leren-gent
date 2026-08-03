@@ -6,17 +6,20 @@ import LangToggle from './LangToggle.jsx'
  * (optioneel) een terugknop wanneer je in een level/module zit.
  */
 export default function Header({ onBack, subtitle, onSettings, onHelp }) {
-  const { t } = useLang()
+  const { t, isDarija } = useLang()
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur">
-      <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3">
+      <div className="mx-auto flex max-w-2xl items-center gap-1.5 px-3 py-2">
         {onBack ? (
-          <button onClick={onBack} className="btn-ghost -ml-2 h-9 w-9 !px-0" aria-label={t('back')}>
-            <span aria-hidden="true">←</span>
+          <button onClick={onBack} className="btn-ghost -ml-1 h-10 w-10 !px-0" aria-label={t('back')}>
+            {/* Pijl draait mee in het Darija (rechts-naar-links) */}
+            <span aria-hidden="true" className={`inline-block text-lg ${isDarija ? 'rotate-180' : ''}`}>
+              ←
+            </span>
           </button>
         ) : (
           <span
-            className="grid h-9 w-9 place-items-center rounded-xl bg-gent-600 text-sm font-bold text-saffraan-400"
+            className="grid h-10 w-10 place-items-center rounded-xl bg-gent-600 text-sm font-bold text-saffraan-400"
             aria-hidden="true"
           >
             NL
@@ -32,14 +35,14 @@ export default function Header({ onBack, subtitle, onSettings, onHelp }) {
         <LangToggle />
 
         {onHelp && (
-          <button onClick={onHelp} className="btn-ghost h-9 w-9 !px-0" aria-label={t('help')} title={t('help')}>
+          <button onClick={onHelp} className="btn-ghost h-10 w-10 !px-0" aria-label={t('help')} title={t('help')}>
             <span aria-hidden="true">❓</span>
           </button>
         )}
         {onSettings && (
           <button
             onClick={onSettings}
-            className="btn-ghost h-9 w-9 !px-0"
+            className="btn-ghost h-10 w-10 !px-0"
             aria-label={t('settings')}
             title={t('settings')}
           >

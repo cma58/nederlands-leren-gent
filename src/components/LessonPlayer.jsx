@@ -88,10 +88,10 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
   const item = lesson.items[i]
   const isLast = i === lesson.items.length - 1
 
+  // Alleen de kaart resetten. NIET automatisch voorlezen: telefoons blokkeren
+  // geluid dat niet door een tik gestart wordt (dan hoor je niets).
   useEffect(() => {
     setRevealed(false)
-    if (item?.nl) speak(item.nl)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i])
 
   const next = () => (isLast ? onFinish() : setI((n) => n + 1))
@@ -127,7 +127,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
           <span className="text-3xl font-bold text-slate-900">{item.nl}</span>
         </div>
         {typeof item.value === 'number' && (
-          <span className="text-5xl font-black text-slate-200">{item.value}</span>
+          <span className="text-6xl font-black text-gent-500">{item.value}</span>
         )}
         {item.pair && <span className="text-lg text-slate-400">↔ {item.pair}</span>}
         {item.ipa && <span className="text-sm text-slate-400">{item.ipa}</span>}
@@ -253,13 +253,14 @@ function QuizPhase({ quiz, onFinish, onBack }) {
 /*  Fase 3 — Klaar                                                     */
 /* ------------------------------------------------------------------ */
 function DonePhase({ lesson, onClose, onRestart }) {
-  const { t } = useLang()
+  const { t, isDarija } = useLang()
+  const title = isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
       <div className="grid h-20 w-20 place-items-center rounded-full bg-emerald-100 text-4xl">🎉</div>
       <h3 className="text-2xl font-bold text-slate-900">{t('wellDone')}</h3>
       <p className="max-w-xs text-slate-500">
-        {t('lessonCompletePre')} <span className="font-semibold">{lesson.title}</span>{' '}
+        {t('lessonCompletePre')} <span className="font-semibold">{title}</span>{' '}
         {t('lessonCompletePost')}
       </p>
       <div className="mt-2 flex w-full max-w-xs flex-col gap-2">

@@ -17,6 +17,12 @@ export default function Settings({ onClose }) {
     setGroq(getGroqKey())
   }, [])
 
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   function save() {
     setGeminiKey(gemini)
     setGroqKey(groq)
