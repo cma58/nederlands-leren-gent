@@ -82,7 +82,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         return
       }
       try {
-        const text = await transcribeAudio(blob)
+        // Context-hint: verwacht woord (+ contrastwoord) zodat Whisper korte
+        // woorden betrouwbaarder herkent en man/maan kan onderscheiden.
+        const words = [target, item.pair, item.word].filter(Boolean)
+        const hint = `Nederlandse uitspraakoefening. Mogelijke woorden: ${words.join(', ')}.`
+        const text = await transcribeAudio(blob, 'opname.webm', hint)
         setTranscript(text)
         if (text) await check(text)
         else {
