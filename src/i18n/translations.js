@@ -154,7 +154,7 @@ export const translations = {
 
     // Welkomstscherm
     welcome: 'مرحبا',
-    welcomeName: 'أوميمة',
+    welcomeName: 'أميمة',
     welcomeTagline:
       'التطبيق ديالك باش تعلمي الهولندية شوية بشوية لحياتك الجديدة فگاند. 🌷',
     begin: 'بدا التعلم',
