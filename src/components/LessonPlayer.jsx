@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { isTTSAvailable, speak } from '../lib/speech.js'
 import { buildQuiz } from '../lib/quiz.js'
 import { useProgress } from '../context/ProgressContext.jsx'
+import { useLang } from '../context/LanguageContext.jsx'
 import SpeakingExercise from './SpeakingExercise.jsx'
 
 /**
@@ -14,12 +15,12 @@ import SpeakingExercise from './SpeakingExercise.jsx'
  */
 export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
   const { markDone } = useProgress()
+  const { t } = useLang()
   const isSpeaking = lesson?.type === 'speaking'
   const quiz = useMemo(() => (isSpeaking ? [] : buildQuiz(lesson)), [lesson, isSpeaking])
 
   const [phase, setPhase] = useState(isSpeaking ? 'speaking' : 'learn')
 
-  // Sluiten met Escape.
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -30,14 +31,13 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-slate-50">
-      {/* Kop */}
       <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
-        <button onClick={onClose} className="btn-ghost h-9 w-9 !px-0" aria-label="Sluiten">
+        <button onClick={onClose} className="btn-ghost h-9 w-9 !px-0" aria-label={t('close')}>
           ✕
         </button>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-            Les {lesson.id}
+            {t('lesson')} {lesson.id}
           </p>
           <h2 className="truncate text-base font-bold text-slate-900">{lesson.title}</h2>
         </div>
@@ -80,12 +80,12 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
 /*  Fase 1 — Leren (kaartjes)                                          */
 /* ------------------------------------------------------------------ */
 function LearnPhase({ lesson, onFinish, hasQuiz }) {
+  const { t } = useLang()
   const [i, setI] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const item = lesson.items[i]
   const isLast = i === lesson.items.length - 1
 
-  // Automatisch voorlezen bij een nieuw kaartje.
   useEffect(() => {
     setRevealed(false)
     if (item?.nl) speak(item.nl)
@@ -97,7 +97,6 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Voortgangsstippen */}
       <div className="flex items-center justify-center gap-1.5 py-4">
         {lesson.items.map((_, idx) => (
           <span
@@ -113,10 +112,11 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
         <p className="mb-2 text-center text-sm text-slate-500">{lesson.intro}</p>
       )}
 
-      {/* Kaart */}
+      {/* Het NL-woord blijft altijd links-naar-rechts (het is wat je leert) */}
       <button
         onClick={() => setRevealed((r) => !r)}
         className="card flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center"
+        dir="ltr"
       >
         <div className="flex items-center gap-2">
           {item.article && (
@@ -143,22 +143,21 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
             {item.example && <p className="text-sm text-slate-400">bv. {item.example}</p>}
           </div>
         ) : (
-          <span className="mt-1 text-xs text-slate-400">tik om de vertaling te zien</span>
+          <span className="mt-1 text-xs text-slate-400">{t('tapToReveal')}</span>
         )}
       </button>
 
-      {/* Audio + navigatie */}
       <div className="flex items-center gap-2 py-4">
-        <button onClick={prev} disabled={i === 0} className="btn-ghost h-12 w-12 !px-0" aria-label="Vorige">
+        <button onClick={prev} disabled={i === 0} className="btn-ghost h-12 w-12 !px-0" aria-label={t('back')}>
           ←
         </button>
         {isTTSAvailable() && (
-          <button onClick={() => speak(item.nl)} className="btn-ghost flex-1 h-12" aria-label="Beluister">
-            🔊 Beluister
+          <button onClick={() => speak(item.nl)} className="btn-ghost flex-1 h-12" aria-label={t('listen')}>
+            🔊 {t('listen')}
           </button>
         )}
         <button onClick={next} className="btn-primary flex-1 h-12">
-          {isLast ? (hasQuiz ? 'Naar de oefening →' : 'Klaar →') : 'Volgende →'}
+          {isLast ? (hasQuiz ? `${t('toExercise')} →` : `${t('finishArrow')} →`) : `${t('next')} →`}
         </button>
       </div>
     </div>
@@ -169,6 +168,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
 /*  Fase 2 — Quiz (meerkeuze)                                          */
 /* ------------------------------------------------------------------ */
 function QuizPhase({ quiz, onFinish, onBack }) {
+  const { t } = useLang()
   const [i, setI] = useState(0)
   const [picked, setPicked] = useState(null)
   const [score, setScore] = useState(0)
@@ -196,16 +196,16 @@ function QuizPhase({ quiz, onFinish, onBack }) {
     <div className="flex flex-1 flex-col">
       <div className="flex items-center justify-between py-4">
         <button onClick={onBack} className="text-sm font-semibold text-slate-400 hover:text-slate-600">
-          ← terug naar leren
+          ← {t('backToLearn')}
         </button>
         <span className="text-sm font-semibold text-slate-500">
-          Vraag {i + 1}/{quiz.length}
+          {t('question')} {i + 1}/{quiz.length}
         </span>
       </div>
 
       <div className="card flex flex-col items-center gap-2 p-6 text-center">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Wat is dit in het Nederlands?
+          {t('quizPrompt')}
         </p>
         <p className={`text-3xl font-bold text-slate-900 ${q.rtl ? 'rtl' : ''}`}>{q.prompt}</p>
       </div>
@@ -224,6 +224,7 @@ function QuizPhase({ quiz, onFinish, onBack }) {
               onClick={() => choose(option)}
               disabled={answered}
               className={`flex items-center justify-between rounded-xl border-2 px-4 py-3.5 text-left font-semibold transition ${style}`}
+              dir="ltr"
             >
               <span>{option}</span>
               {answered && option === q.answer && <span>✓</span>}
@@ -235,20 +236,14 @@ function QuizPhase({ quiz, onFinish, onBack }) {
 
       <div className="mt-auto py-4">
         <button onClick={next} disabled={!answered} className="btn-primary h-12 w-full">
-          {isLast ? 'Bekijk resultaat →' : 'Volgende vraag →'}
+          {isLast ? `${t('seeResult')} →` : `${t('nextQuestion')} →`}
         </button>
       </div>
 
-      <ScoreBadge score={score} total={quiz.length} />
+      <p className="pb-4 text-center text-xs text-slate-400">
+        {t('score')}: {score}/{quiz.length}
+      </p>
     </div>
-  )
-}
-
-function ScoreBadge({ score, total }) {
-  return (
-    <p className="pb-4 text-center text-xs text-slate-400">
-      Score: {score}/{total}
-    </p>
   )
 }
 
@@ -256,19 +251,21 @@ function ScoreBadge({ score, total }) {
 /*  Fase 3 — Klaar                                                     */
 /* ------------------------------------------------------------------ */
 function DonePhase({ lesson, onClose, onRestart }) {
+  const { t } = useLang()
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
       <div className="grid h-20 w-20 place-items-center rounded-full bg-emerald-100 text-4xl">🎉</div>
-      <h3 className="text-2xl font-bold text-slate-900">Goed gedaan!</h3>
+      <h3 className="text-2xl font-bold text-slate-900">{t('wellDone')}</h3>
       <p className="max-w-xs text-slate-500">
-        Je hebt de les <span className="font-semibold">{lesson.title}</span> afgerond.
+        {t('lessonCompletePre')} <span className="font-semibold">{lesson.title}</span>{' '}
+        {t('lessonCompletePost')}
       </p>
       <div className="mt-2 flex w-full max-w-xs flex-col gap-2">
         <button onClick={onClose} className="btn-primary h-12">
-          ✓ Afronden en terug
+          ✓ {t('finishAndBack')}
         </button>
         <button onClick={onRestart} className="btn-ghost h-12">
-          Nog eens oefenen
+          {t('practiceAgain')}
         </button>
       </div>
     </div>

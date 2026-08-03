@@ -1,12 +1,14 @@
 import ProgressBar from './ProgressBar.jsx'
 import { allLessonIds, countLessons } from '../data/curriculum.js'
 import { useProgress } from '../context/ProgressContext.jsx'
+import { useLang } from '../context/LanguageContext.jsx'
 
 /**
  * Kaart voor één niveau op het dashboard.
  */
 export default function LevelCard({ level, onOpen }) {
   const { ratioFor, countFor } = useProgress()
+  const { t } = useLang()
   const ids = allLessonIds(level)
   const ratio = ratioFor(ids)
   const done = countFor(ids)
@@ -50,10 +52,10 @@ export default function LevelCard({ level, onOpen }) {
       <div className="mt-4">
         <div className="mb-1.5 flex justify-between text-xs font-medium text-slate-500">
           <span>
-            {level.modules.length} modules · {total} lessen
+            {level.modules.length} {t('modules')} · {total} {t('lessonsCount')}
           </span>
           <span>
-            {done}/{total} afgerond
+            {done}/{total} {t('completed')}
           </span>
         </div>
         <ProgressBar ratio={ratio} accent={level.accent} showLabel={false} />

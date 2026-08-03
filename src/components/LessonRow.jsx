@@ -1,31 +1,33 @@
 import { useProgress } from '../context/ProgressContext.jsx'
+import { useLang } from '../context/LanguageContext.jsx'
 
-const TYPE_LABELS = {
-  phonetics: { label: 'Uitspraak', icon: '🔉' },
-  vocab: { label: 'Woordenschat', icon: '📇' },
-  phrases: { label: 'Zinnen', icon: '💬' },
-  numbers: { label: 'Getallen', icon: '🔢' },
-  grammar: { label: 'Grammatica', icon: '📐' },
-  speaking: { label: 'Spreken', icon: '🎙️' },
-  quiz: { label: 'Oefening', icon: '✅' },
+const TYPE_META = {
+  phonetics: { key: 'type_phonetics', icon: '🔉' },
+  vocab: { key: 'type_vocab', icon: '📇' },
+  phrases: { key: 'type_phrases', icon: '💬' },
+  numbers: { key: 'type_numbers', icon: '🔢' },
+  grammar: { key: 'type_grammar', icon: '📐' },
+  speaking: { key: 'type_speaking', icon: '🎙️' },
+  quiz: { key: 'type_quiz', icon: '✅' },
 }
 
 /**
- * Eén les in de lijst. In Stap 1 opent dit (nog) geen oefening; de
- * afvinkknop laat je de voortgang alvast testen. Stap 2 vervangt de
- * onClick door de echte oefen-component.
+ * Eén les in de lijst: afvinkknop + titel + lestype-label.
  */
 export default function LessonRow({ lesson, index, onOpen }) {
   const { isDone, toggle } = useProgress()
+  const { t } = useLang()
   const done = isDone(lesson.id)
-  const meta = TYPE_LABELS[lesson.type] ?? { label: lesson.type, icon: '•' }
+  const meta = TYPE_META[lesson.type]
+  const label = meta ? t(meta.key) : lesson.type
+  const icon = meta?.icon ?? '•'
 
   return (
     <li className="flex items-center gap-3 py-2.5">
       <button
         onClick={() => toggle(lesson.id)}
         aria-pressed={done}
-        aria-label={done ? 'Markeer als niet afgerond' : 'Markeer als afgerond'}
+        aria-label={done ? t('completed') : t('completed')}
         className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-bold transition ${
           done
             ? 'border-emerald-500 bg-emerald-500 text-white'
@@ -48,7 +50,7 @@ export default function LessonRow({ lesson, index, onOpen }) {
             {lesson.title}
           </p>
           <p className="truncate text-xs text-slate-400">
-            {meta.icon} {meta.label} · {lesson.items.length} items
+            {icon} {label} · {lesson.items.length} {t('items')}
           </p>
         </div>
       </button>

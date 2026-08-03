@@ -2,6 +2,7 @@ import LessonRow from './LessonRow.jsx'
 import ProgressBar from './ProgressBar.jsx'
 import { allLessonIds } from '../data/curriculum.js'
 import { useProgress } from '../context/ProgressContext.jsx'
+import { useLang } from '../context/LanguageContext.jsx'
 
 /**
  * Detailweergave van één niveau: alle modules met hun lessen.
@@ -9,6 +10,7 @@ import { useProgress } from '../context/ProgressContext.jsx'
  */
 export default function LevelView({ level, onOpenLesson }) {
   const { ratioFor } = useProgress()
+  const { t } = useLang()
   const levelRatio = ratioFor(allLessonIds(level))
 
   return (
@@ -47,7 +49,7 @@ export default function LevelView({ level, onOpenLesson }) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xs font-bold text-slate-400">Module {module.id}</span>
+                    <span className="text-xs font-bold text-slate-400">{t('module')} {module.id}</span>
                   </div>
                   <h3 className="text-base font-bold text-slate-900">{module.title}</h3>
                   <p className="text-sm text-slate-500">{module.goal}</p>

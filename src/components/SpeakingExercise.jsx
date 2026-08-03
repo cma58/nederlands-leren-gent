@@ -4,6 +4,7 @@ import { transcribeAudio } from '../lib/groq.js'
 import { evaluateAnswer } from '../lib/gemini.js'
 import { hasGemini, hasGroq } from '../lib/config.js'
 import { useRecorder } from '../hooks/useRecorder.js'
+import { useLang } from '../context/LanguageContext.jsx'
 
 /**
  * Spreekoefening voor lessen van het type 'speaking'.
@@ -15,11 +16,11 @@ import { useRecorder } from '../hooks/useRecorder.js'
  *   3) Gemini beoordeelt het antwoord als een geduldige NT2-docent.
  */
 export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
+  const { t } = useLang()
   const [i, setI] = useState(0)
   const item = lesson.items[i]
   const isLast = i === lesson.items.length - 1
 
-  // Doelzin = het concrete verwachte antwoord, of de zin zelf (naspreken).
   const target = item.answer || item.nl
   const speakable = item.answer && item.answer.includes('...') ? item.nl : target
 
@@ -30,7 +31,6 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   const [feedback, setFeedback] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Alles resetten bij een nieuwe opdracht.
   useEffect(() => {
     setStatus('idle')
     setTranscript('')
@@ -45,7 +45,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   async function check(answerText) {
     if (!answerText?.trim()) return
     if (!canEvaluate) {
-      setErrorMsg('Er is nog geen Gemini-sleutel ingesteld. Open de instellingen (⚙️).')
+      setErrorMsg(t('errNoGemini'))
       setStatus('error')
       return
     }
@@ -57,14 +57,13 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
       setStatus('result')
       if (isTTSAvailable() && result.correction) speak(result.correction)
     } catch (e) {
-      setErrorMsg(friendlyError(e))
+      setErrorMsg(errorKeyToText(e, t))
       setStatus('error')
     }
   }
 
   async function handleRecordToggle() {
     if (recorder.recording) {
-      // stoppen → transcriberen → beoordelen
       setStatus('busy')
       const blob = await recorder.stop()
       if (!blob) {
@@ -76,11 +75,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         setTranscript(text)
         if (text) await check(text)
         else {
-          setErrorMsg('Ik heb niets verstaan. Probeer opnieuw, wat luider.')
+          setErrorMsg(t('errNoAudio'))
           setStatus('error')
         }
       } catch (e) {
-        setErrorMsg(friendlyError(e))
+        setErrorMsg(errorKeyToText(e, t))
         setStatus('error')
       }
     } else {
@@ -99,7 +98,6 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Voortgang */}
       <div className="flex items-center justify-center gap-1.5 py-4">
         {lesson.items.map((_, idx) => (
           <span
@@ -111,32 +109,32 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         ))}
       </div>
 
-      {/* Opdracht */}
+      {/* Opdracht — de NL-zin blijft links-naar-rechts */}
       <div className="card p-5 text-center">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          🎙️ Spreek deze zin
+          🎙️ {t('speakThisSentence')}
         </p>
-        <p className="mt-2 text-2xl font-bold text-slate-900">{speakable}</p>
+        <p className="mt-2 text-2xl font-bold text-slate-900" dir="ltr">
+          {speakable}
+        </p>
         {item.darija && <p className="rtl mt-1 text-slate-500">{item.darija}</p>}
         {isTTSAvailable() && (
           <button onClick={() => speak(speakable)} className="btn-ghost mt-3">
-            🔊 Beluister voorbeeld
+            🔊 {t('listenExample')}
           </button>
         )}
       </div>
 
-      {/* Instellingen-hint als er geen sleutels zijn */}
       {noKeys && (
         <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
-          Voor de spreekoefening met AI heb je gratis sleutels nodig.{' '}
+          {t('keysNeeded')}{' '}
           <button onClick={onOpenSettings} className="font-semibold underline">
-            Open de instellingen (⚙️)
+            {t('openSettingsLink')} (⚙️)
           </button>{' '}
-          om ze in te vullen. Je kunt hieronder ook typen om te oefenen.
+          {t('keysNeededPost')}
         </div>
       )}
 
-      {/* Opnemen of typen */}
       <div className="mt-4">
         {canRecord ? (
           <button
@@ -146,7 +144,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
               recorder.recording ? 'animate-pulse bg-rose-600' : 'bg-saffraan-500 hover:bg-saffraan-600'
             } disabled:opacity-50`}
           >
-            {recorder.recording ? '⏹️ Stop & controleer' : '🎙️ Neem op'}
+            {recorder.recording ? `⏹️ ${t('stopAndCheck')}` : `🎙️ ${t('record')}`}
           </button>
         ) : (
           <div className="flex gap-2">
@@ -154,26 +152,26 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
               value={typed}
               onChange={(e) => setTyped(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && check(typed)}
-              placeholder="Typ hier je antwoord…"
+              placeholder={t('typeYourAnswer')}
+              dir="ltr"
               className="flex-1 rounded-xl border-2 border-slate-200 px-4 py-3 focus:border-saffraan-400 focus:outline-none"
             />
             <button onClick={() => check(typed)} className="btn-primary px-5">
-              Check
+              {t('check')}
             </button>
           </div>
         )}
         {recorder.error && <p className="mt-2 text-sm text-rose-600">{recorder.error}</p>}
       </div>
 
-      {/* Status / resultaat */}
       <div className="mt-4 flex-1">
         {status === 'busy' && (
-          <p className="text-center text-sm text-slate-500">⏳ Even geduld… ik luister en controleer.</p>
+          <p className="text-center text-sm text-slate-500">⏳ {t('pleaseWait')}</p>
         )}
 
         {transcript && (
           <p className="mb-3 rounded-lg bg-slate-100 p-3 text-sm text-slate-600">
-            Ik hoorde: <span className="font-semibold">“{transcript}”</span>
+            {t('iHeard')}: <span className="font-semibold" dir="ltr">“{transcript}”</span>
           </p>
         )}
 
@@ -182,20 +180,16 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         )}
 
         {status === 'result' && feedback && (
-          <div
-            className={`rounded-xl p-4 ${
-              feedback.correct ? 'bg-emerald-50' : 'bg-amber-50'
-            }`}
-          >
+          <div className={`rounded-xl p-4 ${feedback.correct ? 'bg-emerald-50' : 'bg-amber-50'}`}>
             <p className={`font-bold ${feedback.correct ? 'text-emerald-800' : 'text-amber-900'}`}>
-              {feedback.correct ? '✅ Goed gedaan!' : '✍️ Bijna — kijk even:'}
+              {feedback.correct ? `✅ ${t('speakingCorrect')}` : `✍️ ${t('speakingAlmost')}`}
             </p>
             {feedback.feedback_nl && (
               <p className="mt-1 text-sm text-slate-700">{feedback.feedback_nl}</p>
             )}
             {feedback.correction && (
               <p className="mt-1 text-sm text-slate-800">
-                Correct: <span className="font-semibold">{feedback.correction}</span>
+                {t('correctLabel')}: <span className="font-semibold" dir="ltr">{feedback.correction}</span>
               </p>
             )}
             {feedback.feedback_darija && (
@@ -205,29 +199,23 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         )}
       </div>
 
-      {/* Navigatie */}
       <div className="flex gap-2 py-4">
         <button onClick={next} className="btn-ghost flex-1 h-12">
-          Overslaan
+          {t('skip')}
         </button>
-        <button
-          onClick={next}
-          disabled={status !== 'result'}
-          className="btn-primary flex-1 h-12"
-        >
-          {isLast ? 'Klaar →' : 'Volgende →'}
+        <button onClick={next} disabled={status !== 'result'} className="btn-primary flex-1 h-12">
+          {isLast ? `${t('finishArrow')} →` : `${t('next')} →`}
         </button>
       </div>
     </div>
   )
 }
 
-function friendlyError(e) {
+function errorKeyToText(e, t) {
   const msg = String(e?.message || e)
-  if (msg.includes('GEEN_GROQ_SLEUTEL')) return 'Geen Groq-sleutel ingesteld (⚙️).'
-  if (msg.includes('GEEN_GEMINI_SLEUTEL')) return 'Geen Gemini-sleutel ingesteld (⚙️).'
-  if (msg.includes('401') || msg.includes('403'))
-    return 'De sleutel wordt geweigerd. Controleer of je hem juist hebt gekopieerd (⚙️).'
-  if (msg.includes('429')) return 'Even te veel verzoeken. Wacht een momentje en probeer opnieuw.'
-  return 'Er ging iets mis. Controleer je internet en je sleutels (⚙️).'
+  if (msg.includes('GEEN_GROQ_SLEUTEL')) return t('errNoGroq')
+  if (msg.includes('GEEN_GEMINI_SLEUTEL')) return t('errNoGemini')
+  if (msg.includes('401') || msg.includes('403')) return t('errKeyRejected')
+  if (msg.includes('429')) return t('errTooMany')
+  return t('errGeneric')
 }

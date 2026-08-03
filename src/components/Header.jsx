@@ -1,17 +1,17 @@
+import { useLang } from '../context/LanguageContext.jsx'
+import LangToggle from './LangToggle.jsx'
+
 /**
- * Bovenbalk van de app. Toont de titel en (optioneel) een terugknop
- * wanneer je in een level/module zit.
+ * Bovenbalk van de app. Toont de titel, een taalknop, een help-knop en
+ * (optioneel) een terugknop wanneer je in een level/module zit.
  */
-export default function Header({ onBack, subtitle, onSettings }) {
+export default function Header({ onBack, subtitle, onSettings, onHelp }) {
+  const { t } = useLang()
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur">
-      <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3">
         {onBack ? (
-          <button
-            onClick={onBack}
-            className="btn-ghost -ml-2 h-9 w-9 !px-0"
-            aria-label="Terug"
-          >
+          <button onClick={onBack} className="btn-ghost -ml-2 h-9 w-9 !px-0" aria-label={t('back')}>
             <span aria-hidden="true">←</span>
           </button>
         ) : (
@@ -24,18 +24,24 @@ export default function Header({ onBack, subtitle, onSettings }) {
         )}
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-base font-bold leading-tight text-slate-900">
-            Nederlands leren in Gent
+            {t('appTitle')}
           </h1>
-          {subtitle && (
-            <p className="truncate text-xs text-slate-500">{subtitle}</p>
-          )}
+          {subtitle && <p className="truncate text-xs text-slate-500">{subtitle}</p>}
         </div>
+
+        <LangToggle />
+
+        {onHelp && (
+          <button onClick={onHelp} className="btn-ghost h-9 w-9 !px-0" aria-label={t('help')} title={t('help')}>
+            <span aria-hidden="true">❓</span>
+          </button>
+        )}
         {onSettings && (
           <button
             onClick={onSettings}
             className="btn-ghost h-9 w-9 !px-0"
-            aria-label="Instellingen"
-            title="Instellingen"
+            aria-label={t('settings')}
+            title={t('settings')}
           >
             <span aria-hidden="true">⚙️</span>
           </button>
