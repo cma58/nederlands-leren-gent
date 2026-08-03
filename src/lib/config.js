@@ -57,5 +57,7 @@ export const hasGemini = () => Boolean(getGeminiKey())
 export const hasGroq = () => Boolean(getGroqKey())
 
 // Modelnamen — kunnen via .env aangepast worden zonder de code te wijzigen.
-export const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash'
+// 'gemini-flash-latest' = altijd het actuele Flash-model (gemini-2.0-flash is
+// door Google afgeschaft en geeft een 404).
+export const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-flash-latest'
 export const GROQ_WHISPER_MODEL = import.meta.env.VITE_GROQ_MODEL || 'whisper-large-v3'
