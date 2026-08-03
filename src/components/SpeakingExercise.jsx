@@ -30,6 +30,8 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   // Label: één of twee woorden -> "Spreek dit woord uit", anders "Spreek deze zin".
   const wordCount = String(target).trim().split(/\s+/).filter(Boolean).length
   const labelKey = isWord || wordCount <= 2 ? 'speakThisWord' : 'speakThisSentence'
+  // Bij een minimaal paar (rok ↔ rook) beide woorden voorlezen voor het contrast.
+  const listenText = item.pair ? `${speakable}, ${item.pair}` : speakable
 
   const recorder = useRecorder()
   const [status, setStatus] = useState('idle') // idle | busy | result | error
@@ -178,9 +180,9 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
           </>
         )}
 
-        {/* Stap 2 — Luisteren */}
+        {/* Stap 2 — Luisteren (bij een paar: beide woorden) */}
         {isTTSAvailable() && (
-          <button onClick={() => speak(speakable)} className="btn-ghost mt-3">
+          <button onClick={() => speak(listenText)} className="btn-ghost mt-3">
             🔊 {t('listenExample')}
           </button>
         )}
