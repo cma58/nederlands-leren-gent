@@ -8,6 +8,7 @@ const TYPE_META = {
   numbers: { key: 'type_numbers', icon: '🔢' },
   grammar: { key: 'type_grammar', icon: '📐' },
   speaking: { key: 'type_speaking', icon: '🎙️' },
+  listen: { key: 'type_listen', icon: '👂' },
   quiz: { key: 'type_quiz', icon: '✅' },
 }
 

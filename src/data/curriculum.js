@@ -74,6 +74,7 @@ export const LESSON_TYPES = {
   GRAMMAR: 'grammar',
   SPEAKING: 'speaking',
   QUIZ: 'quiz',
+  LISTEN: 'listen', // luister-discriminatie: welk woord hoor je?
 }
 
 const curriculum = {
@@ -195,6 +196,24 @@ const curriculum = {
           goal: 'De Nederlandse klanken herkennen en uitspreken — met tips voor Darija-sprekers.',
           icon: '🗣️',
           lessons: [
+            {
+              id: '0.1.0',
+              title: 'Luister: welk woord hoor je?',
+              titleDarija: 'استمع: أشمن كلمة كتسمعي؟',
+              type: LESSON_TYPES.LISTEN,
+              intro: 'Eerst leren hóren, dan pas zelf zeggen. Luister en kies het juiste woord.',
+              darijaNote: 'الأول تعلمي تسمعي الفرق، من بعد تنطقي. سمعي وختاري الكلمة الصحيحة.',
+              items: [
+                { nl: 'man', pair: 'maan', tip: 'Kort "a" vs. lange "aa".' },
+                { nl: 'bos', pair: 'boos', tip: 'Korte "o" vs. lange "oo".' },
+                { nl: 'pit', pair: 'piet', tip: 'Korte "i" vs. lange "ie".' },
+                { nl: 'bus', pair: 'buur', tip: 'Korte "u" vs. lange "uu".' },
+                { nl: 'zon', pair: 'zoon', tip: 'Kort "o" vs. lang "oo".' },
+                { nl: 'vis', pair: 'vies', tip: 'Kort "i" vs. lange "ie".' },
+                { nl: 'pen', pair: 'ben', tip: 'P (stemloos) vs. B (stemhebbend).' },
+                { nl: 'fee', pair: 'vee', tip: 'F vs. V.' },
+              ],
+            },
             {
               id: '0.1.1',
               title: 'Korte vs. lange klinkers',
