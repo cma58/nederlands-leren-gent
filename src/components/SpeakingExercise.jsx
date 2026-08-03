@@ -27,6 +27,9 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   const isLetter = Boolean(item.word)
   // Klank-/woorditem = een los woord met minimaal paar of IPA (Module 0.1).
   const isWord = !isLetter && Boolean(item.pair || item.ipa)
+  // Label: één of twee woorden -> "Spreek dit woord uit", anders "Spreek deze zin".
+  const wordCount = String(target).trim().split(/\s+/).filter(Boolean).length
+  const labelKey = isWord || wordCount <= 2 ? 'speakThisWord' : 'speakThisSentence'
 
   const recorder = useRecorder()
   const [status, setStatus] = useState('idle') // idle | busy | result | error
@@ -150,10 +153,15 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
           </>
         ) : (
           <>
-            {/* Klank/woord of zin — NL blijft links-naar-rechts */}
+            {/* Klank/woord/getal of zin — NL blijft links-naar-rechts */}
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              🎙️ {t(isWord ? 'speakThisWord' : 'speakThisSentence')}
+              🎙️ {t(labelKey)}
             </p>
+            {typeof item.value === 'number' && (
+              <span className="mt-1 block text-6xl font-black text-gent-600" dir="ltr">
+                {item.value}
+              </span>
+            )}
             <p className="mt-2 text-3xl font-bold text-slate-900" dir="ltr">
               {speakable}
               {item.pair && <span className="text-xl font-normal text-slate-400"> ↔ {item.pair}</span>}
@@ -166,7 +174,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
                 {item.darijaLat && <span className="italic">{item.darijaLat}</span>}
               </p>
             )}
-            {isWord && item.tip && <p className="mt-2 text-sm text-emerald-700">💡 {item.tip}</p>}
+            {item.tip && <p className="mt-2 text-sm text-emerald-700">💡 {item.tip}</p>}
           </>
         )}
 
