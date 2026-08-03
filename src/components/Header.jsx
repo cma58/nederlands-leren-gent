@@ -32,7 +32,7 @@ export default function Header({ onBack, subtitle, onSettings, onHelp }) {
           {subtitle && <p className="truncate text-xs text-slate-500">{subtitle}</p>}
         </div>
 
-        <LangToggle />
+        <LangToggle compact />
 
         {onHelp && (
           <button onClick={onHelp} className="btn-ghost h-10 w-10 !px-0" aria-label={t('help')} title={t('help')}>

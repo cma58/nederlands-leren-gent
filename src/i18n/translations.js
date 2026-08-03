@@ -78,6 +78,7 @@ export const translations = {
 
     // Quiz
     quizPrompt: 'Wat is dit in het Nederlands?',
+    quizArticlePrompt: 'de of het?',
     question: 'Vraag',
     backToLearn: 'terug naar leren',
     seeResult: 'Bekijk resultaat',
@@ -102,6 +103,7 @@ export const translations = {
     check: 'Check',
     pleaseWait: 'Even geduld… ik luister en controleer.',
     iHeard: 'Ik hoorde',
+    myRecording: 'Mijn opname',
     speakingCorrect: 'Goed gedaan!',
     speakingAlmost: 'Bijna — kijk even:',
     correctLabel: 'Correct',
@@ -132,6 +134,8 @@ export const translations = {
       'Tip: je kunt de app al zonder sleutels gebruiken voor alle lessen en quizzen. De sleutels zijn enkel voor de spreekoefening met AI.',
     save: 'Opslaan',
     saved: 'Opgeslagen',
+    showKeys: 'Toon',
+    hideKeys: 'Verberg',
 
     // Help
     helpTitle: 'Hoe werkt de app?',
@@ -195,6 +199,7 @@ export const translations = {
 
     // Quiz
     quizPrompt: 'شنو هادا بالهولندية؟',
+    quizArticlePrompt: 'de ولا het؟',
     question: 'سؤال',
     backToLearn: 'رجوع للتعلم',
     seeResult: 'شوف النتيجة',
@@ -219,6 +224,7 @@ export const translations = {
     check: 'تحقق',
     pleaseWait: 'صبري شوية… كنسمع وكنتحقق.',
     iHeard: 'سمعت',
+    myRecording: 'التسجيل ديالي',
     speakingCorrect: 'برافو عليك!',
     speakingAlmost: 'قريبة — شوفي هنا:',
     correctLabel: 'الصحيح',
@@ -249,6 +255,8 @@ export const translations = {
       'ملاحظة: تقدري تستعملي التطبيق بلا مفاتيح لجميع الدروس والتمارين. المفاتيح غير لتمرين الكلام بالذكاء الاصطناعي.',
     save: 'سجل',
     saved: 'تسجل',
+    showKeys: 'أظهر',
+    hideKeys: 'خبّي',
 
     // Help
     helpTitle: 'كيفاش كيخدم التطبيق؟',

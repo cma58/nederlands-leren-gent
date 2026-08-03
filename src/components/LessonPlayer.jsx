@@ -145,7 +145,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
             {item.example && <p className="text-sm text-slate-400">bv. {item.example}</p>}
           </div>
         ) : (
-          <span className="mt-1 text-xs text-slate-400">{t('tapToReveal')}</span>
+          <span className="mt-1 text-xs text-slate-500">{t('tapToReveal')}</span>
         )}
       </button>
 
@@ -182,7 +182,7 @@ function QuizPhase({ quiz, onFinish, onBack }) {
     if (answered) return
     setPicked(option)
     if (option === q.answer) setScore((s) => s + 1)
-    speak(q.answer)
+    speak(q.say || q.answer)
   }
 
   function next() {
@@ -206,10 +206,12 @@ function QuizPhase({ quiz, onFinish, onBack }) {
       </div>
 
       <div className="card flex flex-col items-center gap-2 p-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          {t('quizPrompt')}
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          {t(q.labelKey || 'quizPrompt')}
         </p>
-        <p className={`text-3xl font-bold text-slate-900 ${q.rtl ? 'rtl' : ''}`}>{q.prompt}</p>
+        <p className={`text-3xl font-bold text-slate-900 ${q.rtl ? 'rtl' : ''}`} dir={q.rtl ? 'rtl' : 'ltr'}>
+          {q.prompt}
+        </p>
       </div>
 
       <div className="mt-4 grid gap-2.5">

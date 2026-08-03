@@ -2,9 +2,12 @@
  * Maakt automatisch meerkeuzevragen uit de items van een les.
  * Werkt volledig lokaal — geen API of internet nodig.
  *
- * Idee: voor elk 'oefenbaar' item tonen we een aanwijzing (de Darija-vertaling,
- * of bij getallen het cijfer) en laten we de gebruiker het juiste Nederlandse
- * woord kiezen uit enkele opties.
+ * Twee soorten vragen:
+ *  1) Vertaalvragen: toon de Darija (Arabisch) of het cijfer, kies het juiste
+ *     Nederlandse woord.  (We gebruiken bewust NIET de transliteratie als
+ *     vraagtekst: in grammaticalessen staat daar de infinitief, wat tot
+ *     dubbelzinnige/kapotte vragen leidde.)
+ *  2) de/het-vragen: toon het woord, kies het juiste lidwoord.
  */
 
 /** Door de war schudden (Fisher–Yates), geeft een nieuwe array terug. */
@@ -17,43 +20,62 @@ export function shuffle(arr) {
   return a
 }
 
-/** De aanwijzing (vraagtekst) voor een item, of null als het niet bruikbaar is. */
-function promptFor(item, lessonType) {
+/** Aanwijzing voor een vertaalvraag, of null als het item niet bruikbaar is. */
+function translatePrompt(item, lessonType) {
   if (lessonType === 'numbers' && typeof item.value === 'number') {
     return { text: String(item.value), rtl: false }
   }
   if (item.darija) return { text: item.darija, rtl: true }
-  if (item.darijaLat) return { text: item.darijaLat, rtl: false }
   return null
 }
 
-/**
- * Bouw een lijst quizvragen uit een les.
- * @returns {Array<{ prompt, rtl, answer, options }>} of [] als quiz niet kan.
- */
 export function buildQuiz(lesson) {
-  // Alleen items met een bruikbare aanwijzing én een uniek NL-antwoord.
+  const questions = []
+
+  // 1) Vertaalvragen (Darija/cijfer -> Nederlands)
   const seen = new Set()
   const usable = lesson.items.filter((item) => {
     if (!item.nl || seen.has(item.nl)) return false
-    if (!promptFor(item, lesson.type)) return false
+    if (!translatePrompt(item, lesson.type)) return false
     seen.add(item.nl)
     return true
   })
-
-  // Met minder dan 3 items is een meerkeuzequiz niet zinvol.
-  if (usable.length < 3) return []
-
-  const allAnswers = usable.map((i) => i.nl)
-
-  return shuffle(usable).map((item) => {
-    const { text, rtl } = promptFor(item, lesson.type)
-    const distractors = shuffle(allAnswers.filter((a) => a !== item.nl)).slice(0, 3)
-    return {
-      prompt: text,
-      rtl,
-      answer: item.nl,
-      options: shuffle([item.nl, ...distractors]),
+  if (usable.length >= 3) {
+    const allAnswers = usable.map((i) => i.nl)
+    for (const item of shuffle(usable)) {
+      const { text, rtl } = translatePrompt(item, lesson.type)
+      const distractors = shuffle(allAnswers.filter((a) => a !== item.nl)).slice(0, 3)
+      questions.push({
+        labelKey: 'quizPrompt',
+        prompt: text,
+        rtl,
+        answer: item.nl,
+        say: item.nl,
+        options: shuffle([item.nl, ...distractors]),
+      })
     }
+  }
+
+  // 2) de/het-vragen (op basis van het lidwoord)
+  const seenArt = new Set()
+  const artItems = lesson.items.filter((item) => {
+    if (item.article !== 'de' && item.article !== 'het') return false
+    if (!item.nl || seenArt.has(item.nl)) return false
+    seenArt.add(item.nl)
+    return true
   })
+  for (const item of shuffle(artItems).slice(0, 5)) {
+    questions.push({
+      labelKey: 'quizArticlePrompt',
+      prompt: item.nl,
+      rtl: false,
+      answer: item.article,
+      say: `${item.article} ${item.nl}`,
+      options: ['de', 'het'],
+    })
+  }
+
+  // Alleen een quiz tonen als er genoeg vragen zijn.
+  if (questions.length < 3) return []
+  return shuffle(questions)
 }

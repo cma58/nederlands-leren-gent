@@ -39,6 +39,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   const [typed, setTyped] = useState('')
   const [feedback, setFeedback] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
+  const [recUrl, setRecUrl] = useState(null) // eigen opname om terug te beluisteren
 
   useEffect(() => {
     setStatus('idle')
@@ -46,6 +47,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     setTyped('')
     setFeedback(null)
     setErrorMsg('')
+    setRecUrl(null)
   }, [i])
 
   const canRecord = hasGroq() && recorder.supported
@@ -86,6 +88,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         setStatus('idle')
         return
       }
+      setRecUrl(URL.createObjectURL(blob))
       try {
         // Context-hint: verwacht woord (+ contrastwoord) zodat Whisper korte
         // woorden betrouwbaarder herkent en man/maan kan onderscheiden.
@@ -230,6 +233,15 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
       <div className="mt-4 flex-1">
         {status === 'busy' && (
           <p className="text-center text-sm text-slate-500">⏳ {t('pleaseWait')}</p>
+        )}
+
+        {recUrl && (
+          <button
+            onClick={() => new Audio(recUrl).play().catch(() => {})}
+            className="btn-ghost mb-3"
+          >
+            ▶️ {t('myRecording')}
+          </button>
         )}
 
         {transcript && (

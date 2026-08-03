@@ -10,6 +10,7 @@ export default function Settings({ onClose }) {
   const { t } = useLang()
   const [gemini, setGemini] = useState('')
   const [groq, setGroq] = useState('')
+  const [show, setShow] = useState(false)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
@@ -27,7 +28,11 @@ export default function Settings({ onClose }) {
     setGeminiKey(gemini)
     setGroqKey(groq)
     setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
+    // Kort "opgeslagen" tonen en dan sluiten.
+    setTimeout(() => {
+      setSaved(false)
+      onClose()
+    }, 900)
   }
 
   return (
@@ -42,7 +47,15 @@ export default function Settings({ onClose }) {
         </div>
 
         <div className="space-y-5 overflow-y-auto p-5">
-          <p className="text-sm text-slate-500">{t('settingsDesc')}</p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm text-slate-500">{t('settingsDesc')}</p>
+            <button
+              onClick={() => setShow((s) => !s)}
+              className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-gent-600 hover:bg-slate-100"
+            >
+              {show ? `🙈 ${t('hideKeys')}` : `👁 ${t('showKeys')}`}
+            </button>
+          </div>
 
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
@@ -51,7 +64,7 @@ export default function Settings({ onClose }) {
             <input
               value={gemini}
               onChange={(e) => setGemini(e.target.value)}
-              type="password"
+              type={show ? 'text' : 'password'}
               autoComplete="off"
               spellCheck={false}
               placeholder="AIza…"
@@ -75,7 +88,7 @@ export default function Settings({ onClose }) {
             <input
               value={groq}
               onChange={(e) => setGroq(e.target.value)}
-              type="password"
+              type={show ? 'text' : 'password'}
               autoComplete="off"
               spellCheck={false}
               placeholder="gsk_…"
