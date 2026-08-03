@@ -338,42 +338,58 @@ const curriculum = {
                 {
                   "nl": "man",
                   "pair": "maan",
-                  "tip": "Kort \"a\" vs. lange \"aa\"."
+                  "tip": "Kort \"a\" vs. lange \"aa\".",
+                  "darija": "الراجل",
+                  "darijaLat": "rrajel"
                 },
                 {
                   "nl": "bos",
                   "pair": "boos",
-                  "tip": "Korte \"o\" vs. lange \"oo\"."
+                  "tip": "Korte \"o\" vs. lange \"oo\".",
+                  "darija": "الغابة",
+                  "darijaLat": "lghaba"
                 },
                 {
                   "nl": "pit",
                   "pair": "piet",
-                  "tip": "Korte \"i\" vs. lange \"ie\"."
+                  "tip": "Korte \"i\" vs. lange \"ie\".",
+                  "darija": "النواة",
+                  "darijaLat": "nnwa"
                 },
                 {
                   "nl": "bus",
                   "pair": "buur",
-                  "tip": "Korte \"u\" vs. lange \"uu\"."
+                  "tip": "Korte \"u\" vs. lange \"uu\".",
+                  "darija": "الطوبيس",
+                  "darijaLat": "ttobis"
                 },
                 {
                   "nl": "zon",
                   "pair": "zoon",
-                  "tip": "Kort \"o\" vs. lang \"oo\"."
+                  "tip": "Kort \"o\" vs. lang \"oo\".",
+                  "darija": "الشمس",
+                  "darijaLat": "chchems"
                 },
                 {
                   "nl": "vis",
                   "pair": "vies",
-                  "tip": "Kort \"i\" vs. lange \"ie\"."
+                  "tip": "Kort \"i\" vs. lange \"ie\".",
+                  "darija": "الحوت",
+                  "darijaLat": "l7out"
                 },
                 {
                   "nl": "pen",
                   "pair": "ben",
-                  "tip": "P (stemloos) vs. B (stemhebbend)."
+                  "tip": "P (stemloos) vs. B (stemhebbend).",
+                  "darija": "الستيلو",
+                  "darijaLat": "sstilo"
                 },
                 {
                   "nl": "fee",
                   "pair": "vee",
-                  "tip": "F vs. V."
+                  "tip": "F vs. V.",
+                  "darija": "الجنية",
+                  "darijaLat": "jjenniya"
                 }
               ]
             },
@@ -404,19 +420,25 @@ const curriculum = {
                   "nl": "pit",
                   "pair": "piet",
                   "ipa": "/pɪt/ – /pit/",
-                  "tip": "Korte \"i\" ligt tussen i en e; lange \"ie\" is een heldere «i»."
+                  "tip": "Korte \"i\" ligt tussen i en e; lange \"ie\" is een heldere «i».",
+                  "darija": "النواة",
+                  "darijaLat": "nnwa"
                 },
                 {
                   "nl": "bus",
                   "pair": "buur",
                   "ipa": "/bʏs/ – /byːr/",
-                  "tip": "De \"u\" bestaat niet in Darija: rond je lippen als bij «oe» maar zeg «i»."
+                  "tip": "De \"u\" bestaat niet in Darija: rond je lippen als bij «oe» maar zeg «i».",
+                  "darija": "الطوبيس",
+                  "darijaLat": "ttobis"
                 },
                 {
                   "nl": "les",
                   "pair": "lees",
                   "ipa": "/lɛs/ – /leːs/",
-                  "tip": "Korte \"e\" zoals in «best»; lange \"ee\" langer aanhouden."
+                  "tip": "Korte \"e\" zoals in «best»; lange \"ee\" langer aanhouden.",
+                  "darija": "الدرس",
+                  "darijaLat": "dders"
                 },
                 {
                   "nl": "zon",
@@ -501,7 +523,9 @@ const curriculum = {
                   "nl": "trein",
                   "pair": "tijd",
                   "ipa": "/trɛin/ – /tɛit/",
-                  "tip": "\"ei\" en \"ij\" klinken hetzelfde: begin bij «e» en glijd naar «i»."
+                  "tip": "\"ei\" en \"ij\" klinken hetzelfde: begin bij «e» en glijd naar «i».",
+                  "darija": "التران",
+                  "darijaLat": "ttran"
                 },
                 {
                   "nl": "boek",
@@ -514,7 +538,9 @@ const curriculum = {
                   "nl": "koud",
                   "pair": "blauw",
                   "ipa": "/kɑut/ – /blɑu/",
-                  "tip": "\"ou\" en \"au\" klinken hetzelfde: «a» die naar «u» glijdt."
+                  "tip": "\"ou\" en \"au\" klinken hetzelfde: «a» die naar «u» glijdt.",
+                  "darija": "بارد",
+                  "darijaLat": "bared"
                 },
                 {
                   "nl": "tuin",
@@ -571,19 +597,25 @@ const curriculum = {
                   "nl": "pen",
                   "pair": "ben",
                   "ipa": "/pɛn/ – /bɛn/",
-                  "tip": "P is stemloos (geen trilling in de keel), B is stemhebbend. Leg je hand op je keel om te voelen."
+                  "tip": "P is stemloos (geen trilling in de keel), B is stemhebbend. Leg je hand op je keel om te voelen.",
+                  "darija": "الستيلو",
+                  "darijaLat": "sstilo"
                 },
                 {
                   "nl": "pak",
                   "pair": "bak",
                   "ipa": "/pɑk/ – /bɑk/",
-                  "tip": "Blaas een klein beetje lucht bij de \"p\", niet bij de \"b\"."
+                  "tip": "Blaas een klein beetje lucht bij de \"p\", niet bij de \"b\".",
+                  "darija": "الكوستيم",
+                  "darijaLat": "lkostim"
                 },
                 {
                   "nl": "fee",
                   "pair": "vee",
                   "ipa": "/feː/ – /veː/",
-                  "tip": "F is stemloos, V is licht stemhebbend. In Vlaanderen liggen ze dicht bij elkaar."
+                  "tip": "F is stemloos, V is licht stemhebbend. In Vlaanderen liggen ze dicht bij elkaar.",
+                  "darija": "الجنية",
+                  "darijaLat": "jjenniya"
                 },
                 {
                   "nl": "gaan",
@@ -595,7 +627,9 @@ const curriculum = {
                 {
                   "nl": "lachen",
                   "ipa": "/ˈlɑxə(n)/",
-                  "tip": "\"ch\" = dezelfde keelklank als «خ». In Gent iets zachter dan in Nederland."
+                  "tip": "\"ch\" = dezelfde keelklank als «خ». In Gent iets zachter dan in Nederland.",
+                  "darija": "يضحك",
+                  "darijaLat": "yde7k"
                 },
                 {
                   "nl": "peer",
@@ -1683,70 +1717,100 @@ const curriculum = {
                 {
                   "nl": "de man",
                   "article": "de",
-                  "tip": "Persoon → de."
+                  "tip": "Persoon → de.",
+                  "darija": "الراجل",
+                  "darijaLat": "rrajel"
                 },
                 {
                   "nl": "de vrouw",
                   "article": "de",
-                  "tip": "Persoon → de."
+                  "tip": "Persoon → de.",
+                  "darija": "المرا",
+                  "darijaLat": "lmra"
                 },
                 {
                   "nl": "het kind",
                   "article": "het",
-                  "tip": "Uitzondering: onzijdig."
+                  "tip": "Uitzondering: onzijdig.",
+                  "darija": "الطفل",
+                  "darijaLat": "ttefl"
                 },
                 {
                   "nl": "de kinderen",
                   "article": "de",
-                  "tip": "Meervoud → altijd de."
+                  "tip": "Meervoud → altijd de.",
+                  "darija": "الدراري",
+                  "darijaLat": "ddrari"
                 },
                 {
                   "nl": "het tafeltje",
                   "article": "het",
-                  "tip": "Verkleinwoord (-je) → altijd het."
+                  "tip": "Verkleinwoord (-je) → altijd het.",
+                  "darija": "طابلة صغيرة",
+                  "darijaLat": "tabla sghira"
                 },
                 {
                   "nl": "het huis",
-                  "article": "het"
+                  "article": "het",
+                  "darija": "الدار",
+                  "darijaLat": "ddar"
                 },
                 {
                   "nl": "de straat",
-                  "article": "de"
+                  "article": "de",
+                  "darija": "الزنقة",
+                  "darijaLat": "zznqa"
                 },
                 {
                   "nl": "het meisje",
                   "article": "het",
-                  "tip": "Let op: een persoon, maar toch \"het\" (uitzondering)."
+                  "tip": "Let op: een persoon, maar toch \"het\" (uitzondering).",
+                  "darija": "البنت",
+                  "darijaLat": "lbent"
                 },
                 {
                   "nl": "de stad",
                   "article": "de",
-                  "tip": "Gent is een stad."
+                  "tip": "Gent is een stad.",
+                  "darija": "المدينة",
+                  "darijaLat": "lmdina"
                 },
                 {
                   "nl": "het land",
-                  "article": "het"
+                  "article": "het",
+                  "darija": "البلاد",
+                  "darijaLat": "lblad"
                 },
                 {
                   "nl": "de auto",
-                  "article": "de"
+                  "article": "de",
+                  "darija": "الطوموبيل",
+                  "darijaLat": "ttomobil"
                 },
                 {
                   "nl": "het water",
-                  "article": "het"
+                  "article": "het",
+                  "darija": "الما",
+                  "darijaLat": "lma"
                 },
                 {
                   "nl": "de fiets",
                   "article": "de",
-                  "tip": "Heel belangrijk in Gent!"
+                  "tip": "Heel belangrijk in Gent!",
+                  "darija": "البيسكليت",
+                  "darijaLat": "lbisiklet"
                 },
                 {
                   "nl": "het geld",
-                  "article": "het"
+                  "article": "het",
+                  "darija": "الفلوس",
+                  "darijaLat": "lflous"
                 },
                 {
                   "nl": "de winkel",
-                  "article": "de"
+                  "article": "de",
+                  "darija": "الحانوت",
+                  "darijaLat": "l7anout"
                 }
               ]
             },
@@ -1763,15 +1827,21 @@ const curriculum = {
                 },
                 {
                   "nl": "jij woont",
-                  "tip": "stam + t"
+                  "tip": "stam + t",
+                  "darija": "نتا كتسكن / نتي كتسكني",
+                  "darijaLat": "nta katskon / nti katskoni"
                 },
                 {
                   "nl": "hij/zij woont",
-                  "tip": "stam + t"
+                  "tip": "stam + t",
+                  "darija": "هو كيسكن / هي كتسكن",
+                  "darijaLat": "howa kayskon / hiya katskon"
                 },
                 {
                   "nl": "wij wonen",
-                  "tip": "hele werkwoord"
+                  "tip": "hele werkwoord",
+                  "darija": "حنا كنسكنو",
+                  "darijaLat": "7na kanskno"
                 },
                 {
                   "nl": "ik werk / jij werkt",
@@ -1948,36 +2018,52 @@ const curriculum = {
               "items": [
                 {
                   "nl": "Woon jij in Gent?",
-                  "example": "van: jij woont in Gent"
+                  "example": "van: jij woont in Gent",
+                  "darija": "واش نتا كتسكن فـ گنت؟ / واش نتي كتسكني فـ گنت؟",
+                  "darijaLat": "wach nta katskon f Gent? / wach nti katskoni f Gent?"
                 },
                 {
                   "nl": "Spreek jij Nederlands?",
-                  "example": "van: jij spreekt Nederlands"
+                  "example": "van: jij spreekt Nederlands",
+                  "darija": "واش نتا كتهضر بالهولندية؟ / واش نتي كتهضري بالهولندية؟",
+                  "darijaLat": "wach nta kathder b hollandiya? / wach nti kathdri b hollandiya?"
                 },
                 {
                   "nl": "Heb jij kinderen?",
-                  "example": "van: jij hebt kinderen"
+                  "example": "van: jij hebt kinderen",
+                  "darija": "واش عندك الدراري؟",
+                  "darijaLat": "wach 3andek ddrari?"
                 },
                 {
                   "nl": "Kom jij uit Oujda?",
-                  "example": "van: jij komt uit Oujda"
+                  "example": "van: jij komt uit Oujda",
+                  "darija": "واش نتا من وجدة؟ / واش نتي من وجدة؟",
+                  "darijaLat": "wach nta men Oujda? / wach nti men Oujda?"
                 },
                 {
                   "nl": "Werk jij in Gent?",
-                  "example": "van: jij werkt in Gent"
+                  "example": "van: jij werkt in Gent",
+                  "darija": "واش نتا كتخدم فـ گنت؟ / واش نتي كتخدمي فـ گنت؟",
+                  "darijaLat": "wach nta katkhdem f Gent? / wach nti katkhdmi f Gent?"
                 },
                 {
                   "nl": "Kom jij uit Marokko?",
-                  "example": "van: jij komt uit Marokko"
+                  "example": "van: jij komt uit Marokko",
+                  "darija": "واش نتا من المغرب؟ / واش نتي من المغرب؟",
+                  "darijaLat": "wach nta men lmaghrib? / wach nti men lmaghrib?"
                 },
                 {
                   "nl": "Versta jij mij?",
                   "example": "van: jij verstaat mij",
-                  "tip": "In Vlaanderen: \"verstaan\" = begrijpen."
+                  "tip": "In Vlaanderen: \"verstaan\" = begrijpen.",
+                  "darija": "واش نتا كتفهمني؟ / واش نتي كتفهميني؟",
+                  "darijaLat": "wach nta katfhemni? / wach nti katfhemini?"
                 },
                 {
                   "nl": "Heb jij tijd?",
-                  "example": "van: jij hebt tijd"
+                  "example": "van: jij hebt tijd",
+                  "darija": "واش عندك الوقت؟",
+                  "darijaLat": "wach 3andek lweqt?"
                 }
               ]
             },
@@ -1989,67 +2075,97 @@ const curriculum = {
               "items": [
                 {
                   "nl": "twintig",
-                  "value": 20
+                  "value": 20,
+                  "darija": "عشرين",
+                  "darijaLat": "3echrin"
                 },
                 {
                   "nl": "eenentwintig",
                   "value": 21,
-                  "tip": "een + en + twintig"
+                  "tip": "een + en + twintig",
+                  "darija": "واحد وعشرين",
+                  "darijaLat": "wa7ed w 3echrin"
                 },
                 {
                   "nl": "dertig",
-                  "value": 30
+                  "value": 30,
+                  "darija": "ثلاثين",
+                  "darijaLat": "tlatin"
                 },
                 {
                   "nl": "veertig",
-                  "value": 40
+                  "value": 40,
+                  "darija": "أربعين",
+                  "darijaLat": "reb3in"
                 },
                 {
                   "nl": "vijftig",
-                  "value": 50
+                  "value": 50,
+                  "darija": "خمسين",
+                  "darijaLat": "khamsin"
                 },
                 {
                   "nl": "zestig",
-                  "value": 60
+                  "value": 60,
+                  "darija": "ستين",
+                  "darijaLat": "settin"
                 },
                 {
                   "nl": "zeventig",
-                  "value": 70
+                  "value": 70,
+                  "darija": "سبعين",
+                  "darijaLat": "seb3in"
                 },
                 {
                   "nl": "tachtig",
                   "value": 80,
-                  "tip": "Let op: begint met \"t\"."
+                  "tip": "Let op: begint met \"t\".",
+                  "darija": "ثمانين",
+                  "darijaLat": "tmanin"
                 },
                 {
                   "nl": "negentig",
-                  "value": 90
+                  "value": 90,
+                  "darija": "تسعين",
+                  "darijaLat": "tes3in"
                 },
                 {
                   "nl": "honderd",
-                  "value": 100
+                  "value": 100,
+                  "darija": "مية",
+                  "darijaLat": "mya"
                 },
                 {
                   "nl": "vijfentwintig",
                   "value": 25,
-                  "tip": "vijf + en + twintig"
+                  "tip": "vijf + en + twintig",
+                  "darija": "خمسة وعشرين",
+                  "darijaLat": "khamsa w 3echrin"
                 },
                 {
                   "nl": "drieëndertig",
                   "value": 33,
-                  "tip": "drie + en + dertig"
+                  "tip": "drie + en + dertig",
+                  "darija": "ثلاثة وثلاثين",
+                  "darijaLat": "tlata w tlatin"
                 },
                 {
                   "nl": "achtenveertig",
-                  "value": 48
+                  "value": 48,
+                  "darija": "ثمانية وأربعين",
+                  "darijaLat": "tmnya w reb3in"
                 },
                 {
                   "nl": "negenennegentig",
-                  "value": 99
+                  "value": 99,
+                  "darija": "تسعة وتسعين",
+                  "darijaLat": "tes3a w tes3in"
                 },
                 {
                   "nl": "duizend",
-                  "value": 1000
+                  "value": 1000,
+                  "darija": "ألف",
+                  "darijaLat": "alf"
                 }
               ]
             },
@@ -3265,35 +3381,51 @@ const curriculum = {
               "items": [
                 {
                   "nl": "het huis → de huizen",
-                  "tip": "+en"
+                  "tip": "+en",
+                  "darija": "الدار → الديور",
+                  "darijaLat": "ddar → ddyor"
                 },
                 {
                   "nl": "de man → de mannen",
-                  "tip": "+en (dubbele n)"
+                  "tip": "+en (dubbele n)",
+                  "darija": "الراجل → الرجال",
+                  "darijaLat": "rrajel → rjal"
                 },
                 {
                   "nl": "de vrouw → de vrouwen",
-                  "tip": "+en"
+                  "tip": "+en",
+                  "darija": "المرا → العيالات",
+                  "darijaLat": "lmra → l3yalat"
                 },
                 {
                   "nl": "het kind → de kinderen",
-                  "tip": "onregelmatig"
+                  "tip": "onregelmatig",
+                  "darija": "الطفل → الدراري",
+                  "darijaLat": "ttefl → ddrari"
                 },
                 {
                   "nl": "de tafel → de tafels",
-                  "tip": "+s (na -el)"
+                  "tip": "+s (na -el)",
+                  "darija": "الطابلة → الطوابل",
+                  "darijaLat": "ttabla → ttwabel"
                 },
                 {
                   "nl": "de fiets → de fietsen",
-                  "tip": "+en"
+                  "tip": "+en",
+                  "darija": "البيسكليت → البيسكليتات",
+                  "darijaLat": "lbisiklet → lbisikletat"
                 },
                 {
                   "nl": "de auto → de auto's",
-                  "tip": "+'s"
+                  "tip": "+'s",
+                  "darija": "الطوموبيل → الطوموبيلات",
+                  "darijaLat": "ttomobil → ttomobilat"
                 },
                 {
                   "nl": "de baby → de baby's",
-                  "tip": "+'s"
+                  "tip": "+'s",
+                  "darija": "البيبي → البيبيات",
+                  "darijaLat": "lbibi → lbibiyat"
                 }
               ]
             },
@@ -3307,35 +3439,51 @@ const curriculum = {
               "items": [
                 {
                   "nl": "een brood",
-                  "tip": "een willekeurig brood"
+                  "tip": "een willekeurig brood",
+                  "darija": "خبزة",
+                  "darijaLat": "khobza"
                 },
                 {
                   "nl": "het brood",
-                  "tip": "dat specifieke brood"
+                  "tip": "dat specifieke brood",
+                  "darija": "الخبز",
+                  "darijaLat": "lkhobz"
                 },
                 {
                   "nl": "een huis",
-                  "tip": "een of ander huis"
+                  "tip": "een of ander huis",
+                  "darija": "دار",
+                  "darijaLat": "dar"
                 },
                 {
                   "nl": "het huis",
-                  "tip": "jouw/dat huis"
+                  "tip": "jouw/dat huis",
+                  "darija": "الدار",
+                  "darijaLat": "ddar"
                 },
                 {
                   "nl": "een man",
-                  "tip": "iemand"
+                  "tip": "iemand",
+                  "darija": "راجل",
+                  "darijaLat": "rajel"
                 },
                 {
                   "nl": "de man",
-                  "tip": "die man"
+                  "tip": "die man",
+                  "darija": "الراجل",
+                  "darijaLat": "rrajel"
                 },
                 {
                   "nl": "een vraag",
-                  "tip": "zomaar een vraag"
+                  "tip": "zomaar een vraag",
+                  "darija": "سؤال",
+                  "darijaLat": "so2al"
                 },
                 {
                   "nl": "de vraag",
-                  "tip": "die ene vraag"
+                  "tip": "die ene vraag",
+                  "darija": "السؤال",
+                  "darijaLat": "sso2al"
                 }
               ]
             }
