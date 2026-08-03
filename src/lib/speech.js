@@ -94,7 +94,14 @@ function speakOnline(text) {
   const url =
     'https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=nl' +
     `&total=1&idx=0&textlen=${clipped.length}&q=${q}`
-  const audio = new Audio(url)
+  const audio = new Audio()
+  // Geen Referer meesturen (Google TTS weigert verzoeken mét Referer met 404).
+  try {
+    audio.referrerPolicy = 'no-referrer'
+  } catch {
+    /* niet ondersteund — de meta-tag in index.html vangt dit ook op */
+  }
+  audio.src = url
   currentAudio = audio
   // Als de online stem niet lukt (bv. geblokkeerd), val terug op native.
   audio.onerror = () => {
@@ -126,28 +133,9 @@ function speakOnline(text) {
 export function speak(text, opts = {}) {
   if (!text) return
   stopAll()
-
-  const decide = () => {
-    if (pickDutchVoice()) speakNative(text, opts)
-    else speakOnline(text)
-  }
-
-  const synth = window.speechSynthesis
-  // Stemmen nog niet geladen? Even wachten, dan pas beslissen.
-  if (synth && !getVoices().length && typeof synth.addEventListener === 'function') {
-    let done = false
-    const run = () => {
-      if (done) return
-      done = true
-      cachedVoice = null
-      decide()
-    }
-    synth.addEventListener('voiceschanged', run, { once: true })
-    setTimeout(run, 300)
-  } else if (!synth) {
-    // Geen Web Speech API → meteen online.
-    speakOnline(text)
-  } else {
-    decide()
-  }
+  // BELANGRIJK: synchroon beslissen. audio.play() moet binnen dezelfde
+  // tik-gebeurtenis vallen, anders blokkeren telefoons het afspelen.
+  // Native stem als er een Nederlandse op het toestel staat, anders online.
+  if (pickDutchVoice()) speakNative(text, opts)
+  else speakOnline(text)
 }
