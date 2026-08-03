@@ -23,6 +23,8 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
 
   const target = item.answer || item.nl
   const speakable = item.answer && item.answer.includes('...') ? item.nl : target
+  // Alfabet-item = een letter met voorbeeldwoord/icoon (Module 0.0).
+  const isLetter = Boolean(item.word)
 
   const recorder = useRecorder()
   const [status, setStatus] = useState('idle') // idle | busy | result | error
@@ -52,7 +54,10 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     setStatus('busy')
     setErrorMsg('')
     try {
-      const result = await evaluateAnswer(answerText, target, lesson.intro || item.nl)
+      const context = isLetter
+        ? `De leerling oefent de uitspraak van de letter "${item.nl}" met het voorbeeldwoord "${item.word}". Geef korte, bemoedigende uitspraakfeedback in het Nederlands en in het Darija.`
+        : lesson.intro || item.nl
+      const result = await evaluateAnswer(answerText, target, context)
       setFeedback(result)
       setStatus('result')
       if (isTTSAvailable() && result.correction) speak(result.correction)
@@ -109,15 +114,44 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         ))}
       </div>
 
-      {/* Opdracht — de NL-zin blijft links-naar-rechts */}
+      {/* Opdracht */}
       <div className="card p-5 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          🎙️ {t('speakThisSentence')}
-        </p>
-        <p className="mt-2 text-2xl font-bold text-slate-900" dir="ltr">
-          {speakable}
-        </p>
-        {item.darija && <p className="rtl mt-1 text-slate-500">{item.darija}</p>}
+        {isLetter ? (
+          <>
+            {/* Stap 1 — Visueel: grote letter, icoon, woord, Darija */}
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              🎙️ {t('sayLetterWord')}
+            </p>
+            <div className="mt-2 flex items-center justify-center gap-4" dir="ltr">
+              <span className="text-6xl font-black text-gent-600">{item.nl}</span>
+              {item.icon && <span className="text-6xl" aria-hidden="true">{item.icon}</span>}
+            </div>
+            <p className="mt-2 text-xl font-bold text-slate-900" dir="ltr">
+              {item.nl} — {item.word}
+            </p>
+            {(item.darija || item.darijaLat) && (
+              <p className="mt-1 text-slate-500">
+                {item.darija && <span className="rtl">{item.darija}</span>}
+                {item.darija && item.darijaLat && ' · '}
+                {item.darijaLat && <span className="italic">{item.darijaLat}</span>}
+              </p>
+            )}
+            {item.tip && <p className="mt-2 text-sm text-emerald-700">💡 {item.tip}</p>}
+          </>
+        ) : (
+          <>
+            {/* De NL-zin blijft links-naar-rechts */}
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              🎙️ {t('speakThisSentence')}
+            </p>
+            <p className="mt-2 text-2xl font-bold text-slate-900" dir="ltr">
+              {speakable}
+            </p>
+            {item.darija && <p className="rtl mt-1 text-slate-500">{item.darija}</p>}
+          </>
+        )}
+
+        {/* Stap 2 — Luisteren */}
         {isTTSAvailable() && (
           <button onClick={() => speak(speakable)} className="btn-ghost mt-3">
             🔊 {t('listenExample')}

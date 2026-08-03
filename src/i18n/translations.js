@@ -93,6 +93,7 @@ export const translations = {
 
     // Spreekoefening
     speakThisSentence: 'Spreek deze zin',
+    sayLetterWord: 'Zeg de letter en het woord',
     listenExample: 'Beluister voorbeeld',
     record: 'Neem op',
     stopAndCheck: 'Stop & controleer',
@@ -208,6 +209,7 @@ export const translations = {
 
     // Spreekoefening
     speakThisSentence: 'قولي هاد الجملة',
+    sayLetterWord: 'قولي الحرف والكلمة',
     listenExample: 'سمع المثال',
     record: 'سجل',
     stopAndCheck: 'وقف وتحقق',

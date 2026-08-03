@@ -100,6 +100,94 @@ const curriculum = {
       icon: '🔤',
       accent: 'gent',
       modules: [
+        // ---- Module 0.0 — Het Alfabet & De Klanken ----------------------
+        {
+          id: '0.0',
+          title: 'Het Alfabet & De Klanken',
+          titleDarija: 'الأبجدية والأصوات',
+          goal: 'De letters A t/m Z leren herkennen én actief uitspreken.',
+          icon: '🔡',
+          lessons: [
+            {
+              id: '0.0.1',
+              title: 'Het alfabet: A – E',
+              titleDarija: 'الأبجدية: A – E',
+              type: LESSON_TYPES.SPEAKING,
+              intro:
+                'Zeg elke letter hardop met het voorbeeldwoord ("A van appel"). Luister eerst, spreek dan zelf in.',
+              darijaNote: 'قولي كل حرف بصوت عالي مع الكلمة ديالو. سمع الأول، من بعد سجلي.',
+              items: [
+                { nl: 'A', word: 'appel', icon: '🍎', darija: 'تفاحة', darijaLat: 'teffaha', tip: 'Mond wijd open, heldere "a".', answer: 'appel' },
+                { nl: 'B', word: 'bal', icon: '⚽', darija: 'كورة', darijaLat: 'koura', tip: 'Lippen samen mét stem (voel je keel trillen). Verschil met de P.', answer: 'bal' },
+                { nl: 'C', word: 'cadeau', icon: '🎁', darija: 'كادو', darijaLat: 'kadou', tip: 'De C klinkt hier als "k". Voor e/i klinkt ze als "s".', answer: 'cadeau' },
+                { nl: 'D', word: 'deur', icon: '🚪', darija: 'باب', darijaLat: 'bab', tip: 'Tongpunt tegen de boventanden, mét stem.', answer: 'deur' },
+                { nl: 'E', word: 'eend', icon: '🦆', darija: 'بطة', darijaLat: 'betta', tip: 'Korte "e", zoals in het Franse «est».', answer: 'eend' },
+              ],
+            },
+            {
+              id: '0.0.2',
+              title: 'Het alfabet: F – J',
+              titleDarija: 'الأبجدية: F – J',
+              type: LESSON_TYPES.SPEAKING,
+              intro: 'Luister, kijk naar de mondstand-tip en spreek elke letter met het woord in.',
+              darijaNote: 'سمع، شوف نصيحة الفم، وقولي كل حرف مع الكلمة.',
+              items: [
+                { nl: 'F', word: 'fiets', icon: '🚲', darija: 'بيسكليت', darijaLat: 'bishklit', tip: 'Boventanden op de onderlip, blazen zonder stem. Verschil met de V.', answer: 'fiets' },
+                { nl: 'G', word: 'geit', icon: '🐐', darija: 'معزة', darijaLat: 'm3iza', tip: 'De harde "g" is een keelklank, zoals de Arabische «خ».', answer: 'geit' },
+                { nl: 'H', word: 'huis', icon: '🏠', darija: 'دار', darijaLat: 'dar', tip: 'Zachte adem uit de keel, zoals de «ه».', answer: 'huis' },
+                { nl: 'I', word: 'iglo', icon: '🛖', darija: 'إغلو', darijaLat: 'iglou', tip: 'Korte, korte "i".', answer: 'iglo' },
+                { nl: 'J', word: 'jas', icon: '🧥', darija: 'جاكيطة', darijaLat: 'jakita', tip: 'De J klinkt als de «ي» (zoals "ya").', answer: 'jas' },
+              ],
+            },
+            {
+              id: '0.0.3',
+              title: 'Het alfabet: K – O',
+              titleDarija: 'الأبجدية: K – O',
+              type: LESSON_TYPES.SPEAKING,
+              intro: 'Zeg elke letter met het voorbeeldwoord. De app luistert en helpt je.',
+              darijaNote: 'قولي كل حرف مع الكلمة. التطبيق كيسمع وكيعاونك.',
+              items: [
+                { nl: 'K', word: 'kat', icon: '🐱', darija: 'قطة', darijaLat: 'qetta', tip: 'Klank achter in de mond, zoals de «ك».', answer: 'kat' },
+                { nl: 'L', word: 'lamp', icon: '💡', darija: 'ضو', darijaLat: 'dou', tip: 'Tongpunt achter de boventanden.', answer: 'lamp' },
+                { nl: 'M', word: 'maan', icon: '🌙', darija: 'قمر', darijaLat: 'qamar', tip: 'Lippen samen, neusklank, zoals de «م».', answer: 'maan' },
+                { nl: 'N', word: 'neus', icon: '👃', darija: 'نيف', darijaLat: 'nif', tip: 'Tong achter de tanden, neusklank, zoals de «ن».', answer: 'neus' },
+                { nl: 'O', word: 'oog', icon: '👁️', darija: 'عين', darijaLat: '3in', tip: 'Ronde lippen, volle "o".', answer: 'oog' },
+              ],
+            },
+            {
+              id: '0.0.4',
+              title: 'Het alfabet: P – T',
+              titleDarija: 'الأبجدية: P – T',
+              type: LESSON_TYPES.SPEAKING,
+              intro: 'Let goed op de P: die bestaat niet in het Darija. Luister en oefen.',
+              darijaNote: 'رد بالك للحرف P: ما كاينش فالدارجة. سمع وتمرن.',
+              items: [
+                { nl: 'P', word: 'paard', icon: '🐴', darija: 'حصان', darijaLat: 'hsan', tip: 'Lippen samen én een pufje lucht, zonder stem. De P bestaat niet in het Darija!', answer: 'paard' },
+                { nl: 'Q', word: 'quiz', icon: '❓', darija: 'كويز', darijaLat: 'kwiz', tip: 'De Q klinkt als "kw". Komt zelden voor.', answer: 'quiz' },
+                { nl: 'R', word: 'roos', icon: '🌹', darija: 'وردة', darijaLat: 'warda', tip: 'Rollende tong-r of een lichte keel-r.', answer: 'roos' },
+                { nl: 'S', word: 'ster', icon: '⭐', darija: 'نجمة', darijaLat: 'nejma', tip: 'Sissende "s", zoals de «س».', answer: 'ster' },
+                { nl: 'T', word: 'tafel', icon: '🪑', darija: 'طبلة', darijaLat: 'tebla', tip: 'Tongpunt tegen de tanden, zonder stem.', answer: 'tafel' },
+              ],
+            },
+            {
+              id: '0.0.5',
+              title: 'Het alfabet: U – Z',
+              titleDarija: 'الأبجدية: U – Z',
+              type: LESSON_TYPES.SPEAKING,
+              intro: 'De laatste letters. Let op de U en de V — die zijn lastig voor Darija-sprekers.',
+              darijaNote: 'الحروف الأخيرة. رد بالك لـ U و V — صعاب على اللي كيهضرو الدارجة.',
+              items: [
+                { nl: 'U', word: 'uur', icon: '⏰', darija: 'ساعة', darijaLat: 'sa3a', tip: 'Ronde lippen zoals bij «oe», maar zeg «i». Bestaat niet in het Darija.', answer: 'uur' },
+                { nl: 'V', word: 'vis', icon: '🐟', darija: 'حوت', darijaLat: 'hout', tip: 'Zoals de F, maar mét een beetje stem. In Vlaanderen zacht.', answer: 'vis' },
+                { nl: 'W', word: 'water', icon: '💧', darija: 'ما', darijaLat: 'lma', tip: 'Ronde lippen, zoals de «و».', answer: 'water' },
+                { nl: 'X', word: 'taxi', icon: '🚕', darija: 'طاكسي', darijaLat: 'taksi', tip: 'De X klinkt als "ks". Zeldzaam in het Nederlands.', answer: 'taxi' },
+                { nl: 'Y', word: 'yoghurt', icon: '🥛', darija: 'ياغورت', darijaLat: 'yaghourt', tip: 'De Y klinkt hier als "j" (zoals «ي»).', answer: 'yoghurt' },
+                { nl: 'Z', word: 'zon', icon: '☀️', darija: 'شمس', darijaLat: 'chems', tip: 'Zoemende "s" mét stem, zoals de «ز».', answer: 'zon' },
+              ],
+            },
+          ],
+        },
+
         // ---- Module 0.1 -------------------------------------------------
         {
           id: '0.1',

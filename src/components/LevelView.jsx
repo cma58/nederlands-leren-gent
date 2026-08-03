@@ -10,7 +10,7 @@ import { useLang } from '../context/LanguageContext.jsx'
  */
 export default function LevelView({ level, onOpenLesson }) {
   const { ratioFor } = useProgress()
-  const { t } = useLang()
+  const { t, isDarija } = useLang()
   const levelRatio = ratioFor(allLessonIds(level))
 
   return (
@@ -51,7 +51,9 @@ export default function LevelView({ level, onOpenLesson }) {
                   <div className="flex items-baseline gap-2">
                     <span className="text-xs font-bold text-slate-400">{t('module')} {module.id}</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">{module.title}</h3>
+                  <h3 className="text-base font-bold text-slate-900">
+                    {isDarija && module.titleDarija ? module.titleDarija : module.title}
+                  </h3>
                   <p className="text-sm text-slate-500">{module.goal}</p>
                 </div>
               </div>

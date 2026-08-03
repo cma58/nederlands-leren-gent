@@ -16,8 +16,9 @@ const TYPE_META = {
  */
 export default function LessonRow({ lesson, index, onOpen }) {
   const { isDone, toggle } = useProgress()
-  const { t } = useLang()
+  const { t, isDarija } = useLang()
   const done = isDone(lesson.id)
+  const title = isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title
   const meta = TYPE_META[lesson.type]
   const label = meta ? t(meta.key) : lesson.type
   const icon = meta?.icon ?? '•'
@@ -47,7 +48,7 @@ export default function LessonRow({ lesson, index, onOpen }) {
               done ? 'text-slate-400 line-through' : 'text-slate-800'
             }`}
           >
-            {lesson.title}
+            {title}
           </p>
           <p className="truncate text-xs text-slate-400">
             {icon} {label} · {lesson.items.length} {t('items')}

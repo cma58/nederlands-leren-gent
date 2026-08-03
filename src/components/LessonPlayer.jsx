@@ -15,7 +15,7 @@ import SpeakingExercise from './SpeakingExercise.jsx'
  */
 export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
   const { markDone } = useProgress()
-  const { t } = useLang()
+  const { t, isDarija } = useLang()
   const isSpeaking = lesson?.type === 'speaking'
   const quiz = useMemo(() => (isSpeaking ? [] : buildQuiz(lesson)), [lesson, isSpeaking])
 
@@ -39,7 +39,9 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
           <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
             {t('lesson')} {lesson.id}
           </p>
-          <h2 className="truncate text-base font-bold text-slate-900">{lesson.title}</h2>
+          <h2 className="truncate text-base font-bold text-slate-900">
+            {isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title}
+          </h2>
         </div>
       </div>
 
