@@ -7,7 +7,7 @@ import LangToggle from './LangToggle.jsx'
  * om te beginnen, de taal te kiezen en de help te openen.
  */
 export default function Welcome({ onBegin, onHelp }) {
-  const { t } = useLang()
+  const { t, arrowFwd } = useLang()
 
   return (
     <div className="flex min-h-dvh flex-col bg-gradient-to-br from-gent-700 via-gent-600 to-gent-500 text-white">
@@ -43,7 +43,7 @@ export default function Welcome({ onBegin, onHelp }) {
           onClick={onBegin}
           className="h-14 w-full rounded-2xl bg-white text-lg font-bold text-gent-700 shadow-lg transition hover:bg-gent-50"
         >
-          {t('begin')} →
+          {t('begin')} {arrowFwd}
         </button>
         <button
           onClick={onHelp}

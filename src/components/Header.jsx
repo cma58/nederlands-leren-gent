@@ -11,7 +11,7 @@ export default function Header({ onBack, subtitle, onSettings, onHelp }) {
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur">
       <div className="mx-auto flex max-w-2xl items-center gap-1.5 px-3 py-2">
         {onBack ? (
-          <button onClick={onBack} className="btn-ghost -ml-1 h-10 w-10 !px-0" aria-label={t('back')}>
+          <button onClick={onBack} className="btn-ghost -ml-1 h-11 w-11 !px-0" aria-label={t('back')}>
             {/* Pijl draait mee in het Darija (rechts-naar-links) */}
             <span aria-hidden="true" className={`inline-block text-lg ${isDarija ? 'rotate-180' : ''}`}>
               ←
@@ -35,14 +35,14 @@ export default function Header({ onBack, subtitle, onSettings, onHelp }) {
         <LangToggle compact />
 
         {onHelp && (
-          <button onClick={onHelp} className="btn-ghost h-10 w-10 !px-0" aria-label={t('help')} title={t('help')}>
+          <button onClick={onHelp} className="btn-ghost h-11 w-11 !px-0" aria-label={t('help')} title={t('help')}>
             <span aria-hidden="true">❓</span>
           </button>
         )}
         {onSettings && (
           <button
             onClick={onSettings}
-            className="btn-ghost h-10 w-10 !px-0"
+            className="btn-ghost h-11 w-11 !px-0"
             aria-label={t('settings')}
             title={t('settings')}
           >

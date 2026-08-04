@@ -43,7 +43,7 @@ export default function LessonRow({ lesson, index, onOpen }) {
         <span className="min-w-0 flex-1">
           <span
             className={`block truncate text-sm font-semibold ${
-              done ? 'text-slate-400' : 'text-slate-800'
+              done ? 'text-slate-500' : 'text-slate-800'
             }`}
           >
             {title}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getGeminiKey, getGroqKey, setGeminiKey, setGroqKey } from '../lib/config.js'
 import { useLang } from '../context/LanguageContext.jsx'
 
@@ -12,6 +12,8 @@ export default function Settings({ onClose }) {
   const [groq, setGroq] = useState('')
   const [show, setShow] = useState(false)
   const [saved, setSaved] = useState(false)
+  const closeRef = useRef(null)
+  const savedTimer = useRef(null)
 
   useEffect(() => {
     setGemini(getGeminiKey())
@@ -21,7 +23,11 @@ export default function Settings({ onClose }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    closeRef.current?.focus()
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      if (savedTimer.current) clearTimeout(savedTimer.current)
+    }
   }, [onClose])
 
   function save() {
@@ -29,7 +35,7 @@ export default function Settings({ onClose }) {
     setGroqKey(groq)
     setSaved(true)
     // Kort "opgeslagen" tonen en dan sluiten.
-    setTimeout(() => {
+    savedTimer.current = setTimeout(() => {
       setSaved(false)
       onClose()
     }, 900)
@@ -38,10 +44,15 @@ export default function Settings({ onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl sm:rounded-3xl">
+      <div
+        className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl sm:rounded-3xl"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('settingsTitle')}
+      >
         <div className="flex items-center justify-between border-b border-slate-100 p-5">
           <h3 className="text-lg font-bold text-slate-900">{t('settingsTitle')}</h3>
-          <button onClick={onClose} className="btn-ghost h-9 w-9 !px-0" aria-label={t('close')}>
+          <button ref={closeRef} onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={t('close')}>
             ✕
           </button>
         </div>

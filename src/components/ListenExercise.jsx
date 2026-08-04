@@ -11,7 +11,7 @@ import { useLang } from '../context/LanguageContext.jsx'
  * API-sleutels nodig.
  */
 export default function ListenExercise({ lesson, onFinish }) {
-  const { t } = useLang()
+  const { t, arrowFwd } = useLang()
   const [i, setI] = useState(0)
   const hasItems = lesson?.items?.length > 0
   const item = hasItems ? lesson.items[i] : null
@@ -78,7 +78,7 @@ export default function ListenExercise({ lesson, onFinish }) {
       <button
         onClick={play}
         disabled={!isTTSAvailable()}
-        className="flex h-24 w-full items-center justify-center gap-3 rounded-2xl bg-gent-600 text-2xl font-bold text-white transition hover:bg-gent-700"
+        className="flex h-24 w-full items-center justify-center gap-3 rounded-2xl bg-gent-600 text-2xl font-bold text-white transition hover:bg-gent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gent-500"
       >
         🔊 {played ? t('listenAgain') : t('listenTapPlay')}
       </button>
@@ -98,7 +98,7 @@ export default function ListenExercise({ lesson, onFinish }) {
               onClick={() => choose(opt)}
               disabled={answered || !played}
               dir="ltr"
-              className={`flex items-center justify-between rounded-xl border-2 px-4 py-4 text-left text-lg font-bold transition disabled:opacity-60 ${style}`}
+              className={`flex items-center justify-between rounded-xl border-2 px-4 py-4 text-left text-lg font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500 disabled:opacity-60 ${style}`}
             >
               <span>{opt}</span>
               {answered && opt === target && <span>✓</span>}
@@ -124,7 +124,7 @@ export default function ListenExercise({ lesson, onFinish }) {
 
       <div className="mt-auto py-4">
         <button onClick={next} disabled={!answered} className="btn-primary h-12 w-full">
-          {isLast ? `${t('finishArrow')} →` : `${t('next')} →`}
+          {isLast ? `${t('finishArrow')} ${arrowFwd}` : `${t('next')} ${arrowFwd}`}
         </button>
       </div>
     </div>

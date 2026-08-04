@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { isTTSAvailable, speak } from '../lib/speech.js'
 import { buildQuiz } from '../lib/quiz.js'
 import { useProgress } from '../context/ProgressContext.jsx'
@@ -25,23 +25,31 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
   )
 
   const [phase, setPhase] = useState(isSpeaking ? 'speaking' : isListen ? 'listen' : 'learn')
+  const closeRef = useRef(null)
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
+    // Zet de focus in het venster zodat toetsenbord/schermlezer erin belandt.
+    closeRef.current?.focus()
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
   if (!lesson) return null
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-slate-50">
+    <div
+      className="fixed inset-0 z-40 flex flex-col bg-slate-50"
+      role="dialog"
+      aria-modal="true"
+      aria-label={isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title}
+    >
       <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
-        <button onClick={onClose} className="btn-ghost h-9 w-9 !px-0" aria-label={t('close')}>
+        <button ref={closeRef} onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={t('close')}>
           ✕
         </button>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
             {t('lesson')} {lesson.id}
           </p>
           <h2 className="truncate text-base font-bold text-slate-900">
@@ -90,7 +98,7 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
 /*  Fase 1 — Leren (kaartjes)                                          */
 /* ------------------------------------------------------------------ */
 function LearnPhase({ lesson, onFinish, hasQuiz }) {
-  const { t } = useLang()
+  const { t, arrowFwd, arrowBack } = useLang()
   const [i, setI] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const hasItems = lesson?.items?.length > 0
@@ -130,7 +138,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
       {/* Het NL-woord blijft altijd links-naar-rechts (het is wat je leert) */}
       <button
         onClick={() => setRevealed((r) => !r)}
-        className="card flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center"
+        className="card flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500"
         dir="ltr"
       >
         <div className="flex items-center gap-2">
@@ -142,8 +150,8 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
         {typeof item.value === 'number' && (
           <span className="text-6xl font-black text-gent-500">{item.value}</span>
         )}
-        {item.pair && <span className="text-lg text-slate-400">↔ {item.pair}</span>}
-        {item.ipa && <span className="text-sm text-slate-400">{item.ipa}</span>}
+        {item.pair && <span className="text-lg text-slate-500">↔ {item.pair}</span>}
+        {item.ipa && <span className="text-sm text-slate-500">{item.ipa}</span>}
 
         {revealed ? (
           <div className="mt-1 space-y-1">
@@ -155,7 +163,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
               </p>
             )}
             {item.tip && <p className="text-sm text-emerald-700">💡 {item.tip}</p>}
-            {item.example && <p className="text-sm text-slate-400">bv. {item.example}</p>}
+            {item.example && <p className="text-sm text-slate-500">bv. {item.example}</p>}
           </div>
         ) : (
           <span className="mt-1 text-xs text-slate-500">{t('tapToReveal')}</span>
@@ -164,7 +172,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
 
       <div className="flex items-center gap-2 py-4">
         <button onClick={prev} disabled={i === 0} className="btn-ghost h-12 w-12 !px-0" aria-label={t('back')}>
-          ←
+          {arrowBack}
         </button>
         {isTTSAvailable() && (
           <button onClick={() => speak(item.nl)} className="btn-ghost flex-1 h-12" aria-label={t('listen')}>
@@ -172,7 +180,11 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
           </button>
         )}
         <button onClick={next} className="btn-primary flex-1 h-12">
-          {isLast ? (hasQuiz ? `${t('toExercise')} →` : `${t('finishArrow')} →`) : `${t('next')} →`}
+          {isLast
+            ? hasQuiz
+              ? `${t('toExercise')} ${arrowFwd}`
+              : `${t('finishArrow')} ${arrowFwd}`
+            : `${t('next')} ${arrowFwd}`}
         </button>
       </div>
     </div>
@@ -183,7 +195,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
 /*  Fase 2 — Quiz (meerkeuze)                                          */
 /* ------------------------------------------------------------------ */
 function QuizPhase({ quiz, onFinish, onBack }) {
-  const { t } = useLang()
+  const { t, arrowFwd, arrowBack } = useLang()
   const [i, setI] = useState(0)
   const [picked, setPicked] = useState(null)
   const [score, setScore] = useState(0)
@@ -210,8 +222,8 @@ function QuizPhase({ quiz, onFinish, onBack }) {
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex items-center justify-between py-4">
-        <button onClick={onBack} className="text-sm font-semibold text-slate-400 hover:text-slate-600">
-          ← {t('backToLearn')}
+        <button onClick={onBack} className="text-sm font-semibold text-slate-500 hover:text-slate-700">
+          {arrowBack} {t('backToLearn')}
         </button>
         <span className="text-sm font-semibold text-slate-500">
           {t('question')} {i + 1}/{quiz.length}
@@ -240,7 +252,7 @@ function QuizPhase({ quiz, onFinish, onBack }) {
               key={option}
               onClick={() => choose(option)}
               disabled={answered}
-              className={`flex items-center justify-between rounded-xl border-2 px-4 py-3.5 text-left font-semibold transition ${style}`}
+              className={`flex items-center justify-between rounded-xl border-2 px-4 py-3.5 text-left font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500 ${style}`}
               dir="ltr"
             >
               <span>{option}</span>
@@ -253,11 +265,11 @@ function QuizPhase({ quiz, onFinish, onBack }) {
 
       <div className="mt-auto py-4">
         <button onClick={next} disabled={!answered} className="btn-primary h-12 w-full">
-          {isLast ? `${t('seeResult')} →` : `${t('nextQuestion')} →`}
+          {isLast ? `${t('seeResult')} ${arrowFwd}` : `${t('nextQuestion')} ${arrowFwd}`}
         </button>
       </div>
 
-      <p className="pb-4 text-center text-xs text-slate-400">
+      <p className="pb-4 text-center text-xs text-slate-500">
         {t('score')}: {score}/{quiz.length}
       </p>
     </div>

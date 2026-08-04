@@ -16,7 +16,7 @@ import { useLang } from '../context/LanguageContext.jsx'
  *   3) Gemini beoordeelt het antwoord als een geduldige NT2-docent.
  */
 export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
-  const { t } = useLang()
+  const { t, arrowFwd } = useLang()
   const [i, setI] = useState(0)
   const hasItems = lesson?.items?.length > 0
   const item = hasItems ? lesson.items[i] : null
@@ -151,7 +151,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         {isLetter ? (
           <>
             {/* Stap 1 — Visueel: grote letter, icoon, woord, Darija */}
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
               🎙️ {t('sayLetterWord')}
             </p>
             <div className="mt-2 flex items-center justify-center gap-4" dir="ltr">
@@ -173,7 +173,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         ) : (
           <>
             {/* Klank/woord/getal of zin — NL blijft links-naar-rechts */}
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
               🎙️ {t(labelKey)}
             </p>
             {typeof item.value === 'number' && (
@@ -183,9 +183,9 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
             )}
             <p className="mt-2 text-3xl font-bold text-slate-900" dir="ltr">
               {speakable}
-              {item.pair && <span className="text-xl font-normal text-slate-400"> ↔ {item.pair}</span>}
+              {item.pair && <span className="text-xl font-normal text-slate-500"> ↔ {item.pair}</span>}
             </p>
-            {item.ipa && <p className="text-sm text-slate-400" dir="ltr">{item.ipa}</p>}
+            {item.ipa && <p className="text-sm text-slate-500" dir="ltr">{item.ipa}</p>}
             {(item.darija || item.darijaLat) && (
               <p className="mt-1 text-slate-500">
                 {item.darija && <span className="rtl">{item.darija}</span>}
@@ -223,8 +223,8 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
           <button
             onClick={handleRecordToggle}
             disabled={status === 'busy' && !recorder.recording}
-            className={`flex h-16 w-full items-center justify-center gap-3 rounded-2xl text-lg font-bold text-white transition ${
-              recorder.recording ? 'animate-pulse bg-rose-600' : 'bg-saffraan-500 hover:bg-saffraan-600'
+            className={`flex h-16 w-full items-center justify-center gap-3 rounded-2xl text-lg font-bold text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-saffraan-600 ${
+              recorder.recording ? 'animate-pulse bg-rose-600' : 'bg-saffraan-600 hover:bg-saffraan-700'
             } disabled:opacity-50`}
           >
             {recorder.recording ? `⏹️ ${t('stopAndCheck')}` : `🎙️ ${t('record')}`}
@@ -311,7 +311,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
           {t('skip')}
         </button>
         <button onClick={next} disabled={status !== 'result'} className="btn-primary flex-1 h-12">
-          {isLast ? `${t('finishArrow')} →` : `${t('next')} →`}
+          {isLast ? `${t('finishArrow')} ${arrowFwd}` : `${t('next')} ${arrowFwd}`}
         </button>
       </div>
     </div>

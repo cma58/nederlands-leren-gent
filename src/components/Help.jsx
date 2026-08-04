@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useLang } from '../context/LanguageContext.jsx'
 
 /**
@@ -80,23 +80,30 @@ const SECTIONS = [
 
 export default function Help({ onClose }) {
   const { t } = useLang()
+  const closeRef = useRef(null)
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
+    closeRef.current?.focus()
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl sm:rounded-3xl">
+      <div
+        className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl bg-white shadow-xl sm:rounded-3xl"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('helpTitle')}
+      >
         <div className="flex items-center justify-between border-b border-slate-100 p-5">
           <div>
             <h3 className="text-lg font-bold text-slate-900">{t('helpTitle')}</h3>
             <p className="rtl text-sm text-slate-500">كيفاش كيخدم التطبيق؟</p>
           </div>
-          <button onClick={onClose} className="btn-ghost h-9 w-9 !px-0" aria-label={t('close')}>
+          <button ref={closeRef} onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={t('close')}>
             ✕
           </button>
         </div>

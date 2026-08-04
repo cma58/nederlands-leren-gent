@@ -21,7 +21,9 @@ function loadInitial() {
   } catch {
     /* negeren */
   }
-  return 'nl'
+  // Standaard Darija: dit is Oumayma's taal. Bij de eerste start moet de knop
+  // die ze indrukt in háár taal staan, niet in het Nederlands.
+  return 'dar'
 }
 
 export function LanguageProvider({ children }) {
@@ -45,10 +47,15 @@ export function LanguageProvider({ children }) {
   const api = useMemo(() => {
     const dict = translations[lang] || translations.nl
     const t = (key) => dict[key] ?? translations.nl[key] ?? key
+    const rtl = dir === 'rtl'
     return {
       lang,
       dir,
       isDarija: lang === 'dar',
+      // Richtings-pijlen die meedraaien met de leesrichting: "verder" wijst in
+      // het Darija naar links, "terug" naar rechts.
+      arrowFwd: rtl ? '←' : '→',
+      arrowBack: rtl ? '→' : '←',
       setLang: setLangState,
       toggle: () => setLangState((l) => (l === 'nl' ? 'dar' : 'nl')),
       t,
