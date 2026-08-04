@@ -416,7 +416,7 @@ const curriculum = {
                       "maan"
                     ],
                     "tipNl": "Kort \"a\" zoals in Darija «مانا»; lange \"aa\" houd je langer aan.",
-                    "tipDarija": "قولي «man» بـ a قصيرة، ماشي «maan» طويلة."
+                    "tipDarija": "قولي «man» بصوت a قصير، وما تطوليش الصوت بحال فـ «maan»."
                   }
                 },
                 {
@@ -435,7 +435,7 @@ const curriculum = {
                       "boos"
                     ],
                     "tipNl": "Korte \"o\" is open; lange \"oo\" is ronder en langer.",
-                    "tipDarija": "«bos» بـ o قصيرة ومفتوحة، ماشي «boos»."
+                    "tipDarija": "قولي «bos» بصوت o قصير ومفتوح، ماشي o طويلة بحال فـ «boos»."
                   }
                 },
                 {
@@ -454,7 +454,7 @@ const curriculum = {
                       "piet"
                     ],
                     "tipNl": "Korte \"i\" ligt tussen i en e; lange \"ie\" is een heldere «i».",
-                    "tipDarija": "«pit» بـ i قصيرة، ماشي «piet»."
+                    "tipDarija": "قولي «pit» بصوت i قصير، وما تطوليش الصوت بحال فـ «piet»."
                   }
                 },
                 {
@@ -473,7 +473,7 @@ const curriculum = {
                       "buur"
                     ],
                     "tipNl": "De \"u\" bestaat niet in Darija: rond je lippen als bij «oe» maar zeg «i».",
-                    "tipDarija": "«bus» بـ u قصيرة، ماشي «buur»."
+                    "tipDarija": "فـ «bus» صوت u قصير. ما تطوليش الصوت بحال uu فـ «buur»."
                   }
                 },
                 {
@@ -492,7 +492,7 @@ const curriculum = {
                       "lees"
                     ],
                     "tipNl": "Korte \"e\" zoals in «best»; lange \"ee\" langer aanhouden.",
-                    "tipDarija": "«les» بـ e قصيرة، ماشي «lees»."
+                    "tipDarija": "قولي «les» بصوت e قصير ومفتوح، ماشي ee طويلة بحال فـ «lees»."
                   }
                 },
                 {
@@ -511,7 +511,7 @@ const curriculum = {
                       "zoon"
                     ],
                     "tipNl": "Korte \"o\" (zon = شمس) vs. lange \"oo\" (zoon = الولد).",
-                    "tipDarija": "«zon» بـ o قصيرة، ماشي «zoon»."
+                    "tipDarija": "قولي «zon» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «zoon»."
                   }
                 },
                 {
@@ -530,7 +530,7 @@ const curriculum = {
                       "taak"
                     ],
                     "tipNl": "tak = فرع, taak = مهمة. De \"aa\" is duidelijk langer.",
-                    "tipDarija": "«tak» بـ a قصيرة، ماشي «taak»."
+                    "tipDarija": "قولي «tak» بصوت a قصير، وما تطوليش الصوت بحال aa فـ «taak»."
                   }
                 },
                 {
@@ -549,7 +549,7 @@ const curriculum = {
                       "vies"
                     ],
                     "tipNl": "vis = حوت, vies = موسخ. Korte \"i\" vs. heldere \"ie\".",
-                    "tipDarija": "«vis» بـ i قصيرة، ماشي «vies»."
+                    "tipDarija": "قولي «vis» بصوت i قصير، ماشي ie طويلة بحال فـ «vies»."
                   }
                 },
                 {
@@ -568,7 +568,7 @@ const curriculum = {
                       "boom"
                     ],
                     "tipNl": "bom = قنبلة, boom = شجرة.",
-                    "tipDarija": "«bom» بـ o قصيرة، ماشي «boom»."
+                    "tipDarija": "قولي «bom» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «boom»."
                   }
                 },
                 {
@@ -587,7 +587,7 @@ const curriculum = {
                       "poot"
                     ],
                     "tipNl": "pot = طنجرة, poot = رجل الحيوان.",
-                    "tipDarija": "«pot» بـ o قصيرة، ماشي «poot»."
+                    "tipDarija": "قولي «pot» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «poot»."
                   }
                 },
                 {
@@ -606,7 +606,7 @@ const curriculum = {
                       "rook"
                     ],
                     "tipNl": "rok = تنورة, rook = دخان.",
-                    "tipDarija": "«rok» بـ o قصيرة، ماشي «rook»."
+                    "tipDarija": "قولي «rok» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «rook»."
                   }
                 }
               ]
@@ -656,7 +656,7 @@ const curriculum = {
                       "tijd"
                     ],
                     "tipNl": "\"ei\" en \"ij\" klinken hetzelfde: begin bij «e» en glijd naar «i».",
-                    "tipDarija": "«ei» و«ij» عندهم نفس الصوت. قولي «trein» بوضوح."
+                    "tipDarija": "«ei» و«ij» كيتنطقو بنفس الصوت فالهولندية. قولي «trein» بوضوح."
                   }
                 },
                 {
@@ -682,7 +682,7 @@ const curriculum = {
                       "blauw"
                     ],
                     "tipNl": "\"ou\" en \"au\" klinken hetzelfde: «a» die naar «u» glijdt.",
-                    "tipDarija": "«ou» و«au» نفس الصوت: «a» كتزلق ل«u»."
+                    "tipDarija": "«ou» و«au» كيتنطقو بنفس الصوت. الصوت كيبدا قريب لـ a وكيزلق لـ u."
                   }
                 },
                 {
@@ -752,7 +752,7 @@ const curriculum = {
                       "ben"
                     ],
                     "tipNl": "P is stemloos (geen trilling in de keel), B is stemhebbend. Leg je hand op je keel om te voelen.",
-                    "tipDarija": "«p» بلا صوت فالحلق ومعاها نفخة صغيرة، ماشي «b»."
+                    "tipDarija": "مع «p» الحبال الصوتية ما كيهتزوش، وكيخرج شوية ديال الهوا. قولي «pen»، ماشي «ben»."
                   }
                 },
                 {
@@ -771,7 +771,7 @@ const curriculum = {
                       "bak"
                     ],
                     "tipNl": "Blaas een klein beetje lucht bij de \"p\", niet bij de \"b\".",
-                    "tipDarija": "«p» فيها نفخة، «b» لا. قولي «pak» ماشي «bak»."
+                    "tipDarija": "«p» كتخرج معاها نفخة خفيفة، أما «b» ففيها اهتزاز. قولي «pak»، ماشي «bak»."
                   }
                 },
                 {
@@ -790,7 +790,7 @@ const curriculum = {
                       "vee"
                     ],
                     "tipNl": "F is stemloos, V is licht stemhebbend. In Vlaanderen liggen ze dicht bij elkaar.",
-                    "tipDarija": "«f» بلا صوت، «v» فيها شوية صوت. قولي «fee»."
+                    "tipDarija": "مع «f» الحبال الصوتية ما كيهتزوش، أما مع «v» كاين شوية ديال الاهتزاز. قولي «fee»."
                   }
                 },
                 {
@@ -823,7 +823,7 @@ const curriculum = {
                       "beer"
                     ],
                     "tipNl": "peer = لنجاصة (blaas lucht), beer = دب (geen lucht).",
-                    "tipDarija": "«p» فيها نفخة. «peer» ماشي «beer»."
+                    "tipDarija": "«p» كتخرج معاها نفخة خفيفة. قولي «peer»، ماشي «beer»."
                   }
                 },
                 {
@@ -842,7 +842,7 @@ const curriculum = {
                       "fel"
                     ],
                     "tipNl": "vel = جلد (licht stemhebbend), fel = قوي (stemloos).",
-                    "tipDarija": "«v» فيها شوية اهتزاز، «f» لا. قولي «vel» ماشي «fel»."
+                    "tipDarija": "مع «v» كاين شوية ديال الاهتزاز، أما «f» فبلا اهتزاز. قولي «vel»، ماشي «fel»."
                   }
                 },
                 {
