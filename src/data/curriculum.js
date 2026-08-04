@@ -247,7 +247,7 @@ const curriculum = {
                 {
                   "nl": "T",
                   "word": "tafel",
-                  "icon": "🪑",
+                  "icon": "🍽️",
                   "darija": "طبلة",
                   "darijaLat": "tebla",
                   "tip": "Tongpunt tegen de tanden, zonder stem.",
@@ -789,12 +789,12 @@ const curriculum = {
                 {
                   "nl": "Sorry",
                   "darija": "سمح ليا",
-                  "darijaLat": "smeh liya"
+                  "darijaLat": "sme7 liya"
                 },
                 {
                   "nl": "Pardon",
                   "darija": "سمح ليا",
-                  "darijaLat": "smeh liya",
+                  "darijaLat": "sme7 liya",
                   "tip": "Om langs iemand te gaan of iets te vragen."
                 },
                 {
@@ -806,7 +806,7 @@ const curriculum = {
                 {
                   "nl": "Excuseer",
                   "darija": "سمح ليا",
-                  "darijaLat": "smeh liya",
+                  "darijaLat": "sme7 liya",
                   "tip": "Typisch Vlaams voor \"sorry\" of \"excuseer me\"."
                 },
                 {
@@ -863,7 +863,7 @@ const curriculum = {
                 {
                   "nl": "Sorry",
                   "darija": "سمح ليا",
-                  "darijaLat": "smeh liya"
+                  "darijaLat": "sme7 liya"
                 },
                 {
                   "nl": "Tot ziens",
@@ -956,7 +956,7 @@ const curriculum = {
                   "nl": "elf",
                   "value": 11,
                   "darija": "حداش",
-                  "darijaLat": "hdach"
+                  "darijaLat": "7dach"
                 },
                 {
                   "nl": "twaalf",
@@ -1176,7 +1176,7 @@ const curriculum = {
               "id": "0.4.2",
               "title": "In en om het huis",
               "type": "vocab",
-              "intro": "Tien dingen die je thuis ziet. Let op het lidwoord (de/het).",
+              "intro": "Dingen die je thuis ziet. Let op het lidwoord (de/het).",
               "items": [
                 {
                   "nl": "tafel",
@@ -1835,7 +1835,7 @@ const curriculum = {
                   "nl": "hij/zij woont",
                   "tip": "stam + t",
                   "darija": "هو كيسكن / هي كتسكن",
-                  "darijaLat": "howa kayskon / hiya katskon"
+                  "darijaLat": "houwa kayskon / hiya katskon"
                 },
                 {
                   "nl": "wij wonen",
@@ -2261,7 +2261,7 @@ const curriculum = {
                 {
                   "nl": "Dank u wel, tot ziens.",
                   "darija": "شكرا بزاف، بسلامة",
-                  "darijaLat": "choukran bzzaf, bslama"
+                  "darijaLat": "choukran bezzaf, bslama"
                 }
               ]
             }
@@ -2740,7 +2740,7 @@ const curriculum = {
                   "nl": "keel",
                   "article": "de",
                   "darija": "الحلق",
-                  "darijaLat": "helq"
+                  "darijaLat": "7elq"
                 }
               ]
             },
@@ -2920,7 +2920,7 @@ const curriculum = {
                   "nl": "melk",
                   "article": "de",
                   "darija": "الحليب",
-                  "darijaLat": "hlib"
+                  "darijaLat": "7lib"
                 },
                 {
                   "nl": "fruit",
@@ -2944,7 +2944,7 @@ const curriculum = {
                   "nl": "vis",
                   "article": "de",
                   "darija": "الحوت",
-                  "darijaLat": "hout"
+                  "darijaLat": "7out"
                 },
                 {
                   "nl": "ei",
@@ -3560,13 +3560,13 @@ const curriculum = {
                 {
                   "nl": "VDAB",
                   "darija": "مكتب التشغيل VDAB",
-                  "darijaLat": "plek voor werk en opleiding",
-                  "tip": "Vlaamse dienst om werk te zoeken."
+                  "darijaLat": "maktab ttachghil VDAB",
+                  "tip": "Vlaamse dienst om werk te zoeken (plek voor werk en opleiding)."
                 },
                 {
                   "nl": "het OCMW",
                   "darija": "مركز المساعدة الاجتماعية OCMW",
-                  "darijaLat": "sociale hulp",
+                  "darijaLat": "markaz lmosa3ada listima3iya OCMW",
                   "tip": "Sociale hulp van de gemeente."
                 },
                 {
