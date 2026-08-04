@@ -228,6 +228,9 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         {(tip.tipNl || item.tip) && (
           <p className="mt-2 text-sm text-emerald-700">💡 {tip.tipNl || item.tip}</p>
         )}
+        {tip.tipDarija && (
+          <p className="rtl mt-1 text-sm text-emerald-700">{tip.tipDarija}</p>
+        )}
 
         {/* 3+4 — Luisteren: normaal + langzaam */}
         {isTTSAvailable() && (

@@ -104,7 +104,7 @@ export function tipsFor(item) {
   const p = item.pronunciation || {}
   return {
     tipNl: p.tipNl || item.tip || '',
-    tipDarija: p.tipDarija || '',
+    tipDarija: item.tipDarija || p.tipDarija || '',
     focus: p.focus || '',
   }
 }

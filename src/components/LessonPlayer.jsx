@@ -170,6 +170,11 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
               </p>
             )}
             {item.tip && <p className="text-sm text-emerald-700">💡 {item.tip}</p>}
+            {(item.tipDarija || item.pronunciation?.tipDarija) && (
+              <p className="rtl text-sm text-emerald-700">
+                {item.tipDarija || item.pronunciation?.tipDarija}
+              </p>
+            )}
             {item.example && <p className="text-sm text-slate-500">bv. {item.example}</p>}
           </div>
         ) : (
