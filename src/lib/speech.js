@@ -48,6 +48,16 @@ export function hasDutchVoice() {
   return Boolean(pickDutchVoice())
 }
 
+/**
+ * Kan er waarschijnlijk voorgelezen worden? Native stem = altijd; anders is
+ * internet nodig voor de online stem. Zonder beide hoort de leerling niets —
+ * dan toont de UI een waarschuwing i.p.v. stilte.
+ */
+export function canProbablySpeak() {
+  if (hasDutchVoice()) return true
+  return typeof navigator === 'undefined' || navigator.onLine !== false
+}
+
 /** Stop alle lopende spraak (native + online). */
 function stopAll() {
   try {

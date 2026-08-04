@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { isTTSAvailable, speak } from '../lib/speech.js'
+import { useEffect, useRef, useState } from 'react'
+import { isTTSAvailable, speak, canProbablySpeak } from '../lib/speech.js'
 import { transcribeAudio } from '../lib/groq.js'
 import { evaluateAnswer } from '../lib/gemini.js'
 import { hasGemini, hasGroq } from '../lib/config.js'
@@ -18,20 +18,21 @@ import { useLang } from '../context/LanguageContext.jsx'
 export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   const { t } = useLang()
   const [i, setI] = useState(0)
-  const item = lesson.items[i]
-  const isLast = i === lesson.items.length - 1
+  const hasItems = lesson?.items?.length > 0
+  const item = hasItems ? lesson.items[i] : null
+  const isLast = i === (lesson?.items?.length ?? 0) - 1
 
-  const target = item.answer || item.nl
-  const speakable = item.answer && item.answer.includes('...') ? item.nl : target
+  const target = item?.answer || item?.nl || ''
+  const speakable = item?.answer && item.answer.includes('...') ? item.nl : target
   // Alfabet-item = een letter met voorbeeldwoord/icoon (Module 0.0).
-  const isLetter = Boolean(item.word)
+  const isLetter = Boolean(item?.word)
   // Klank-/woorditem = een los woord met minimaal paar of IPA (Module 0.1).
-  const isWord = !isLetter && Boolean(item.pair || item.ipa)
+  const isWord = !isLetter && Boolean(item?.pair || item?.ipa)
   // Label: één of twee woorden -> "Spreek dit woord uit", anders "Spreek deze zin".
   const wordCount = String(target).trim().split(/\s+/).filter(Boolean).length
   const labelKey = isWord || wordCount <= 2 ? 'speakThisWord' : 'speakThisSentence'
   // Bij een minimaal paar (rok ↔ rook) beide woorden voorlezen voor het contrast.
-  const listenText = item.pair ? `${speakable}, ${item.pair}` : speakable
+  const listenText = item?.pair ? `${speakable}, ${item.pair}` : speakable
 
   const recorder = useRecorder()
   const [status, setStatus] = useState('idle') // idle | busy | result | error
@@ -50,6 +51,14 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     setRecUrl(null)
   }, [i])
 
+  // Ruim de blob-URL van de vorige opname op (voorkomt geheugenlek per opname).
+  useEffect(() => {
+    return () => {
+      if (recUrl) URL.revokeObjectURL(recUrl)
+    }
+  }, [recUrl])
+
+  const playbackRef = useRef(null)
   const canRecord = hasGroq() && recorder.supported
   const canEvaluate = hasGemini()
 
@@ -94,7 +103,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         // woorden betrouwbaarder herkent en man/maan kan onderscheiden.
         const words = [target, item.pair, item.word].filter(Boolean)
         const hint = `Nederlandse uitspraakoefening. Mogelijke woorden: ${words.join(', ')}.`
-        const text = await transcribeAudio(blob, 'opname.webm', hint)
+        const text = await transcribeAudio(blob, '', hint)
         setTranscript(text)
         if (text) await check(text)
         else {
@@ -118,6 +127,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   }
 
   const noKeys = !canEvaluate && !canRecord
+  const ttsSilent = !canProbablySpeak()
+
+  if (!hasItems) {
+    return <p className="p-6 text-center text-slate-500">{t('lessonEmpty')}</p>
+  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -189,6 +203,9 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
             🔊 {t('listenExample')}
           </button>
         )}
+        {ttsSilent && (
+          <p className="mt-2 text-xs text-amber-700">⚠️ {t('ttsOffline')}</p>
+        )}
       </div>
 
       {noKeys && (
@@ -227,7 +244,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
             </button>
           </div>
         )}
-        {recorder.error && <p className="mt-2 text-sm text-rose-600">{recorder.error}</p>}
+        {recorder.error && <p className="mt-2 text-sm text-rose-600">{t(recorder.error)}</p>}
       </div>
 
       <div className="mt-4 flex-1">
@@ -237,7 +254,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
 
         {recUrl && (
           <button
-            onClick={() => new Audio(recUrl).play().catch(() => {})}
+            onClick={() => {
+              if (!playbackRef.current) playbackRef.current = new Audio()
+              playbackRef.current.src = recUrl
+              playbackRef.current.play().catch(() => {})
+            }}
             className="btn-ghost mb-3"
           >
             ▶️ {t('myRecording')}
@@ -251,7 +272,18 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         )}
 
         {status === 'error' && errorMsg && (
-          <p className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{errorMsg}</p>
+          <div className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">
+            <p>{errorMsg}</p>
+            <button
+              onClick={() => {
+                setErrorMsg('')
+                setStatus('idle')
+              }}
+              className="mt-2 font-semibold text-rose-800 underline"
+            >
+              ↻ {t('tryAgain')}
+            </button>
+          </div>
         )}
 
         {status === 'result' && feedback && (
@@ -288,10 +320,20 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
 
 function errorKeyToText(e, t) {
   const msg = String(e?.message || e)
+  const status = e?.status
   if (msg.includes('GEEN_GROQ_SLEUTEL')) return t('errNoGroq')
   if (msg.includes('GEEN_GEMINI_SLEUTEL')) return t('errNoGemini')
-  // 400 / ongeldige sleutel (bv. een Gemini-sleutel die niet met AIza begint)
+  // Time-out of geen netwerk.
+  if (status === 'timeout') return t('errTimeout')
+  if (status === 'network') return t('errGeneric')
+  // Model bestaat niet (meer) — dé melding bij een afgeschafte/gewijzigde model-id.
+  if (status === 404 || /not found|is not supported|not supported for/i.test(msg))
+    return t('errModelUnavailable')
+  // 400/401/403 = ongeldige/geweigerde sleutel.
   if (
+    status === 400 ||
+    status === 401 ||
+    status === 403 ||
     msg.includes('401') ||
     msg.includes('403') ||
     msg.includes('400') ||
@@ -299,6 +341,6 @@ function errorKeyToText(e, t) {
     /invalid/i.test(msg)
   )
     return t('errKeyRejected')
-  if (msg.includes('429')) return t('errTooMany')
+  if (status === 429 || msg.includes('429')) return t('errTooMany')
   return t('errGeneric')
 }

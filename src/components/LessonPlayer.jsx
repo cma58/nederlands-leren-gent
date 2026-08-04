@@ -93,8 +93,9 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
   const { t } = useLang()
   const [i, setI] = useState(0)
   const [revealed, setRevealed] = useState(false)
-  const item = lesson.items[i]
-  const isLast = i === lesson.items.length - 1
+  const hasItems = lesson?.items?.length > 0
+  const item = hasItems ? lesson.items[i] : null
+  const isLast = i === (lesson?.items?.length ?? 0) - 1
 
   // Alleen de kaart resetten. NIET automatisch voorlezen: telefoons blokkeren
   // geluid dat niet door een tik gestart wordt (dan hoor je niets).
@@ -104,6 +105,10 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
 
   const next = () => (isLast ? onFinish() : setI((n) => n + 1))
   const prev = () => setI((n) => Math.max(0, n - 1))
+
+  if (!hasItems) {
+    return <p className="p-6 text-center text-slate-500">{t('lessonEmpty')}</p>
+  }
 
   return (
     <div className="flex flex-1 flex-col">

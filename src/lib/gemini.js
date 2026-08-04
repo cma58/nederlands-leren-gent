@@ -44,27 +44,49 @@ export async function evaluateAnswer(userAnswer, expectedAnswer, contextPrompt =
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=` +
     encodeURIComponent(key)
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ role: 'user', parts: [{ text: userText }] }],
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: 'application/json',
-        responseSchema: RESPONSE_SCHEMA,
-      },
-    }),
-  })
+  let res
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // Stopt een vastgelopen verzoek na 20s zodat de UI niet eeuwig 'bezig' blijft.
+      signal: AbortSignal.timeout(20000),
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: 'user', parts: [{ text: userText }] }],
+        generationConfig: {
+          temperature: 0.3,
+          responseMimeType: 'application/json',
+          responseSchema: RESPONSE_SCHEMA,
+          // Deze eenvoudige nakijk-taak heeft geen 'denk'-fase nodig: scheelt
+          // tijd/kosten en voorkomt afgekapte JSON bij 2.5-modellen.
+          thinkingConfig: { thinkingBudget: 0 },
+        },
+      }),
+    })
+  } catch (e) {
+    // Time-out of netwerkfout: geef een herkenbare code mee.
+    const err = new Error(e?.name === 'TimeoutError' ? 'TIME_OUT' : 'NETWERK_FOUT')
+    err.status = e?.name === 'TimeoutError' ? 'timeout' : 'network'
+    throw err
+  }
 
   if (!res.ok) {
     const detail = await res.text().catch(() => '')
-    throw new Error(`Gemini-fout (${res.status}): ${detail.slice(0, 200)}`)
+    const err = new Error(`Gemini-fout (${res.status}): ${detail.slice(0, 200)}`)
+    err.status = res.status
+    throw err
   }
 
   const data = await res.json()
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+  if (data?.promptFeedback?.blockReason) {
+    const err = new Error(`Geblokkeerd: ${data.promptFeedback.blockReason}`)
+    err.status = 'blocked'
+    throw err
+  }
+  // Zoek het eerste tekst-deel (een model kan ook niet-tekst delen teruggeven).
+  const parts = data?.candidates?.[0]?.content?.parts
+  const text = Array.isArray(parts) ? parts.find((p) => typeof p?.text === 'string')?.text : undefined
   if (!text) throw new Error('Leeg antwoord van Gemini.')
 
   try {

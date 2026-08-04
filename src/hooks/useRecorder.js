@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
  * Kleine hook rond de MediaRecorder-API om audio op te nemen met de microfoon.
@@ -6,7 +6,7 @@ import { useCallback, useRef, useState } from 'react'
  * Geeft terug:
  *   supported   – of opnemen mogelijk is in deze browser
  *   recording   – of er nu opgenomen wordt
- *   error       – eventuele foutmelding (bv. geen microfoontoestemming)
+ *   error       – foutcode voor vertaling (micNoPermission/micNoStart/micNotSupported)
  *   start()     – begin met opnemen
  *   stop()      – stop; retourneert een Promise met de audio-Blob
  *   reset()     – wis de laatste opname/fout
@@ -25,10 +25,25 @@ export function useRecorder() {
   const chunksRef = useRef([])
   const streamRef = useRef(null)
 
+  // Zet altijd de microfoon uit als de component verdwijnt (bv. les gesloten
+  // tijdens het opnemen). Anders blijft de mic-stream actief (opname-indicator
+  // blijft aan, batterij loopt leeg, privacy).
+  useEffect(() => {
+    return () => {
+      try {
+        if (mediaRef.current && mediaRef.current.state !== 'inactive') mediaRef.current.stop()
+      } catch {
+        /* negeren */
+      }
+      streamRef.current?.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+    }
+  }, [])
+
   const start = useCallback(async () => {
     setError(null)
     if (!supported) {
-      setError('Opnemen wordt niet ondersteund in deze browser.')
+      setError('micNotSupported')
       return
     }
     try {
@@ -55,11 +70,8 @@ export function useRecorder() {
       rec.start()
       setRecording(true)
     } catch (e) {
-      setError(
-        e?.name === 'NotAllowedError'
-          ? 'Geen toestemming voor de microfoon. Sta het toe in je browser.'
-          : 'Kon de microfoon niet starten.',
-      )
+      // Foutcode i.p.v. vaste tekst, zodat de UI het in de juiste taal toont.
+      setError(e?.name === 'NotAllowedError' ? 'micNoPermission' : 'micNoStart')
     }
   }, [supported])
 

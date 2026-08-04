@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { isTTSAvailable, speak } from '../lib/speech.js'
+import { isTTSAvailable, speak, canProbablySpeak } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
 
 /**
@@ -13,19 +13,20 @@ import { useLang } from '../context/LanguageContext.jsx'
 export default function ListenExercise({ lesson, onFinish }) {
   const { t } = useLang()
   const [i, setI] = useState(0)
-  const item = lesson.items[i]
-  const isLast = i === lesson.items.length - 1
+  const hasItems = lesson?.items?.length > 0
+  const item = hasItems ? lesson.items[i] : null
+  const isLast = i === (lesson?.items?.length ?? 0) - 1
 
-  const options = [item.nl, item.pair].filter(Boolean)
-  const [target, setTarget] = useState(item.nl)
+  const options = [item?.nl, item?.pair].filter(Boolean)
+  const [target, setTarget] = useState(item?.nl ?? '')
   const [played, setPlayed] = useState(false)
   const [picked, setPicked] = useState(null)
   const answered = picked !== null
 
   // Bij een nieuw item: willekeurig doelwoord kiezen en resetten.
   useEffect(() => {
-    const opts = [item.nl, item.pair].filter(Boolean)
-    setTarget(opts[Math.floor(Math.random() * opts.length)])
+    const opts = [item?.nl, item?.pair].filter(Boolean)
+    if (opts.length) setTarget(opts[Math.floor(Math.random() * opts.length)])
     setPlayed(false)
     setPicked(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,6 +48,10 @@ export default function ListenExercise({ lesson, onFinish }) {
     else setI((n) => n + 1)
   }
 
+  if (!hasItems) {
+    return <p className="p-6 text-center text-slate-500">{t('lessonEmpty')}</p>
+  }
+
   return (
     <div className="flex flex-1 flex-col">
       {/* Voortgang */}
@@ -62,6 +67,12 @@ export default function ListenExercise({ lesson, onFinish }) {
       </div>
 
       <p className="mb-3 text-center text-sm font-semibold text-slate-600">{t('listenWhichWord')}</p>
+
+      {!canProbablySpeak() && (
+        <p className="mb-3 rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-700">
+          ⚠️ {t('ttsOffline')}
+        </p>
+      )}
 
       {/* Luisterknop */}
       <button
