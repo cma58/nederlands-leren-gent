@@ -1263,7 +1263,7 @@ const curriculum = {
                 {
                   "nl": "Welkom",
                   "darija": "مرحبا",
-                  "darijaLat": "marhba"
+                  "darijaLat": "mar7ba"
                 },
                 {
                   "nl": "Hoe gaat het?",
@@ -1770,7 +1770,7 @@ const curriculum = {
                   "nl": "muur",
                   "article": "de",
                   "darija": "الحيط",
-                  "darijaLat": "hit"
+                  "darijaLat": "7it"
                 },
                 {
                   "nl": "vloer",
@@ -2064,8 +2064,8 @@ const curriculum = {
                 },
                 {
                   "nl": "Ik heb twee kinderen.",
-                  "darija": "عندي جوج ديال الدراري",
-                  "darijaLat": "3andi jouj dyal drari"
+                  "darija": "عندي زوج تاع الدراري",
+                  "darijaLat": "3andi zouj ta3 drari"
                 }
               ]
             },
@@ -2092,14 +2092,14 @@ const curriculum = {
                 },
                 {
                   "nl": "Ik spreek een beetje Nederlands.",
-                  "darija": "كنهضر شوية بالهولندية",
-                  "darijaLat": "kanhder chwiya b hollandiya"
+                  "darija": "نهضر شوية بالهولندية",
+                  "darijaLat": "nhder chwiya b hollandiya"
                 },
                 {
                   "nl": "Stel jezelf nu voor in drie zinnen.",
                   "answer": "Ik ben ... Ik kom uit Oujda. Ik woon in Gent.",
-                  "darija": "دابا قدمي راسك فـ ثلاث جمل",
-                  "darijaLat": "daba qedmi rassek f tlata d jomal"
+                  "darija": "دروك قدمي راسك فـ ثلاث جمل",
+                  "darijaLat": "drouk qedmi rassek f tlata d jomal"
                 }
               ]
             }
@@ -2253,8 +2253,8 @@ const curriculum = {
                 },
                 {
                   "nl": "uw",
-                  "darija": "ديالكم",
-                  "darijaLat": "dyalkoum",
+                  "darija": "تاعكم",
+                  "darijaLat": "ta3koum",
                   "example": "uw naam (beleefd)"
                 },
                 {
@@ -2271,26 +2271,26 @@ const curriculum = {
                 },
                 {
                   "nl": "zijn",
-                  "darija": "ديالو",
-                  "darijaLat": "dyalou",
+                  "darija": "تاعو",
+                  "darijaLat": "ta3ou",
                   "example": "zijn vader (van een man)"
                 },
                 {
                   "nl": "haar",
-                  "darija": "ديالها",
-                  "darijaLat": "dyalha",
+                  "darija": "تاعها",
+                  "darijaLat": "ta3ha",
                   "example": "haar moeder (van een vrouw)"
                 },
                 {
                   "nl": "ons / onze",
-                  "darija": "ديالنا",
-                  "darijaLat": "dyalna",
+                  "darija": "تاعنا",
+                  "darijaLat": "ta3na",
                   "example": "ons huis / onze straat"
                 },
                 {
                   "nl": "hun",
-                  "darija": "ديالهم",
-                  "darijaLat": "dyalhom",
+                  "darija": "تاعهم",
+                  "darijaLat": "ta3hom",
                   "example": "hun kinderen"
                 }
               ]
@@ -2488,34 +2488,34 @@ const curriculum = {
               "items": [
                 {
                   "nl": "ik woon",
-                  "darijaLat": "kanskon",
-                  "darija": "كنسكن"
+                  "darijaLat": "nskon",
+                  "darija": "نسكن"
                 },
                 {
                   "nl": "jij woont",
                   "tip": "stam + t",
-                  "darija": "نتا كتسكن / نتي كتسكني",
-                  "darijaLat": "nta katskon / nti katskoni",
+                  "darija": "نتا تسكن / نتي تسكني",
+                  "darijaLat": "nta tskon / nti tskoni",
                   "tipDarija": "الجذر + t."
                 },
                 {
                   "nl": "hij/zij woont",
                   "tip": "stam + t",
-                  "darija": "هو كيسكن / هي كتسكن",
-                  "darijaLat": "houwa kayskon / hiya katskon",
+                  "darija": "هو يسكن / هي تسكن",
+                  "darijaLat": "houwa yskon / hiya tskon",
                   "tipDarija": "الجذر + t."
                 },
                 {
                   "nl": "wij wonen",
                   "tip": "hele werkwoord",
-                  "darija": "حنا كنسكنو",
-                  "darijaLat": "7na kanskno",
+                  "darija": "حنا نسكنو",
+                  "darijaLat": "7na nskno",
                   "tipDarija": "الفعل كامل."
                 },
                 {
                   "nl": "ik werk / jij werkt",
-                  "darijaLat": "kankhdem / katkhdem, katkhdmi",
-                  "darija": "كنخدم / كتخدم، كتخدمي"
+                  "darijaLat": "nkhdem / tkhdem, tkhdmi",
+                  "darija": "نخدم / تخدم، تخدمي"
                 },
                 {
                   "nl": "ik heet / jij heet",
@@ -2526,30 +2526,30 @@ const curriculum = {
                 },
                 {
                   "nl": "ik spreek / jij spreekt",
-                  "darijaLat": "kanhder / kathder, kathdri",
-                  "darija": "كنهضر / كتهضر، كتهضري"
+                  "darijaLat": "nhder / thder, thdri",
+                  "darija": "نهضر / تهضر، تهضري"
                 },
                 {
                   "nl": "ik kom / jij komt",
-                  "darijaLat": "kanji / katji",
-                  "darija": "كنجي / كتجي"
+                  "darijaLat": "nji / tji",
+                  "darija": "نجي / تجي"
                 },
                 {
                   "nl": "ik eet / jij eet",
                   "tip": "stam eindigt op t → geen dubbele t",
-                  "darijaLat": "kanakel / katakel, katakli",
-                  "darija": "كناكل / كتاكل، كتاكلي",
+                  "darijaLat": "nakel / takel, takli",
+                  "darija": "ناكل / تاكل، تاكلي",
                   "tipDarija": "الجذر كيسالي بـ t → ما كنزيدوش t خرى."
                 },
                 {
                   "nl": "ik leer / jij leert",
-                  "darijaLat": "kant3ellem / kat3ellem, kat3elmi",
-                  "darija": "كنتعلم / كتتعلم، كتتعلمي"
+                  "darijaLat": "nt3ellem / t3ellem, t3elmi",
+                  "darija": "نتعلم / تتعلم، تتعلمي"
                 },
                 {
                   "nl": "ik maak / jij maakt",
-                  "darijaLat": "kandir / katdir, katdiri",
-                  "darija": "كندير / كتدير، كتديري"
+                  "darijaLat": "ndir / tdir, tdiri",
+                  "darija": "ندير / تدير، تديري"
                 }
               ]
             },
@@ -2690,14 +2690,14 @@ const curriculum = {
                 {
                   "nl": "Woon jij in Gent?",
                   "example": "van: jij woont in Gent",
-                  "darija": "واش نتا كتسكن فـ گنت؟ / واش نتي كتسكني فـ گنت؟",
-                  "darijaLat": "wach nta katskon f Gent? / wach nti katskoni f Gent?"
+                  "darija": "واش نتا تسكن فـ گنت؟ / واش نتي تسكني فـ گنت؟",
+                  "darijaLat": "wach nta tskon f Gent? / wach nti tskoni f Gent?"
                 },
                 {
                   "nl": "Spreek jij Nederlands?",
                   "example": "van: jij spreekt Nederlands",
-                  "darija": "واش نتا كتهضر بالهولندية؟ / واش نتي كتهضري بالهولندية؟",
-                  "darijaLat": "wach nta kathder b hollandiya? / wach nti kathdri b hollandiya?"
+                  "darija": "واش نتا تهضر بالهولندية؟ / واش نتي تهضري بالهولندية؟",
+                  "darijaLat": "wach nta thder b hollandiya? / wach nti thdri b hollandiya?"
                 },
                 {
                   "nl": "Heb jij kinderen?",
@@ -2714,8 +2714,8 @@ const curriculum = {
                 {
                   "nl": "Werk jij in Gent?",
                   "example": "van: jij werkt in Gent",
-                  "darija": "واش نتا كتخدم فـ گنت؟ / واش نتي كتخدمي فـ گنت؟",
-                  "darijaLat": "wach nta katkhdem f Gent? / wach nti katkhdmi f Gent?"
+                  "darija": "واش نتا تخدم فـ گنت؟ / واش نتي تخدمي فـ گنت؟",
+                  "darijaLat": "wach nta tkhdem f Gent? / wach nti tkhdmi f Gent?"
                 },
                 {
                   "nl": "Kom jij uit Marokko?",
@@ -2727,8 +2727,8 @@ const curriculum = {
                   "nl": "Versta jij mij?",
                   "example": "van: jij verstaat mij",
                   "tip": "In Vlaanderen: \"verstaan\" = begrijpen.",
-                  "darija": "واش نتا كتفهمني؟ / واش نتي كتفهميني؟",
-                  "darijaLat": "wach nta katfhemni? / wach nti katfhemini?",
+                  "darija": "واش نتا تفهمني؟ / واش نتي تفهميني؟",
+                  "darijaLat": "wach nta tfhemni? / wach nti tfhemini?",
                   "tipDarija": "فـ فلاندرز «verstaan» = تفهم."
                 },
                 {
@@ -2883,8 +2883,8 @@ const curriculum = {
                 },
                 {
                   "nl": "Ik zoek melk.",
-                  "darija": "كنقلب على الحليب",
-                  "darijaLat": "kanqelleb 3la l7lib"
+                  "darija": "نقلب على الحليب",
+                  "darijaLat": "nqelleb 3la l7lib"
                 },
                 {
                   "nl": "Waar is de kassa?",
@@ -2941,7 +2941,7 @@ const curriculum = {
                 {
                   "nl": "Goedemorgen, mag ik een brood?",
                   "darija": "صباح الخير، ممكن خبزة عافاك؟",
-                  "darijaLat": "sbah lkhir, momkin khobza 3afak?"
+                  "darijaLat": "sba7 lkhir, momkin khobza 3afak?"
                 },
                 {
                   "nl": "Hoeveel kost dit?",
@@ -3009,7 +3009,7 @@ const curriculum = {
                 {
                   "nl": "zondag",
                   "darija": "لحد",
-                  "darijaLat": "lhedd"
+                  "darijaLat": "l7edd"
                 },
                 {
                   "nl": "vandaag",
@@ -3024,7 +3024,7 @@ const curriculum = {
                 {
                   "nl": "gisteren",
                   "darija": "البارح",
-                  "darijaLat": "lbareh"
+                  "darijaLat": "lbare7"
                 }
               ]
             },
@@ -3112,12 +3112,12 @@ const curriculum = {
                 {
                   "nl": "Het is één uur.",
                   "darija": "الساعة الوحدة",
-                  "darijaLat": "sa3a lwehda"
+                  "darijaLat": "sa3a lwe7da"
                 },
                 {
                   "nl": "Het is half drie.",
-                  "darija": "الساعة الجوج ونص",
-                  "darijaLat": "sa3a jouj w ness",
+                  "darija": "الساعة الزوج ونص",
+                  "darijaLat": "sa3a zouj w ness",
                   "tip": "Half drie = 2u30 (halfweg naar drie).",
                   "tipDarija": "«Half drie» = 2:30 (نص الطريق ل3)."
                 },
@@ -3139,7 +3139,7 @@ const curriculum = {
                 {
                   "nl": "de ochtend",
                   "darija": "الصباح",
-                  "darijaLat": "sbah"
+                  "darijaLat": "sba7"
                 },
                 {
                   "nl": "de middag",
@@ -3188,7 +3188,7 @@ const curriculum = {
                 {
                   "nl": "zondag",
                   "darija": "لحد",
-                  "darijaLat": "lhedd"
+                  "darijaLat": "l7edd"
                 },
                 {
                   "nl": "vandaag",
@@ -3498,8 +3498,8 @@ const curriculum = {
                 },
                 {
                   "nl": "Ik heb hoofdpijn.",
-                  "darija": "راسي كيوجعني",
-                  "darijaLat": "rasi kaywej3ni"
+                  "darija": "راسي يوجعني",
+                  "darijaLat": "rasi ywej3ni"
                 },
                 {
                   "nl": "Ik heb koorts.",
@@ -3581,7 +3581,7 @@ const curriculum = {
                 {
                   "nl": "rood",
                   "darija": "أحمر",
-                  "darijaLat": "hmer"
+                  "darijaLat": "7mer"
                 },
                 {
                   "nl": "blauw",
@@ -3601,7 +3601,7 @@ const curriculum = {
                 {
                   "nl": "zwart",
                   "darija": "كحل",
-                  "darijaLat": "khel"
+                  "darijaLat": "k7el"
                 },
                 {
                   "nl": "wit",
@@ -3673,7 +3673,7 @@ const curriculum = {
                   "nl": "vlees",
                   "article": "het",
                   "darija": "اللحم",
-                  "darijaLat": "lhem"
+                  "darijaLat": "l7em"
                 },
                 {
                   "nl": "vis",
@@ -3749,7 +3749,7 @@ const curriculum = {
                 {
                   "nl": "Smakelijk!",
                   "darija": "بالصحة",
-                  "darijaLat": "b sahha"
+                  "darijaLat": "b sa77a"
                 },
                 {
                   "nl": "De rekening, alstublieft.",
@@ -3783,7 +3783,7 @@ const curriculum = {
                 {
                   "nl": "Smakelijk!",
                   "darija": "بالصحة",
-                  "darijaLat": "b sahha"
+                  "darijaLat": "b sa77a"
                 }
               ]
             },
@@ -3847,7 +3847,7 @@ const curriculum = {
                 {
                   "nl": "een stuk",
                   "darija": "وحدة / قطعة",
-                  "darijaLat": "wehda / qet3a"
+                  "darijaLat": "we7da / qet3a"
                 },
                 {
                   "nl": "een fles",
@@ -3866,7 +3866,7 @@ const curriculum = {
                 {
                   "nl": "halal",
                   "darija": "حلال",
-                  "darijaLat": "halal"
+                  "darijaLat": "7alal"
                 },
                 {
                   "nl": "het varkensvlees",
@@ -3913,7 +3913,7 @@ const curriculum = {
                   "nl": "Is dit halal?",
                   "answer": "Is dit halal?",
                   "darija": "واش هادا حلال؟",
-                  "darijaLat": "wach hada halal?"
+                  "darijaLat": "wach hada 7alal?"
                 },
                 {
                   "nl": "Zit hier varkensvlees in?",
@@ -3997,7 +3997,7 @@ const curriculum = {
                   "nl": "pauze",
                   "article": "de",
                   "darija": "البوز / الاستراحة",
-                  "darijaLat": "pause / listiraha"
+                  "darijaLat": "pause / listira7a"
                 }
               ]
             },
@@ -4010,13 +4010,13 @@ const curriculum = {
               "items": [
                 {
                   "nl": "Ik werk in Gent.",
-                  "darija": "كنخدم فـ گنت",
-                  "darijaLat": "kankhdem f Gent"
+                  "darija": "نخدم فـ گنت",
+                  "darijaLat": "nkhdem f Gent"
                 },
                 {
                   "nl": "Wat is uw beroep?",
-                  "darija": "شنو هي الخدمة ديالك؟",
-                  "darijaLat": "chno hiya lkhedma dyalek?"
+                  "darija": "شنو هي الخدمة تاعك؟",
+                  "darijaLat": "chno hiya lkhedma ta3ek?"
                 },
                 {
                   "nl": "Ik heb een afspraak.",
@@ -4030,8 +4030,8 @@ const curriculum = {
                 },
                 {
                   "nl": "Wanneer past het u?",
-                  "darija": "إمتى يجيك مناسب؟",
-                  "darijaLat": "imta yjik monasib?"
+                  "darija": "وقتاش يجيك مناسب؟",
+                  "darijaLat": "weqtach yjik monasib?"
                 },
                 {
                   "nl": "Om negen uur.",
@@ -4064,8 +4064,8 @@ const curriculum = {
               "items": [
                 {
                   "nl": "Ik werk in Gent.",
-                  "darija": "كنخدم فـ گنت",
-                  "darijaLat": "kankhdem f Gent"
+                  "darija": "نخدم فـ گنت",
+                  "darijaLat": "nkhdem f Gent"
                 },
                 {
                   "nl": "Ik heb een afspraak.",
@@ -4166,8 +4166,8 @@ const curriculum = {
                 },
                 {
                   "nl": "Ik spreek geen Frans.",
-                  "darija": "ما كنهضرش بالفرنسية",
-                  "darijaLat": "ma kanhderch b lfransiya"
+                  "darija": "ما نهضرش بالفرنسية",
+                  "darijaLat": "ma nhderch b lfransiya"
                 },
                 {
                   "nl": "Ik versta het niet.",
@@ -4347,8 +4347,8 @@ const curriculum = {
                 {
                   "nl": "Spreekt u Nederlands?",
                   "answer": "Spreekt u Nederlands?",
-                  "darija": "واش كتهضر بالهولندية؟",
-                  "darijaLat": "wach kathder b hollandiya?"
+                  "darija": "واش تهضر بالهولندية؟",
+                  "darijaLat": "wach thder b hollandiya?"
                 },
                 {
                   "nl": "Hebt u kinderen?",
@@ -4482,7 +4482,7 @@ const curriculum = {
                 {
                   "nl": "de les Nederlands",
                   "darija": "حصة الهولندية",
-                  "darijaLat": "hessa d hollandiya"
+                  "darijaLat": "7essa d hollandiya"
                 }
               ]
             },
@@ -4618,8 +4618,8 @@ const curriculum = {
                 {
                   "nl": "de boekentas",
                   "article": "de",
-                  "darija": "الصاك ديال المدرسة",
-                  "darijaLat": "ssak dyal lmedrasa"
+                  "darija": "الصاك تاع المدرسة",
+                  "darijaLat": "ssak ta3 lmedrasa"
                 },
                 {
                   "nl": "het oudercontact",
