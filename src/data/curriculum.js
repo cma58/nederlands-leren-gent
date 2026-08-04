@@ -669,6 +669,65 @@ const curriculum = {
                   "darijaLat": "lil"
                 }
               ]
+            },
+            {
+              "id": "0.1.4",
+              "title": "Luister: korte of lange klank?",
+              "titleDarija": "سمع: صوت قصير ولا طويل؟",
+              "type": "listen",
+              "intro": "Welk woord hoor je? Eerst leren horen, dan pas uitspreken.",
+              "items": [
+                {
+                  "nl": "man",
+                  "pair": "maan",
+                  "tip": "Korte a vs. lange aa."
+                },
+                {
+                  "nl": "bos",
+                  "pair": "boos",
+                  "tip": "Korte o vs. lange oo."
+                },
+                {
+                  "nl": "zon",
+                  "pair": "zoon",
+                  "tip": "Korte o vs. lange oo."
+                },
+                {
+                  "nl": "tak",
+                  "pair": "taak",
+                  "tip": "Korte a vs. lange aa."
+                },
+                {
+                  "nl": "vis",
+                  "pair": "vies",
+                  "tip": "Korte i vs. lange ie."
+                },
+                {
+                  "nl": "bom",
+                  "pair": "boom",
+                  "tip": "Korte o vs. lange oo."
+                },
+                {
+                  "nl": "pot",
+                  "pair": "poot",
+                  "tip": "Korte o vs. lange oo."
+                },
+                {
+                  "nl": "rok",
+                  "pair": "rook",
+                  "tip": "Korte o vs. lange oo."
+                },
+                {
+                  "nl": "pit",
+                  "pair": "piet",
+                  "tip": "Korte i vs. lange ie."
+                },
+                {
+                  "nl": "les",
+                  "pair": "lees",
+                  "tip": "Korte e vs. lange ee."
+                }
+              ]
             }
           ]
         },
@@ -678,6 +737,56 @@ const curriculum = {
           "goal": "Iemand groeten en beleefd reageren in het dagelijks leven.",
           "icon": "👋",
           "lessons": [
+            {
+              "id": "0.2.0",
+              "title": "Ja, nee & korte antwoorden",
+              "titleDarija": "إيه، لا والأجوبة القصيرة",
+              "type": "vocab",
+              "intro": "De belangrijkste kleine woorden om te antwoorden.",
+              "items": [
+                {
+                  "nl": "ja",
+                  "darija": "إيه",
+                  "darijaLat": "iyyeh",
+                  "tip": "In Marokko ook: واه (wah)."
+                },
+                {
+                  "nl": "nee",
+                  "darija": "لا",
+                  "darijaLat": "la"
+                },
+                {
+                  "nl": "misschien",
+                  "darija": "يمكن",
+                  "darijaLat": "yemken"
+                },
+                {
+                  "nl": "oké / goed",
+                  "darija": "واخّا",
+                  "darijaLat": "waxxa"
+                },
+                {
+                  "nl": "een beetje",
+                  "darija": "شوية",
+                  "darijaLat": "chwiya"
+                },
+                {
+                  "nl": "ik weet het niet",
+                  "darija": "ما عارفش",
+                  "darijaLat": "ma 3arefch"
+                },
+                {
+                  "nl": "dat klopt",
+                  "darija": "صحيح",
+                  "darijaLat": "s7i7"
+                },
+                {
+                  "nl": "alstublieft",
+                  "darija": "عافاك",
+                  "darijaLat": "3afak"
+                }
+              ]
+            },
             {
               "id": "0.2.1",
               "title": "Groeten",
@@ -2234,6 +2343,24 @@ const curriculum = {
                   "nl": "Bedankt, tot ziens.",
                   "darija": "شكرا، بسلامة",
                   "darijaLat": "choukran, bslama"
+                },
+                {
+                  "nl": "Bancontact",
+                  "darija": "بانكونتاكت",
+                  "darijaLat": "Bancontact",
+                  "tip": "Betalen met je bankkaart — heel gewoon in België."
+                },
+                {
+                  "nl": "de bankkaart",
+                  "article": "de",
+                  "darija": "الكارطة البانكية",
+                  "darijaLat": "lkarta lbankiya"
+                },
+                {
+                  "nl": "Kan ik met de kaart betalen?",
+                  "answer": "Kan ik met de kaart betalen?",
+                  "darija": "واش نقدر نخلّص بالكارطة؟",
+                  "darijaLat": "wach nqder nkhelles b lkarta?"
                 }
               ]
             },
@@ -2571,6 +2698,41 @@ const curriculum = {
                   "nl": "Hoeveel kost een ticket?",
                   "darija": "بشحال التيكي؟",
                   "darijaLat": "bch7al tiki?"
+                },
+                {
+                  "nl": "De Lijn",
+                  "darija": "دي لاين",
+                  "darijaLat": "De Lijn",
+                  "tip": "De Vlaamse bus- en tram­maatschappij."
+                },
+                {
+                  "nl": "overstappen",
+                  "darija": "نبدّل",
+                  "darijaLat": "nbeddel",
+                  "tip": "Van de ene bus/tram op de andere."
+                },
+                {
+                  "nl": "de kaart opladen",
+                  "darija": "نعمّر الكارطة",
+                  "darijaLat": "n3ammer lkarta"
+                },
+                {
+                  "nl": "het fietspad",
+                  "article": "het",
+                  "darija": "طريق البشكليط",
+                  "darijaLat": "triq lbeshklit",
+                  "tip": "Fietsen is heel handig in Gent."
+                },
+                {
+                  "nl": "lek (band)",
+                  "darija": "مثقوب",
+                  "darijaLat": "mtqoub"
+                },
+                {
+                  "nl": "gestolen",
+                  "darija": "تسرق",
+                  "darijaLat": "tsreq",
+                  "tip": "Bv. 'Mijn fiets is gestolen.'"
                 }
               ]
             },
@@ -3107,6 +3269,70 @@ const curriculum = {
                   "darijaLat": "qer3a"
                 }
               ]
+            },
+            {
+              "id": "1.8.6",
+              "title": "Halal & wat zit erin?",
+              "titleDarija": "حلال وشنو كاين فيه",
+              "type": "vocab",
+              "intro": "Belangrijk om etiketten en menu’s te begrijpen.",
+              "items": [
+                {
+                  "nl": "halal",
+                  "darija": "حلال",
+                  "darijaLat": "halal"
+                },
+                {
+                  "nl": "het varkensvlees",
+                  "article": "het",
+                  "darija": "لحم الخنزير",
+                  "darijaLat": "l7em lekhnzir",
+                  "tip": "Niet halal — goed om te herkennen."
+                },
+                {
+                  "nl": "het spek",
+                  "article": "het",
+                  "darija": "لحم الخنزير المدخّن",
+                  "darijaLat": "l7em lekhnzir lmdekhkhen",
+                  "tip": "Bacon; komt van varken."
+                },
+                {
+                  "nl": "de gelatine",
+                  "article": "de",
+                  "darija": "جيلاتين",
+                  "darijaLat": "jilatin",
+                  "tip": "Kan van varken zijn — vraag na."
+                },
+                {
+                  "nl": "vegetarisch",
+                  "darija": "نباتي",
+                  "darijaLat": "nabati"
+                },
+                {
+                  "nl": "het rundvlees",
+                  "article": "het",
+                  "darija": "لحم البڭري",
+                  "darijaLat": "l7em lbagri"
+                },
+                {
+                  "nl": "de kip",
+                  "article": "de",
+                  "darija": "الدجاج",
+                  "darijaLat": "ddjaj"
+                },
+                {
+                  "nl": "Is dit halal?",
+                  "answer": "Is dit halal?",
+                  "darija": "واش هادا حلال؟",
+                  "darijaLat": "wach hada halal?"
+                },
+                {
+                  "nl": "Zit hier varkensvlees in?",
+                  "answer": "Zit hier varkensvlees in?",
+                  "darija": "واش فيه لحم الخنزير؟",
+                  "darijaLat": "wach fih l7em lekhnzir?"
+                }
+              ]
             }
           ]
         },
@@ -3486,6 +3712,59 @@ const curriculum = {
                   "darijaLat": "sso2al"
                 }
               ]
+            },
+            {
+              "id": "1.10.5",
+              "title": "Beleefd: 'u' (dokter, gemeente, winkel)",
+              "titleDarija": "بأدب: «u» (الطبيب، البلدية، الحانوت)",
+              "type": "phrases",
+              "intro": "Tegen vreemden, de dokter of aan het loket gebruik je 'u' (beleefd), niet 'jij'.",
+              "items": [
+                {
+                  "nl": "Hoe heet u?",
+                  "answer": "Hoe heet u?",
+                  "darija": "أشنو سميتك؟",
+                  "darijaLat": "achno smitek?",
+                  "tip": "Beleefde vorm van 'Hoe heet jij?'"
+                },
+                {
+                  "nl": "Waar woont u?",
+                  "answer": "Waar woont u?",
+                  "darija": "فين ساكن/ساكنة؟",
+                  "darijaLat": "fin saken/sakna?"
+                },
+                {
+                  "nl": "Spreekt u Nederlands?",
+                  "answer": "Spreekt u Nederlands?",
+                  "darija": "واش كتهضر بالهولندية؟",
+                  "darijaLat": "wach kathder b hollandiya?"
+                },
+                {
+                  "nl": "Hebt u kinderen?",
+                  "answer": "Hebt u kinderen?",
+                  "darija": "واش عندك دراري؟",
+                  "darijaLat": "wach 3andek drari?"
+                },
+                {
+                  "nl": "Kunt u mij helpen?",
+                  "answer": "Kunt u mij helpen?",
+                  "darija": "واش تقدر تعاوني؟",
+                  "darijaLat": "wach tqder t3awenni?"
+                },
+                {
+                  "nl": "Kunt u wat trager spreken?",
+                  "answer": "Kunt u wat trager spreken?",
+                  "darija": "واش تقدر تهضر بشوية؟",
+                  "darijaLat": "wach tqder thder b chwiya?"
+                },
+                {
+                  "nl": "Dank u wel.",
+                  "answer": "Dank u wel.",
+                  "darija": "شكرا بزاف",
+                  "darijaLat": "choukran bezzaf",
+                  "tip": "Beleefd; informeel is 'Dank je wel'."
+                }
+              ]
             }
           ]
         },
@@ -3668,6 +3947,109 @@ const curriculum = {
                   "nl": "Er is een ongeval.",
                   "darija": "كاينة حادثة",
                   "darijaLat": "kayna 7adita"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.12",
+          "title": "Kinderen & school",
+          "titleDarija": "الدراري والمدرسة",
+          "lessons": [
+            {
+              "id": "1.12.1",
+              "title": "Kinderen & school",
+              "titleDarija": "الدراري والمدرسة",
+              "type": "vocab",
+              "intro": "Woorden voor het dagelijks leven met kinderen in Gent.",
+              "items": [
+                {
+                  "nl": "de school",
+                  "article": "de",
+                  "darija": "المدرسة",
+                  "darijaLat": "lmedrasa"
+                },
+                {
+                  "nl": "de juf",
+                  "article": "de",
+                  "darija": "المعلمة",
+                  "darijaLat": "lm3allima"
+                },
+                {
+                  "nl": "de meester",
+                  "article": "de",
+                  "darija": "المعلم",
+                  "darijaLat": "lm3allem"
+                },
+                {
+                  "nl": "de klas",
+                  "article": "de",
+                  "darija": "القسم",
+                  "darijaLat": "lqism"
+                },
+                {
+                  "nl": "de speelplaats",
+                  "article": "de",
+                  "darija": "الساحة",
+                  "darijaLat": "ssa7a"
+                },
+                {
+                  "nl": "de kinderopvang",
+                  "article": "de",
+                  "darija": "الحضانة",
+                  "darijaLat": "l7adana"
+                },
+                {
+                  "nl": "de boekentas",
+                  "article": "de",
+                  "darija": "الصاك ديال المدرسة",
+                  "darijaLat": "ssak dyal lmedrasa"
+                },
+                {
+                  "nl": "het oudercontact",
+                  "article": "het",
+                  "darija": "اجتماع الوالدين",
+                  "darijaLat": "ijtima3 lwalidin"
+                }
+              ]
+            },
+            {
+              "id": "1.12.2",
+              "title": "Op school: wat zeg je?",
+              "titleDarija": "فالمدرسة: أشنو كتقولي؟",
+              "type": "phrases",
+              "intro": "Handige zinnen voor de school van je kinderen.",
+              "items": [
+                {
+                  "nl": "Ik wil mijn kind inschrijven.",
+                  "answer": "Ik wil mijn kind inschrijven.",
+                  "darija": "بغيت نسجّل ولدي",
+                  "darijaLat": "bghit nsejjel weldi"
+                },
+                {
+                  "nl": "Mijn kind is ziek vandaag.",
+                  "answer": "Mijn kind is ziek vandaag.",
+                  "darija": "ولدي مريض اليوم",
+                  "darijaLat": "weldi mrid lyoum"
+                },
+                {
+                  "nl": "Wanneer is het oudercontact?",
+                  "answer": "Wanneer is het oudercontact?",
+                  "darija": "فوقاش اجتماع الوالدين؟",
+                  "darijaLat": "fouqach ijtima3 lwalidin?"
+                },
+                {
+                  "nl": "Hoe laat begint de school?",
+                  "answer": "Hoe laat begint de school?",
+                  "darija": "فوقاش كتبدا المدرسة؟",
+                  "darijaLat": "fouqach katbda lmedrasa?"
+                },
+                {
+                  "nl": "Waar is de school?",
+                  "answer": "Waar is de school?",
+                  "darija": "فين المدرسة؟",
+                  "darijaLat": "fin lmedrasa?"
                 }
               ]
             }
