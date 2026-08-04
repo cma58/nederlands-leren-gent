@@ -56,6 +56,27 @@ export function setGroqKey(value) {
 export const hasGemini = () => Boolean(getGeminiKey())
 export const hasGroq = () => Boolean(getGroqKey())
 
+// Optionele Google Sheet Webhook-URL (fouten loggen + herhaallessen ophalen).
+// Sleutelnaam bewust zonder prefix, zoals afgesproken in het plan.
+const WEBHOOK_KEY = 'google_sheet_webhook_url'
+
+export function getWebhookUrl() {
+  try {
+    return localStorage.getItem(WEBHOOK_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setWebhookUrl(value) {
+  try {
+    if (value) localStorage.setItem(WEBHOOK_KEY, value.trim())
+    else localStorage.removeItem(WEBHOOK_KEY)
+  } catch {
+    /* opslag geweigerd — negeren */
+  }
+}
+
 // Modelnamen — kunnen via .env aangepast worden zonder de code te wijzigen.
 // Gebruik een STABIELE model-id, niet een '-latest'-alias: die aliassen wijzen
 // altijd naar het nieuwste *preview*-model en worden door Google zonder

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import LevelCard from './LevelCard.jsx'
 import ProgressBar from './ProgressBar.jsx'
 import curriculum, { allLessonIds } from '../data/curriculum.js'
@@ -5,16 +6,29 @@ import resources from '../data/resources.js'
 import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
 import { dueCount } from '../lib/review.js'
+import { fetchCustomLesson } from '../lib/tracker.js'
 
 /**
  * Startscherm: welkomstboodschap, totale voortgang en de niveaukeuze.
  */
-export default function Dashboard({ onOpenLevel, onOpenReview }) {
+export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
   const { ratioFor, isDone } = useProgress()
-  const { t } = useLang()
+  const { t, isDarija } = useLang()
   const allIds = curriculum.levels.flatMap(allLessonIds)
   const overall = ratioFor(allIds)
   const due = dueCount(curriculum, isDone)
+
+  // Optioneel: automatisch gegenereerde herhaalles via de webhook ophalen.
+  const [customLesson, setCustomLesson] = useState(null)
+  useEffect(() => {
+    let alive = true
+    fetchCustomLesson().then((lesson) => {
+      if (alive) setCustomLesson(lesson)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -34,6 +48,27 @@ export default function Dashboard({ onOpenLevel, onOpenReview }) {
           <ProgressBar ratio={overall} />
         </div>
       </section>
+
+      {/* Automatisch gegenereerde herhaalles (webhook) — alleen indien aanwezig */}
+      {customLesson && (
+        <button
+          onClick={() => onOpenLesson?.(customLesson)}
+          className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-br from-gent-700 to-gent-500 p-4 text-left text-white shadow-sm transition hover:from-gent-800 hover:to-gent-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gent-500"
+        >
+          <span className="text-3xl" aria-hidden="true">
+            🎯
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-bold">
+              {isDarija && customLesson.titleDarija ? customLesson.titleDarija : t('customLessonTitle')}
+            </span>
+            <span className="block text-sm text-gent-100">{t('customLessonSub')}</span>
+          </span>
+          <span aria-hidden="true" className="text-2xl font-bold">
+            ›
+          </span>
+        </button>
+      )}
 
       {/* Herhaling — alleen tonen als er woorden klaarstaan */}
       {due > 0 && (

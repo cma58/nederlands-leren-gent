@@ -46,7 +46,11 @@ export default function App() {
         {activeLevel ? (
           <LevelView level={activeLevel} onOpenLesson={setActiveLesson} />
         ) : (
-          <Dashboard onOpenLevel={setActiveLevel} onOpenReview={() => setShowReview(true)} />
+          <Dashboard
+            onOpenLevel={setActiveLevel}
+            onOpenReview={() => setShowReview(true)}
+            onOpenLesson={setActiveLesson}
+          />
         )}
       </main>
 

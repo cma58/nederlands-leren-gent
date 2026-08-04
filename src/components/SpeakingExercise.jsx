@@ -7,6 +7,7 @@ import { useRecorder } from '../hooks/useRecorder.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import { scoreTranscript, tipsFor } from '../lib/pronunciation.js'
 import { itemKey, recordAttempt, isMastered } from '../lib/speakingProgress.js'
+import { logMistake } from '../lib/tracker.js'
 import SoundText from './SoundText.jsx'
 
 /**
@@ -102,10 +103,17 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     transcribeAudio(blob) // neutrale context — géén verwacht antwoord meegeven
       .then((text) => {
         setTranscript(text)
-        const res = scoreTranscript(item, text)
+        const res = scoreTranscript(item, text) // eerlijk, lokaal oordeel
         setResult(res)
         recordAttempt(key, res)
         setStatus('result')
+        // Bij "probeer opnieuw": stuur de fout (fire-and-forget) naar de webhook.
+        if (res === 'retry') {
+          logMistake({ expected: target, heard: text, lessonId: lesson.id, result: res })
+        }
+        // Hybride: toon automatisch Gemini's bemoedigende feedback-tekst (het
+        // OORDEEL blijft lokaal; Gemini geeft alleen uitleg). Werkt zonder Gemini.
+        if (hasGemini()) fetchFeedback(text, res)
       })
       .catch((e) => {
         setErrorMsg(errorKeyToText(e, t))
@@ -126,16 +134,19 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     recorder.start({ maxMs, onComplete: onRecordingDone })
   }
 
-  /* -------- optionele Gemini-uitleg -------- */
-  async function askExtra() {
-    if (!hasGemini() || extraBusy) return
+  /* -------- Gemini-feedback (tekst, automatisch — niet het oordeel) -------- */
+  async function fetchFeedback(heard, res) {
+    if (!hasGemini()) return
+    setExtra(null)
     setExtraBusy(true)
     try {
-      const context = `Uitspraakoefening. De leerling oefende het Nederlandse "${speakable}". Geef in maximaal twee korte zinnen één extra uitspraaktip in eenvoudig Nederlands en daarna in Darija (Arabisch schrift). Geen cijfers, geen scores.`
-      const r = await evaluateAnswer(transcript || speakable, target, context)
+      const verdictNl =
+        res === 'good' ? 'goed verstaanbaar' : res === 'almost' ? 'bijna goed' : 'nog niet goed verstaan'
+      const context = `Uitspraakoefening. De leerling oefende het Nederlandse "${speakable}". De app verstond: "${heard}". Beoordeling: ${verdictNl}. Geef één korte, bemoedigende uitspraaktip in eenvoudig Nederlands en daarna in Darija (Arabisch schrift). Geen cijfers of scores.`
+      const r = await evaluateAnswer(heard || speakable, target, context)
       setExtra({ nl: r.feedback_nl || '', dar: r.feedback_darija || '' })
     } catch {
-      setExtra({ nl: t('errGeneric'), dar: '' })
+      setExtra(null) // stil falen — het lokale oordeel + de vaste tip blijven staan
     }
     setExtraBusy(false)
   }
@@ -344,21 +355,15 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
                 <p className="rtl mt-1 text-sm text-slate-600">{tip.tipDarija}</p>
               )}
 
-              {/* Optionele extra uitleg via Gemini */}
-              {hasGemini() && (
+              {/* Gemini-feedback (tekst), automatisch getoond — niet het oordeel */}
+              {hasGemini() && (extraBusy || extra) && (
                 <div className="mt-3 border-t border-black/5 pt-2">
-                  {!extra && (
-                    <button
-                      onClick={askExtra}
-                      disabled={extraBusy}
-                      className="text-sm font-semibold text-gent-700 underline disabled:opacity-50"
-                    >
-                      {extraBusy ? `⏳ ${t('pleaseWait')}` : `💬 ${t('extraExplain')}`}
-                    </button>
+                  {extraBusy && !extra && (
+                    <p className="text-sm text-slate-500">💬 {t('extraExplain')}… ⏳</p>
                   )}
                   {extra && (
                     <div className="text-sm">
-                      {extra.nl && <p className="text-slate-700">{extra.nl}</p>}
+                      {extra.nl && <p className="text-slate-700">💬 {extra.nl}</p>}
                       {extra.dar && <p className="rtl mt-1 text-slate-600">{extra.dar}</p>}
                     </div>
                   )}
