@@ -416,7 +416,9 @@ const curriculum = {
                       "maan"
                     ],
                     "tipNl": "Kort \"a\" zoals in Darija «مانا»; lange \"aa\" houd je langer aan.",
-                    "tipDarija": "قولي «man» بصوت a قصير، وما تطوليش الصوت بحال فـ «maan»."
+                    "tipDarija": "قولي «man» بصوت a قصير، وما تطوليش الصوت بحال فـ «maan».",
+                    "highlight": "a",
+                    "pairHighlight": "aa"
                   }
                 },
                 {
@@ -435,7 +437,9 @@ const curriculum = {
                       "boos"
                     ],
                     "tipNl": "Korte \"o\" is open; lange \"oo\" is ronder en langer.",
-                    "tipDarija": "قولي «bos» بصوت o قصير ومفتوح، ماشي o طويلة بحال فـ «boos»."
+                    "tipDarija": "قولي «bos» بصوت o قصير ومفتوح، ماشي o طويلة بحال فـ «boos».",
+                    "highlight": "o",
+                    "pairHighlight": "oo"
                   }
                 },
                 {
@@ -454,7 +458,9 @@ const curriculum = {
                       "piet"
                     ],
                     "tipNl": "Korte \"i\" ligt tussen i en e; lange \"ie\" is een heldere «i».",
-                    "tipDarija": "قولي «pit» بصوت i قصير، وما تطوليش الصوت بحال فـ «piet»."
+                    "tipDarija": "قولي «pit» بصوت i قصير، وما تطوليش الصوت بحال فـ «piet».",
+                    "highlight": "i",
+                    "pairHighlight": "ie"
                   }
                 },
                 {
@@ -473,7 +479,9 @@ const curriculum = {
                       "buur"
                     ],
                     "tipNl": "De \"u\" bestaat niet in Darija: rond je lippen als bij «oe» maar zeg «i».",
-                    "tipDarija": "فـ «bus» صوت u قصير. ما تطوليش الصوت بحال uu فـ «buur»."
+                    "tipDarija": "فـ «bus» صوت u قصير. ما تطوليش الصوت بحال uu فـ «buur».",
+                    "highlight": "u",
+                    "pairHighlight": "uu"
                   }
                 },
                 {
@@ -492,7 +500,9 @@ const curriculum = {
                       "lees"
                     ],
                     "tipNl": "Korte \"e\" zoals in «best»; lange \"ee\" langer aanhouden.",
-                    "tipDarija": "قولي «les» بصوت e قصير ومفتوح، ماشي ee طويلة بحال فـ «lees»."
+                    "tipDarija": "قولي «les» بصوت e قصير ومفتوح، ماشي ee طويلة بحال فـ «lees».",
+                    "highlight": "e",
+                    "pairHighlight": "ee"
                   }
                 },
                 {
@@ -511,7 +521,9 @@ const curriculum = {
                       "zoon"
                     ],
                     "tipNl": "Korte \"o\" (zon = شمس) vs. lange \"oo\" (zoon = الولد).",
-                    "tipDarija": "قولي «zon» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «zoon»."
+                    "tipDarija": "قولي «zon» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «zoon».",
+                    "highlight": "o",
+                    "pairHighlight": "oo"
                   }
                 },
                 {
@@ -530,7 +542,9 @@ const curriculum = {
                       "taak"
                     ],
                     "tipNl": "tak = فرع, taak = مهمة. De \"aa\" is duidelijk langer.",
-                    "tipDarija": "قولي «tak» بصوت a قصير، وما تطوليش الصوت بحال aa فـ «taak»."
+                    "tipDarija": "قولي «tak» بصوت a قصير، وما تطوليش الصوت بحال aa فـ «taak».",
+                    "highlight": "a",
+                    "pairHighlight": "aa"
                   }
                 },
                 {
@@ -549,7 +563,9 @@ const curriculum = {
                       "vies"
                     ],
                     "tipNl": "vis = حوت, vies = موسخ. Korte \"i\" vs. heldere \"ie\".",
-                    "tipDarija": "قولي «vis» بصوت i قصير، ماشي ie طويلة بحال فـ «vies»."
+                    "tipDarija": "قولي «vis» بصوت i قصير، ماشي ie طويلة بحال فـ «vies».",
+                    "highlight": "i",
+                    "pairHighlight": "ie"
                   }
                 },
                 {
@@ -568,7 +584,9 @@ const curriculum = {
                       "boom"
                     ],
                     "tipNl": "bom = قنبلة, boom = شجرة.",
-                    "tipDarija": "قولي «bom» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «boom»."
+                    "tipDarija": "قولي «bom» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «boom».",
+                    "highlight": "o",
+                    "pairHighlight": "oo"
                   }
                 },
                 {
@@ -587,7 +605,9 @@ const curriculum = {
                       "poot"
                     ],
                     "tipNl": "pot = طنجرة, poot = رجل الحيوان.",
-                    "tipDarija": "قولي «pot» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «poot»."
+                    "tipDarija": "قولي «pot» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «poot».",
+                    "highlight": "o",
+                    "pairHighlight": "oo"
                   }
                 },
                 {
@@ -606,7 +626,9 @@ const curriculum = {
                       "rook"
                     ],
                     "tipNl": "rok = تنورة, rook = دخان.",
-                    "tipDarija": "قولي «rok» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «rook»."
+                    "tipDarija": "قولي «rok» بصوت o قصير ومفتوح، ماشي oo طويلة بحال فـ «rook».",
+                    "highlight": "o",
+                    "pairHighlight": "oo"
                   }
                 }
               ]
@@ -656,7 +678,9 @@ const curriculum = {
                       "tijd"
                     ],
                     "tipNl": "\"ei\" en \"ij\" klinken hetzelfde: begin bij «e» en glijd naar «i».",
-                    "tipDarija": "«ei» و«ij» كيتنطقو بنفس الصوت فالهولندية. قولي «trein» بوضوح."
+                    "tipDarija": "«ei» و«ij» كيتنطقو بنفس الصوت فالهولندية. قولي «trein» بوضوح.",
+                    "highlight": "ei",
+                    "pairHighlight": "ij"
                   }
                 },
                 {
@@ -682,7 +706,9 @@ const curriculum = {
                       "blauw"
                     ],
                     "tipNl": "\"ou\" en \"au\" klinken hetzelfde: «a» die naar «u» glijdt.",
-                    "tipDarija": "«ou» و«au» كيتنطقو بنفس الصوت. الصوت كيبدا قريب لـ a وكيزلق لـ u."
+                    "tipDarija": "«ou» و«au» كيتنطقو بنفس الصوت. الصوت كيبدا قريب لـ a وكيزلق لـ u.",
+                    "highlight": "ou",
+                    "pairHighlight": "auw"
                   }
                 },
                 {
@@ -752,7 +778,9 @@ const curriculum = {
                       "ben"
                     ],
                     "tipNl": "P is stemloos (geen trilling in de keel), B is stemhebbend. Leg je hand op je keel om te voelen.",
-                    "tipDarija": "مع «p» الحبال الصوتية ما كيهتزوش، وكيخرج شوية ديال الهوا. قولي «pen»، ماشي «ben»."
+                    "tipDarija": "مع «p» الحبال الصوتية ما كيهتزوش، وكيخرج شوية ديال الهوا. قولي «pen»، ماشي «ben».",
+                    "highlight": "p",
+                    "pairHighlight": "b"
                   }
                 },
                 {
@@ -771,7 +799,9 @@ const curriculum = {
                       "bak"
                     ],
                     "tipNl": "Blaas een klein beetje lucht bij de \"p\", niet bij de \"b\".",
-                    "tipDarija": "«p» كتخرج معاها نفخة خفيفة، أما «b» ففيها اهتزاز. قولي «pak»، ماشي «bak»."
+                    "tipDarija": "«p» كتخرج معاها نفخة خفيفة، أما «b» ففيها اهتزاز. قولي «pak»، ماشي «bak».",
+                    "highlight": "p",
+                    "pairHighlight": "b"
                   }
                 },
                 {
@@ -790,7 +820,9 @@ const curriculum = {
                       "vee"
                     ],
                     "tipNl": "F is stemloos, V is licht stemhebbend. In Vlaanderen liggen ze dicht bij elkaar.",
-                    "tipDarija": "مع «f» الحبال الصوتية ما كيهتزوش، أما مع «v» كاين شوية ديال الاهتزاز. قولي «fee»."
+                    "tipDarija": "مع «f» الحبال الصوتية ما كيهتزوش، أما مع «v» كاين شوية ديال الاهتزاز. قولي «fee».",
+                    "highlight": "f",
+                    "pairHighlight": "v"
                   }
                 },
                 {
@@ -823,7 +855,9 @@ const curriculum = {
                       "beer"
                     ],
                     "tipNl": "peer = لنجاصة (blaas lucht), beer = دب (geen lucht).",
-                    "tipDarija": "«p» كتخرج معاها نفخة خفيفة. قولي «peer»، ماشي «beer»."
+                    "tipDarija": "«p» كتخرج معاها نفخة خفيفة. قولي «peer»، ماشي «beer».",
+                    "highlight": "p",
+                    "pairHighlight": "b"
                   }
                 },
                 {
@@ -842,7 +876,9 @@ const curriculum = {
                       "fel"
                     ],
                     "tipNl": "vel = جلد (licht stemhebbend), fel = قوي (stemloos).",
-                    "tipDarija": "مع «v» كاين شوية ديال الاهتزاز، أما «f» فبلا اهتزاز. قولي «vel»، ماشي «fel»."
+                    "tipDarija": "مع «v» كاين شوية ديال الاهتزاز، أما «f» فبلا اهتزاز. قولي «vel»، ماشي «fel».",
+                    "highlight": "v",
+                    "pairHighlight": "f"
                   }
                 },
                 {
