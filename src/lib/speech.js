@@ -77,6 +77,16 @@ function stopAll() {
   }
 }
 
+/** Roep opts.onEnd één keer aan (voorkomt dubbel bij fout + einde). */
+function once(fn) {
+  let done = false
+  return () => {
+    if (done) return
+    done = true
+    fn?.()
+  }
+}
+
 /** Spreek via de native stem van het toestel. */
 function speakNative(text, opts) {
   const synth = window.speechSynthesis
@@ -89,6 +99,9 @@ function speakNative(text, opts) {
     u.lang = opts.lang || 'nl-BE'
   }
   u.rate = opts.rate ?? 0.9
+  const finish = once(opts.onEnd)
+  u.onend = finish
+  u.onerror = finish
   synth.speak(u)
   try {
     synth.resume() // Chrome-nudge tegen 'hangende' spraak
@@ -98,7 +111,7 @@ function speakNative(text, opts) {
 }
 
 /** Spreek via een online Nederlandse stem (Google Translate TTS). */
-function speakOnline(text) {
+function speakOnline(text, opts = {}) {
   const clipped = text.slice(0, 200)
   const q = encodeURIComponent(clipped)
   const url =
@@ -111,15 +124,20 @@ function speakOnline(text) {
   } catch {
     /* niet ondersteund — de meta-tag in index.html vangt dit ook op */
   }
+  // Langzaam afspelen (opts.rate < 1) verlaagt ook de toonhoogte, maar is
+  // goed genoeg om een klank duidelijker te horen.
+  if (opts.rate) audio.playbackRate = opts.rate
   audio.src = url
   currentAudio = audio
+  audio.onended = once(opts.onEnd)
   // Als de online stem niet lukt (bv. geblokkeerd), val terug op native.
   audio.onerror = () => {
     if (currentAudio === audio) currentAudio = null
     try {
-      if (window.speechSynthesis) speakNative(text, {})
+      if (window.speechSynthesis) speakNative(text, opts)
+      else once(opts.onEnd)()
     } catch {
-      /* negeren */
+      once(opts.onEnd)()
     }
   }
   const p = audio.play()
@@ -127,9 +145,10 @@ function speakOnline(text) {
     p.catch(() => {
       // play() geweigerd (bv. geen gebruikersinteractie) — probeer native.
       try {
-        if (window.speechSynthesis) speakNative(text, {})
+        if (window.speechSynthesis) speakNative(text, opts)
+        else once(opts.onEnd)()
       } catch {
-        /* negeren */
+        once(opts.onEnd)()
       }
     })
   }
@@ -138,14 +157,19 @@ function speakOnline(text) {
 /**
  * Lees een tekst voor in het Nederlands.
  * @param {string} text
- * @param {{ rate?: number, lang?: string }} [opts]
+ * @param {{ rate?: number, lang?: string, onEnd?: () => void }} [opts]
+ *   rate < 1 = langzamer. onEnd wordt aangeroepen als het voorlezen klaar is
+ *   (handig om daarna de eigen opname af te spelen).
  */
 export function speak(text, opts = {}) {
-  if (!text) return
+  if (!text) {
+    opts.onEnd?.()
+    return
+  }
   stopAll()
   // BELANGRIJK: synchroon beslissen. audio.play() moet binnen dezelfde
   // tik-gebeurtenis vallen, anders blokkeren telefoons het afspelen.
   // Native stem als er een Nederlandse op het toestel staat, anders online.
   if (pickDutchVoice()) speakNative(text, opts)
-  else speakOnline(text)
+  else speakOnline(text, opts)
 }

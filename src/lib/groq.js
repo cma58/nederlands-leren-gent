@@ -5,15 +5,20 @@
 
 import { getGroqKey, GROQ_WHISPER_MODEL } from './config.js'
 
+// NEUTRALE context. We geven Whisper BEWUST niet het verwachte woord of een
+// lijst mogelijke antwoorden mee — dat zou de herkenning sturen en de
+// verstaanbaarheidscontrole waardeloos maken. De vergelijking met het
+// verwachte woord gebeurt daarná in de app (zie lib/pronunciation.js).
+const NEUTRAL_PROMPT = 'Korte Nederlandse uitspraakoefening door een beginnende NT2-leerder.'
+
 /**
  * @param {Blob} audioBlob   De opgenomen audio (bv. audio/webm).
  * @param {string} [filename]
- * @param {string} [prompt]   Context-hint met de verwachte woorden. Whisper
- *   herkent losse/korte woorden veel betrouwbaarder als het weet welke woorden
- *   te verwachten zijn (en kan zo bv. "man" vs "maan" onderscheiden).
+ * @param {string} [prompt]   Neutrale context. Standaard een neutrale zin —
+ *   geef hier NOOIT het verwachte antwoord aan mee.
  * @returns {Promise<string>} De herkende tekst.
  */
-export async function transcribeAudio(audioBlob, filename = '', prompt = '') {
+export async function transcribeAudio(audioBlob, filename = '', prompt = NEUTRAL_PROMPT) {
   const key = getGroqKey()
   if (!key) throw new Error('GEEN_GROQ_SLEUTEL')
 
