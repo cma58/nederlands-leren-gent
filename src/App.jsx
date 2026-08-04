@@ -3,6 +3,7 @@ import Header from './components/Header.jsx'
 import Dashboard from './components/Dashboard.jsx'
 import LevelView from './components/LevelView.jsx'
 import LessonPlayer from './components/LessonPlayer.jsx'
+import ReviewSession from './components/ReviewSession.jsx'
 import Settings from './components/Settings.jsx'
 import Welcome from './components/Welcome.jsx'
 import Help from './components/Help.jsx'
@@ -18,6 +19,7 @@ export default function App() {
   const [started, setStarted] = useState(false)
   const [activeLevel, setActiveLevel] = useState(null)
   const [activeLesson, setActiveLesson] = useState(null)
+  const [showReview, setShowReview] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
 
@@ -44,7 +46,7 @@ export default function App() {
         {activeLevel ? (
           <LevelView level={activeLevel} onOpenLesson={setActiveLesson} />
         ) : (
-          <Dashboard onOpenLevel={setActiveLevel} />
+          <Dashboard onOpenLevel={setActiveLevel} onOpenReview={() => setShowReview(true)} />
         )}
       </main>
 
@@ -56,6 +58,7 @@ export default function App() {
         />
       )}
 
+      {showReview && <ReviewSession onClose={() => setShowReview(false)} />}
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
       {showHelp && <Help onClose={() => setShowHelp(false)} />}
     </div>

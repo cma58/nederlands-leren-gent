@@ -4,15 +4,17 @@ import curriculum, { allLessonIds } from '../data/curriculum.js'
 import resources from '../data/resources.js'
 import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
+import { dueCount } from '../lib/review.js'
 
 /**
  * Startscherm: welkomstboodschap, totale voortgang en de niveaukeuze.
  */
-export default function Dashboard({ onOpenLevel }) {
-  const { ratioFor } = useProgress()
+export default function Dashboard({ onOpenLevel, onOpenReview }) {
+  const { ratioFor, isDone } = useProgress()
   const { t } = useLang()
   const allIds = curriculum.levels.flatMap(allLessonIds)
   const overall = ratioFor(allIds)
+  const due = dueCount(curriculum, isDone)
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -32,6 +34,27 @@ export default function Dashboard({ onOpenLevel }) {
           <ProgressBar ratio={overall} />
         </div>
       </section>
+
+      {/* Herhaling — alleen tonen als er woorden klaarstaan */}
+      {due > 0 && (
+        <button
+          onClick={onOpenReview}
+          className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-500 to-saffraan-600 p-4 text-left text-white shadow-sm transition hover:from-saffraan-600 hover:to-saffraan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-saffraan-600"
+        >
+          <span className="text-3xl" aria-hidden="true">
+            🔁
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-bold">{t('review')}</span>
+            <span className="block text-sm text-saffraan-50">
+              {due} {t('reviewCta')}
+            </span>
+          </span>
+          <span aria-hidden="true" className="text-2xl font-bold">
+            ›
+          </span>
+        </button>
+      )}
 
       {/* Niveaus */}
       <h3 className="mb-3 mt-8 px-1 text-sm font-bold uppercase tracking-wide text-slate-500">
