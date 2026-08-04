@@ -5,6 +5,7 @@ import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
 import SpeakingExercise from './SpeakingExercise.jsx'
 import ListenExercise from './ListenExercise.jsx'
+import SoundText from './SoundText.jsx'
 
 /**
  * Volledige, interactieve lesspeler — werkt zonder API's of internet.
@@ -145,12 +146,18 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
           {item.article && (
             <span className="text-lg font-semibold text-gent-500">{item.article}</span>
           )}
-          <span className="text-3xl font-bold text-slate-900">{item.nl}</span>
+          <span className="text-3xl font-bold text-slate-900">
+            <SoundText text={item.nl} />
+          </span>
         </div>
         {typeof item.value === 'number' && (
           <span className="text-6xl font-black text-gent-500">{item.value}</span>
         )}
-        {item.pair && <span className="text-lg text-slate-500">↔ {item.pair}</span>}
+        {item.pair && (
+          <span className="text-lg text-slate-500">
+            ↔ <SoundText text={item.pair} />
+          </span>
+        )}
         {item.ipa && <span className="text-sm text-slate-500">{item.ipa}</span>}
 
         {revealed ? (

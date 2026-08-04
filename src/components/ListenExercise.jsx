@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { isTTSAvailable, speak, canProbablySpeak } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
+import SoundText from './SoundText.jsx'
 
 /**
  * Luister-discriminatie ("Welk woord hoor je?").
@@ -100,7 +101,7 @@ export default function ListenExercise({ lesson, onFinish }) {
               dir="ltr"
               className={`flex items-center justify-between rounded-xl border-2 px-4 py-4 text-left text-lg font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500 disabled:opacity-60 ${style}`}
             >
-              <span>{opt}</span>
+              <span><SoundText text={opt} /></span>
               {answered && opt === target && <span>✓</span>}
               {answered && opt === picked && opt !== target && <span>✕</span>}
             </button>

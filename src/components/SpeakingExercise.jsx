@@ -7,6 +7,7 @@ import { useRecorder } from '../hooks/useRecorder.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import { scoreTranscript, tipsFor } from '../lib/pronunciation.js'
 import { itemKey, recordAttempt, isMastered } from '../lib/speakingProgress.js'
+import SoundText from './SoundText.jsx'
 
 /**
  * Spreek- & uitspraakoefening.
@@ -201,11 +202,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
               </span>
             )}
             <p className="mt-2 text-3xl font-bold text-slate-900" dir="ltr">
-              <Highlight text={speakable} mark={item.pronunciation?.highlight} />
+              <SoundText text={speakable} mark={item.pronunciation?.highlight} />
               {item.pair && (
                 <span className="text-xl font-normal text-slate-500">
                   {' ↔ '}
-                  <Highlight text={item.pair} mark={item.pronunciation?.pairHighlight} />
+                  <SoundText text={item.pair} mark={item.pronunciation?.pairHighlight} />
                 </span>
               )}
             </p>
@@ -376,32 +377,6 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
       </div>
     </div>
   )
-}
-
-/**
- * Toont een woord met de doelklank(en) in een accentkleur, zodat de leerling
- * ziet waar ze op moet letten (bv. de korte «a» in m[a]n).
- */
-function Highlight({ text, mark }) {
-  const s = String(text ?? '')
-  const m = String(mark ?? '')
-  if (!m) return s
-  const lower = s.toLowerCase()
-  const ml = m.toLowerCase()
-  const parts = []
-  let from = 0
-  let idx
-  while ((idx = lower.indexOf(ml, from)) !== -1) {
-    if (idx > from) parts.push(s.slice(from, idx))
-    parts.push(
-      <span key={idx} className="font-black text-saffraan-600 underline decoration-2 underline-offset-4">
-        {s.slice(idx, idx + ml.length)}
-      </span>,
-    )
-    from = idx + ml.length
-  }
-  if (from < s.length) parts.push(s.slice(from))
-  return <>{parts}</>
 }
 
 function errorKeyToText(e, t) {
