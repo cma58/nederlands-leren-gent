@@ -406,7 +406,18 @@ const curriculum = {
                   "ipa": "/mɑn/ – /maːn/",
                   "tip": "Kort \"a\" zoals in Darija «مانا»; lange \"aa\" houd je langer aan.",
                   "darijaLat": "rajel — qamar",
-                  "darija": "راجل — قمر"
+                  "darija": "راجل — قمر",
+                  "pronunciation": {
+                    "focus": "korte a",
+                    "acceptedTranscripts": [
+                      "man"
+                    ],
+                    "commonConfusions": [
+                      "maan"
+                    ],
+                    "tipNl": "Kort \"a\" zoals in Darija «مانا»; lange \"aa\" houd je langer aan.",
+                    "tipDarija": "قولي «man» بـ a قصيرة، ماشي «maan» طويلة."
+                  }
                 },
                 {
                   "nl": "bos",
@@ -414,7 +425,18 @@ const curriculum = {
                   "ipa": "/bɔs/ – /boːs/",
                   "tip": "Korte \"o\" is open; lange \"oo\" is ronder en langer.",
                   "darijaLat": "ghaba — ghadban",
-                  "darija": "غابة — غضبان"
+                  "darija": "غابة — غضبان",
+                  "pronunciation": {
+                    "focus": "korte o",
+                    "acceptedTranscripts": [
+                      "bos"
+                    ],
+                    "commonConfusions": [
+                      "boos"
+                    ],
+                    "tipNl": "Korte \"o\" is open; lange \"oo\" is ronder en langer.",
+                    "tipDarija": "«bos» بـ o قصيرة ومفتوحة، ماشي «boos»."
+                  }
                 },
                 {
                   "nl": "pit",
@@ -422,7 +444,18 @@ const curriculum = {
                   "ipa": "/pɪt/ – /pit/",
                   "tip": "Korte \"i\" ligt tussen i en e; lange \"ie\" is een heldere «i».",
                   "darija": "النواة",
-                  "darijaLat": "nnwa"
+                  "darijaLat": "nnwa",
+                  "pronunciation": {
+                    "focus": "korte i",
+                    "acceptedTranscripts": [
+                      "pit"
+                    ],
+                    "commonConfusions": [
+                      "piet"
+                    ],
+                    "tipNl": "Korte \"i\" ligt tussen i en e; lange \"ie\" is een heldere «i».",
+                    "tipDarija": "«pit» بـ i قصيرة، ماشي «piet»."
+                  }
                 },
                 {
                   "nl": "bus",
@@ -430,7 +463,18 @@ const curriculum = {
                   "ipa": "/bʏs/ – /byːr/",
                   "tip": "De \"u\" bestaat niet in Darija: rond je lippen als bij «oe» maar zeg «i».",
                   "darija": "الطوبيس",
-                  "darijaLat": "ttobis"
+                  "darijaLat": "ttobis",
+                  "pronunciation": {
+                    "focus": "korte u",
+                    "acceptedTranscripts": [
+                      "bus"
+                    ],
+                    "commonConfusions": [
+                      "buur"
+                    ],
+                    "tipNl": "De \"u\" bestaat niet in Darija: rond je lippen als bij «oe» maar zeg «i».",
+                    "tipDarija": "«bus» بـ u قصيرة، ماشي «buur»."
+                  }
                 },
                 {
                   "nl": "les",
@@ -438,7 +482,18 @@ const curriculum = {
                   "ipa": "/lɛs/ – /leːs/",
                   "tip": "Korte \"e\" zoals in «best»; lange \"ee\" langer aanhouden.",
                   "darija": "الدرس",
-                  "darijaLat": "dders"
+                  "darijaLat": "dders",
+                  "pronunciation": {
+                    "focus": "korte e",
+                    "acceptedTranscripts": [
+                      "les"
+                    ],
+                    "commonConfusions": [
+                      "lees"
+                    ],
+                    "tipNl": "Korte \"e\" zoals in «best»; lange \"ee\" langer aanhouden.",
+                    "tipDarija": "«les» بـ e قصيرة، ماشي «lees»."
+                  }
                 },
                 {
                   "nl": "zon",
@@ -446,7 +501,18 @@ const curriculum = {
                   "ipa": "/zɔn/ – /zoːn/",
                   "tip": "Korte \"o\" (zon = شمس) vs. lange \"oo\" (zoon = الولد).",
                   "darija": "شمس — ولد",
-                  "darijaLat": "chems — weld"
+                  "darijaLat": "chems — weld",
+                  "pronunciation": {
+                    "focus": "korte o",
+                    "acceptedTranscripts": [
+                      "zon"
+                    ],
+                    "commonConfusions": [
+                      "zoon"
+                    ],
+                    "tipNl": "Korte \"o\" (zon = شمس) vs. lange \"oo\" (zoon = الولد).",
+                    "tipDarija": "«zon» بـ o قصيرة، ماشي «zoon»."
+                  }
                 },
                 {
                   "nl": "tak",
@@ -454,7 +520,18 @@ const curriculum = {
                   "ipa": "/tɑk/ – /taːk/",
                   "tip": "tak = فرع, taak = مهمة. De \"aa\" is duidelijk langer.",
                   "darija": "فرع — مهمة",
-                  "darijaLat": "fer3 — mohimma"
+                  "darijaLat": "fer3 — mohimma",
+                  "pronunciation": {
+                    "focus": "korte a",
+                    "acceptedTranscripts": [
+                      "tak"
+                    ],
+                    "commonConfusions": [
+                      "taak"
+                    ],
+                    "tipNl": "tak = فرع, taak = مهمة. De \"aa\" is duidelijk langer.",
+                    "tipDarija": "«tak» بـ a قصيرة، ماشي «taak»."
+                  }
                 },
                 {
                   "nl": "vis",
@@ -462,7 +539,18 @@ const curriculum = {
                   "ipa": "/vɪs/ – /vis/",
                   "tip": "vis = حوت, vies = موسخ. Korte \"i\" vs. heldere \"ie\".",
                   "darija": "حوت — موسخ",
-                  "darijaLat": "hout — mwsekh"
+                  "darijaLat": "hout — mwsekh",
+                  "pronunciation": {
+                    "focus": "korte i",
+                    "acceptedTranscripts": [
+                      "vis"
+                    ],
+                    "commonConfusions": [
+                      "vies"
+                    ],
+                    "tipNl": "vis = حوت, vies = موسخ. Korte \"i\" vs. heldere \"ie\".",
+                    "tipDarija": "«vis» بـ i قصيرة، ماشي «vies»."
+                  }
                 },
                 {
                   "nl": "bom",
@@ -470,7 +558,18 @@ const curriculum = {
                   "ipa": "/bɔm/ – /boːm/",
                   "tip": "bom = قنبلة, boom = شجرة.",
                   "darija": "قنبلة — شجرة",
-                  "darijaLat": "qonbola — chajra"
+                  "darijaLat": "qonbola — chajra",
+                  "pronunciation": {
+                    "focus": "korte o",
+                    "acceptedTranscripts": [
+                      "bom"
+                    ],
+                    "commonConfusions": [
+                      "boom"
+                    ],
+                    "tipNl": "bom = قنبلة, boom = شجرة.",
+                    "tipDarija": "«bom» بـ o قصيرة، ماشي «boom»."
+                  }
                 },
                 {
                   "nl": "pot",
@@ -478,7 +577,18 @@ const curriculum = {
                   "ipa": "/pɔt/ – /poːt/",
                   "tip": "pot = طنجرة, poot = رجل الحيوان.",
                   "darija": "طنجرة — رجل",
-                  "darijaLat": "tenjra — rjel"
+                  "darijaLat": "tenjra — rjel",
+                  "pronunciation": {
+                    "focus": "korte o",
+                    "acceptedTranscripts": [
+                      "pot"
+                    ],
+                    "commonConfusions": [
+                      "poot"
+                    ],
+                    "tipNl": "pot = طنجرة, poot = رجل الحيوان.",
+                    "tipDarija": "«pot» بـ o قصيرة، ماشي «poot»."
+                  }
                 },
                 {
                   "nl": "rok",
@@ -486,7 +596,18 @@ const curriculum = {
                   "ipa": "/rɔk/ – /roːk/",
                   "tip": "rok = تنورة, rook = دخان.",
                   "darija": "جيبة — دخان",
-                  "darijaLat": "jiba — dokhan"
+                  "darijaLat": "jiba — dokhan",
+                  "pronunciation": {
+                    "focus": "korte o",
+                    "acceptedTranscripts": [
+                      "rok"
+                    ],
+                    "commonConfusions": [
+                      "rook"
+                    ],
+                    "tipNl": "rok = تنورة, rook = دخان.",
+                    "tipDarija": "«rok» بـ o قصيرة، ماشي «rook»."
+                  }
                 }
               ]
             },
@@ -525,7 +646,18 @@ const curriculum = {
                   "ipa": "/trɛin/ – /tɛit/",
                   "tip": "\"ei\" en \"ij\" klinken hetzelfde: begin bij «e» en glijd naar «i».",
                   "darija": "التران",
-                  "darijaLat": "ttran"
+                  "darijaLat": "ttran",
+                  "pronunciation": {
+                    "focus": "ei / ij",
+                    "acceptedTranscripts": [
+                      "trein"
+                    ],
+                    "commonConfusions": [
+                      "tijd"
+                    ],
+                    "tipNl": "\"ei\" en \"ij\" klinken hetzelfde: begin bij «e» en glijd naar «i».",
+                    "tipDarija": "«ei» و«ij» عندهم نفس الصوت. قولي «trein» بوضوح."
+                  }
                 },
                 {
                   "nl": "boek",
@@ -540,7 +672,18 @@ const curriculum = {
                   "ipa": "/kɑut/ – /blɑu/",
                   "tip": "\"ou\" en \"au\" klinken hetzelfde: «a» die naar «u» glijdt.",
                   "darija": "بارد",
-                  "darijaLat": "bared"
+                  "darijaLat": "bared",
+                  "pronunciation": {
+                    "focus": "ou / au",
+                    "acceptedTranscripts": [
+                      "koud"
+                    ],
+                    "commonConfusions": [
+                      "blauw"
+                    ],
+                    "tipNl": "\"ou\" en \"au\" klinken hetzelfde: «a» die naar «u» glijdt.",
+                    "tipDarija": "«ou» و«au» نفس الصوت: «a» كتزلق ل«u»."
+                  }
                 },
                 {
                   "nl": "tuin",
@@ -599,7 +742,18 @@ const curriculum = {
                   "ipa": "/pɛn/ – /bɛn/",
                   "tip": "P is stemloos (geen trilling in de keel), B is stemhebbend. Leg je hand op je keel om te voelen.",
                   "darija": "الستيلو",
-                  "darijaLat": "sstilo"
+                  "darijaLat": "sstilo",
+                  "pronunciation": {
+                    "focus": "p / b",
+                    "acceptedTranscripts": [
+                      "pen"
+                    ],
+                    "commonConfusions": [
+                      "ben"
+                    ],
+                    "tipNl": "P is stemloos (geen trilling in de keel), B is stemhebbend. Leg je hand op je keel om te voelen.",
+                    "tipDarija": "«p» بلا صوت فالحلق ومعاها نفخة صغيرة، ماشي «b»."
+                  }
                 },
                 {
                   "nl": "pak",
@@ -607,7 +761,18 @@ const curriculum = {
                   "ipa": "/pɑk/ – /bɑk/",
                   "tip": "Blaas een klein beetje lucht bij de \"p\", niet bij de \"b\".",
                   "darija": "الكوستيم",
-                  "darijaLat": "lkostim"
+                  "darijaLat": "lkostim",
+                  "pronunciation": {
+                    "focus": "p / b",
+                    "acceptedTranscripts": [
+                      "pak"
+                    ],
+                    "commonConfusions": [
+                      "bak"
+                    ],
+                    "tipNl": "Blaas een klein beetje lucht bij de \"p\", niet bij de \"b\".",
+                    "tipDarija": "«p» فيها نفخة، «b» لا. قولي «pak» ماشي «bak»."
+                  }
                 },
                 {
                   "nl": "fee",
@@ -615,7 +780,18 @@ const curriculum = {
                   "ipa": "/feː/ – /veː/",
                   "tip": "F is stemloos, V is licht stemhebbend. In Vlaanderen liggen ze dicht bij elkaar.",
                   "darija": "الجنية",
-                  "darijaLat": "jjenniya"
+                  "darijaLat": "jjenniya",
+                  "pronunciation": {
+                    "focus": "f / v",
+                    "acceptedTranscripts": [
+                      "fee"
+                    ],
+                    "commonConfusions": [
+                      "vee"
+                    ],
+                    "tipNl": "F is stemloos, V is licht stemhebbend. In Vlaanderen liggen ze dicht bij elkaar.",
+                    "tipDarija": "«f» بلا صوت، «v» فيها شوية صوت. قولي «fee»."
+                  }
                 },
                 {
                   "nl": "gaan",
@@ -637,7 +813,18 @@ const curriculum = {
                   "ipa": "/peːr/ – /beːr/",
                   "tip": "peer = لنجاصة (blaas lucht), beer = دب (geen lucht).",
                   "darija": "لنجاصة",
-                  "darijaLat": "lenjassa"
+                  "darijaLat": "lenjassa",
+                  "pronunciation": {
+                    "focus": "p / b",
+                    "acceptedTranscripts": [
+                      "peer"
+                    ],
+                    "commonConfusions": [
+                      "beer"
+                    ],
+                    "tipNl": "peer = لنجاصة (blaas lucht), beer = دب (geen lucht).",
+                    "tipDarija": "«p» فيها نفخة. «peer» ماشي «beer»."
+                  }
                 },
                 {
                   "nl": "vel",
@@ -645,7 +832,18 @@ const curriculum = {
                   "ipa": "/vɛl/ – /fɛl/",
                   "tip": "vel = جلد (licht stemhebbend), fel = قوي (stemloos).",
                   "darija": "الجلد",
-                  "darijaLat": "jeld"
+                  "darijaLat": "jeld",
+                  "pronunciation": {
+                    "focus": "v / f",
+                    "acceptedTranscripts": [
+                      "vel"
+                    ],
+                    "commonConfusions": [
+                      "fel"
+                    ],
+                    "tipNl": "vel = جلد (licht stemhebbend), fel = قوي (stemloos).",
+                    "tipDarija": "«v» فيها شوية اهتزاز، «f» لا. قولي «vel» ماشي «fel»."
+                  }
                 },
                 {
                   "nl": "vaas",
