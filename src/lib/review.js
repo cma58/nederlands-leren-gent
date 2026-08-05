@@ -13,7 +13,9 @@ const KEY = 'nl-gent:review:v1'
 // Dagen tot de volgende herhaling per box (box 1..6).
 const INTERVALS = [1, 3, 7, 16, 30, 60]
 // Lestypes die we NIET in de herhaling stoppen (uitspraak, geen meerkeuze).
-const SKIP_TYPES = new Set(['speaking', 'listen', 'phonetics'])
+// 'typing' overslaan: die woorden zitten al als vocab in de herhaling —
+// niet dubbel opnemen.
+const SKIP_TYPES = new Set(['speaking', 'listen', 'phonetics', 'typing'])
 
 function ymd(d) {
   return d.toISOString().slice(0, 10)

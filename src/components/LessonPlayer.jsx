@@ -5,6 +5,7 @@ import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
 import SpeakingExercise from './SpeakingExercise.jsx'
 import ListenExercise from './ListenExercise.jsx'
+import TypingExercise from './TypingExercise.jsx'
 import SoundText from './SoundText.jsx'
 
 /**
@@ -20,12 +21,15 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
   const { t, isDarija } = useLang()
   const isSpeaking = lesson?.type === 'speaking'
   const isListen = lesson?.type === 'listen'
+  const isTyping = lesson?.type === 'typing'
   const quiz = useMemo(
-    () => (isSpeaking || isListen ? [] : buildQuiz(lesson)),
-    [lesson, isSpeaking, isListen],
+    () => (isSpeaking || isListen || isTyping ? [] : buildQuiz(lesson)),
+    [lesson, isSpeaking, isListen, isTyping],
   )
 
-  const [phase, setPhase] = useState(isSpeaking ? 'speaking' : isListen ? 'listen' : 'learn')
+  const [phase, setPhase] = useState(
+    isSpeaking ? 'speaking' : isListen ? 'listen' : isTyping ? 'typing' : 'learn',
+  )
   const closeRef = useRef(null)
 
   useEffect(() => {
@@ -70,6 +74,9 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
         {phase === 'listen' && (
           <ListenExercise lesson={lesson} onFinish={() => setPhase('done')} />
         )}
+        {phase === 'typing' && (
+          <TypingExercise lesson={lesson} onFinish={() => setPhase('done')} />
+        )}
         {phase === 'learn' && (
           <LearnPhase
             lesson={lesson}
@@ -87,7 +94,9 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
               markDone(lesson.id)
               onClose()
             }}
-            onRestart={() => setPhase(isSpeaking ? 'speaking' : isListen ? 'listen' : 'learn')}
+            onRestart={() =>
+              setPhase(isSpeaking ? 'speaking' : isListen ? 'listen' : isTyping ? 'typing' : 'learn')
+            }
           />
         )}
       </div>

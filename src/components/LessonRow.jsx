@@ -9,6 +9,7 @@ const TYPE_META = {
   grammar: { key: 'type_grammar', icon: '📐' },
   speaking: { key: 'type_speaking', icon: '🎙️' },
   listen: { key: 'type_listen', icon: '👂' },
+  typing: { key: 'type_typing', icon: '⌨️' },
   quiz: { key: 'type_quiz', icon: '✅' },
 }
 

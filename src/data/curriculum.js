@@ -7,6 +7,7 @@ export const LESSON_TYPES = {
   SPEAKING: 'speaking',
   QUIZ: 'quiz',
   LISTEN: 'listen',
+  TYPING: 'typing',
 }
 
 const curriculum = {
@@ -3451,7 +3452,7 @@ const curriculum = {
                   "nl": "rug",
                   "article": "de",
                   "darija": "الظهر",
-                  "darijaLat": "dher"
+                  "darijaLat": "ddher"
                 },
                 {
                   "nl": "oog",
@@ -4764,12 +4765,366 @@ const curriculum = {
                 {
                   "nl": "Mooi weer, hè?",
                   "darija": "الجو زوين، ياك؟",
-                  "darijaLat": "ljaou zwin, yak?"
+                  "darijaLat": "ljaw zwin, yak?"
                 },
                 {
                   "nl": "Dag buurman!",
                   "darija": "سلام جاري!",
                   "darijaLat": "salam jari!"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "niveau-2",
+      "title": "Niveau 2",
+      "subtitle": "Dagelijks leven & leren typen",
+      "description": "Het leven thuis, kleding en weer, boodschappen en gevoelens — en je eerste typoefeningen.",
+      "cefr": "A1.2",
+      "icon": "🏠",
+      "accent": "gent",
+      "order": 2,
+      "modules": [
+        {
+          "id": "2.1",
+          "title": "Wonen & thuis",
+          "titleDarija": "السكن والدار",
+          "lessons": [
+            {
+              "id": "2.1.1",
+              "title": "In en om het huis",
+              "titleDarija": "فالدار وداير بيها",
+              "type": "vocab",
+              "intro": "Nieuwe woorden voor ruimtes en spullen in huis.",
+              "items": [
+                {
+                  "nl": "zetel",
+                  "article": "de",
+                  "darija": "الفوتوي / السدّاري",
+                  "darijaLat": "lfotoy / ssedari"
+                },
+                {
+                  "nl": "televisie",
+                  "article": "de",
+                  "darija": "التلفزة",
+                  "darijaLat": "ttelfaza"
+                },
+                {
+                  "nl": "tapijt",
+                  "article": "het",
+                  "darija": "الزربية",
+                  "darijaLat": "zzerbiya"
+                },
+                {
+                  "nl": "sleutel",
+                  "article": "de",
+                  "darija": "الساروت",
+                  "darijaLat": "ssarout"
+                },
+                {
+                  "nl": "slaapkamer",
+                  "article": "de",
+                  "darija": "بيت النعاس",
+                  "darijaLat": "bit nne3as"
+                },
+                {
+                  "nl": "badkamer",
+                  "article": "de",
+                  "darija": "الحمام",
+                  "darijaLat": "l7mmam"
+                }
+              ]
+            },
+            {
+              "id": "2.1.2",
+              "title": "Type-oefening: woorden thuis",
+              "titleDarija": "تمرين فالكتابة: كلمات فالدار",
+              "type": "typing",
+              "intro": "Typ het Nederlandse woord correct over.",
+              "darijaNote": "كتبي الكلمة بالهولندية كيما راهي.",
+              "items": [
+                {
+                  "nl": "raam",
+                  "answer": "raam",
+                  "darija": "الشرجم",
+                  "darijaLat": "chcherjem",
+                  "tip": "Met een dubbele 'aa'."
+                },
+                {
+                  "nl": "deur",
+                  "answer": "deur",
+                  "darija": "الباب",
+                  "darijaLat": "lbab",
+                  "tip": "Met de 'eu'-klank."
+                },
+                {
+                  "nl": "huis",
+                  "answer": "huis",
+                  "darija": "الدار",
+                  "darijaLat": "ddar",
+                  "tip": "Met 'ui'."
+                },
+                {
+                  "nl": "sleutel",
+                  "answer": "sleutel",
+                  "darija": "الساروت",
+                  "darijaLat": "ssarout",
+                  "tip": "Met de 'eu'-klank in het midden."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Kleding & weer",
+          "titleDarija": "الحوايج والجو",
+          "lessons": [
+            {
+              "id": "2.2.1",
+              "title": "Wat trek je aan?",
+              "titleDarija": "شنو غادي تلبسي؟",
+              "type": "vocab",
+              "intro": "Kledingstukken voor elk weertype.",
+              "items": [
+                {
+                  "nl": "broek",
+                  "article": "de",
+                  "darija": "السروال",
+                  "darijaLat": "sserwal"
+                },
+                {
+                  "nl": "trui",
+                  "article": "de",
+                  "darija": "التريكو",
+                  "darijaLat": "ttriko"
+                },
+                {
+                  "nl": "schoenen",
+                  "article": "de",
+                  "darija": "الصباط",
+                  "darijaLat": "ssebbat"
+                },
+                {
+                  "nl": "jas",
+                  "article": "de",
+                  "darija": "الجاكيطة",
+                  "darijaLat": "ljakita"
+                },
+                {
+                  "nl": "paraplu",
+                  "article": "de",
+                  "darija": "المضلة",
+                  "darijaLat": "lmdella"
+                }
+              ]
+            },
+            {
+              "id": "2.2.2",
+              "title": "Het weer in België",
+              "titleDarija": "الجو فـ بلجيكا",
+              "type": "phrases",
+              "intro": "Zinnen over het weer.",
+              "items": [
+                {
+                  "nl": "Het is koud.",
+                  "darija": "الجو بارد.",
+                  "darijaLat": "ljaw bared."
+                },
+                {
+                  "nl": "Het is warm.",
+                  "darija": "الجو دافي.",
+                  "darijaLat": "ljaw dafi."
+                },
+                {
+                  "nl": "Het regent.",
+                  "darija": "الشتا تصبّ.",
+                  "darijaLat": "cchta tsebb."
+                }
+              ]
+            },
+            {
+              "id": "2.2.3",
+              "title": "Type-oefening: kleding & weer",
+              "titleDarija": "تمرين فالكتابة: الحوايج والجو",
+              "type": "typing",
+              "intro": "Typ de woorden over kleding en weer.",
+              "darijaNote": "كتبي الكلمات ديال الحوايج والجو.",
+              "items": [
+                {
+                  "nl": "jas",
+                  "answer": "jas",
+                  "darija": "الجاكيطة",
+                  "darijaLat": "ljakita",
+                  "tip": "Drie letters, begint met een 'j'."
+                },
+                {
+                  "nl": "trui",
+                  "answer": "trui",
+                  "darija": "التريكو",
+                  "darijaLat": "ttriko",
+                  "tip": "Met 'ui'."
+                },
+                {
+                  "nl": "broek",
+                  "answer": "broek",
+                  "darija": "السروال",
+                  "darijaLat": "sserwal",
+                  "tip": "Met 'oe'."
+                },
+                {
+                  "nl": "koud",
+                  "answer": "koud",
+                  "darija": "بارد",
+                  "darijaLat": "bared",
+                  "tip": "Met 'ou'."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "title": "Boodschappen & supermarkt",
+          "titleDarija": "التقضية فالسوبيرمارشي",
+          "lessons": [
+            {
+              "id": "2.3.1",
+              "title": "Verpakkingen en winkelwoorden",
+              "titleDarija": "التغليف وكلمات الحانوت",
+              "type": "vocab",
+              "intro": "Handige woorden voor in de winkel.",
+              "items": [
+                {
+                  "nl": "blik",
+                  "article": "het",
+                  "darija": "البواطة",
+                  "darijaLat": "lbwata"
+                },
+                {
+                  "nl": "doos",
+                  "article": "de",
+                  "darija": "الصندوق / الكارطونة",
+                  "darijaLat": "ssendouq / lkartona"
+                },
+                {
+                  "nl": "korting",
+                  "article": "de",
+                  "darija": "تخفيض",
+                  "darijaLat": "takhfid"
+                },
+                {
+                  "nl": "rek",
+                  "article": "het",
+                  "darija": "الرّف",
+                  "darijaLat": "rref"
+                },
+                {
+                  "nl": "weegschaal",
+                  "article": "de",
+                  "darija": "الميزان",
+                  "darijaLat": "lmizan"
+                }
+              ]
+            },
+            {
+              "id": "2.3.2",
+              "title": "Type-oefening: supermarkt",
+              "titleDarija": "تمرين فالكتابة: السوبيرمارشي",
+              "type": "typing",
+              "intro": "Typ de winkelwoorden over.",
+              "darijaNote": "كتبي كلمات الحانوت.",
+              "items": [
+                {
+                  "nl": "fles",
+                  "answer": "fles",
+                  "darija": "قرعة",
+                  "darijaLat": "qer3a",
+                  "tip": "Vier letters, begint met een 'f'."
+                },
+                {
+                  "nl": "duur",
+                  "answer": "duur",
+                  "darija": "غالي",
+                  "darijaLat": "ghali",
+                  "tip": "Met een dubbele 'uu'."
+                },
+                {
+                  "nl": "vers",
+                  "answer": "vers",
+                  "darija": "طري",
+                  "darijaLat": "tri",
+                  "tip": "Eindigt op 'rs'."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2.4",
+          "title": "Lichaam, gezondheid & gevoelens",
+          "titleDarija": "البدن والصحة وكيفاش حاسة",
+          "lessons": [
+            {
+              "id": "2.4.1",
+              "title": "Hoe voel je je?",
+              "titleDarija": "كيفاش حاسة براسك؟",
+              "type": "phrases",
+              "intro": "Zinnen over emoties en hoe je je voelt.",
+              "items": [
+                {
+                  "nl": "Ik ben moe.",
+                  "darija": "راني عيانة.",
+                  "darijaLat": "rani 3iyana."
+                },
+                {
+                  "nl": "Ik ben blij.",
+                  "darija": "راني فرحانة.",
+                  "darijaLat": "rani fer7ana."
+                },
+                {
+                  "nl": "Ik ben boos.",
+                  "darija": "راني زعفانة.",
+                  "darijaLat": "rani za3fana."
+                },
+                {
+                  "nl": "Ik ben bang.",
+                  "darija": "راني خايفة.",
+                  "darijaLat": "rani khayfa."
+                }
+              ]
+            },
+            {
+              "id": "2.4.2",
+              "title": "Type-oefening: gevoelens & lichaam",
+              "titleDarija": "تمرين فالكتابة: الإحساس والبدن",
+              "type": "typing",
+              "intro": "Typ de woorden over gezondheid en gevoelens.",
+              "darijaNote": "كتبي الكلمات ديال الإحساس والبدن.",
+              "items": [
+                {
+                  "nl": "moe",
+                  "answer": "moe",
+                  "darija": "عيانة",
+                  "darijaLat": "3iyana",
+                  "tip": "Met 'oe'."
+                },
+                {
+                  "nl": "pijn",
+                  "answer": "pijn",
+                  "darija": "الوجع",
+                  "darijaLat": "lwej3",
+                  "tip": "Met 'ij'."
+                },
+                {
+                  "nl": "rug",
+                  "answer": "rug",
+                  "darija": "الظهر",
+                  "darijaLat": "ddher",
+                  "tip": "Met korte 'u'."
                 }
               ]
             }
