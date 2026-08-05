@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { buildSnapshot, computeSummary } from '../lib/snapshot.js'
 import { fetchSnapshot } from '../lib/tracker.js'
-import { getWebhookUrl, setWebhookUrl } from '../lib/config.js'
+import { getWebhookUrl, setWebhookUrl, getCoachMode, setCoachMode, isCoachModeSet } from '../lib/config.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import ProgressBar from './ProgressBar.jsx'
 import LangToggle from './LangToggle.jsx'
@@ -16,6 +16,12 @@ export default function AdminDashboard({ onClose }) {
   const [summary, setSummary] = useState(null)
   const [status, setStatus] = useState('idle') // idle | loading | error | ok
   const [url, setUrl] = useState(getWebhookUrl())
+  // Wie de admin-pagina opent, is de coach: dit toestel stuurt voortaan geen
+  // eigen voortgang meer (anders overschrijf je dat van de lerende).
+  const [coach, setCoach] = useState(() => {
+    if (!isCoachModeSet()) setCoachMode(true)
+    return getCoachMode()
+  })
 
   async function loadRemote() {
     if (!getWebhookUrl()) {
@@ -71,6 +77,20 @@ export default function AdminDashboard({ onClose }) {
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-6">
+        {/* Coach-modus: dit toestel stuurt geen eigen voortgang */}
+        <label className="card mb-4 flex items-center gap-3 p-4">
+          <input
+            type="checkbox"
+            checked={coach}
+            onChange={(e) => {
+              setCoachMode(e.target.checked)
+              setCoach(e.target.checked)
+            }}
+            className="h-5 w-5 shrink-0 accent-gent-600"
+          />
+          <span className="min-w-0 flex-1 text-sm text-slate-600">{t('adminCoachMode')}</span>
+        </label>
+
         {/* Bron / webhook instellen */}
         {!getWebhookUrl() && (
           <section className="card mb-4 p-5">

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { buildSnapshot } from '../lib/snapshot.js'
 import { postSnapshot } from '../lib/tracker.js'
+import { getCoachMode } from '../lib/config.js'
 
 /**
  * Houdt bij welke lessen de gebruiker heeft afgerond.
@@ -37,7 +38,8 @@ export function ProgressProvider({ children }) {
   // Google Sheet, zodat de partner-/adminpagina op afstand kan meekijken.
   // Fire-and-forget: bij app-start en telkens als er een les afgerond wordt.
   useEffect(() => {
-    postSnapshot(buildSnapshot())
+    // Coach-toestel (de partner die enkel meekijkt) stuurt niets.
+    if (!getCoachMode()) postSnapshot(buildSnapshot())
   }, [completed])
 
   const api = useMemo(

@@ -77,6 +77,35 @@ export function setWebhookUrl(value) {
   }
 }
 
+// Coach-modus: dit toestel KIJKT enkel (admin-pagina) en stuurt zélf geen
+// voortgang. Zo overschrijft het toestel van de partner niet dat van de lerende.
+const COACH_KEY = 'nl-gent:coach:v1'
+
+export function getCoachMode() {
+  try {
+    return localStorage.getItem(COACH_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function isCoachModeSet() {
+  try {
+    return localStorage.getItem(COACH_KEY) !== null
+  } catch {
+    return false
+  }
+}
+
+export function setCoachMode(on) {
+  try {
+    if (on) localStorage.setItem(COACH_KEY, '1')
+    else localStorage.setItem(COACH_KEY, '0')
+  } catch {
+    /* negeren */
+  }
+}
+
 // Modelnamen — kunnen via .env aangepast worden zonder de code te wijzigen.
 // Gebruik een STABIELE model-id, niet een '-latest'-alias: die aliassen wijzen
 // altijd naar het nieuwste *preview*-model en worden door Google zonder
