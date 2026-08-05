@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { buildSnapshot } from '../lib/snapshot.js'
+import { postSnapshot } from '../lib/tracker.js'
 
 /**
  * Houdt bij welke lessen de gebruiker heeft afgerond.
@@ -29,6 +31,13 @@ export function ProgressProvider({ children }) {
     } catch {
       /* opslag kan geweigerd zijn (privémodus) — geen probleem */
     }
+  }, [completed])
+
+  // Stuur (indien een webhook is ingesteld) een voortgangs-snapshot naar de
+  // Google Sheet, zodat de partner-/adminpagina op afstand kan meekijken.
+  // Fire-and-forget: bij app-start en telkens als er een les afgerond wordt.
+  useEffect(() => {
+    postSnapshot(buildSnapshot())
   }, [completed])
 
   const api = useMemo(

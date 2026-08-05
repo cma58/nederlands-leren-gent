@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Header from './components/Header.jsx'
+import AdminDashboard from './components/AdminDashboard.jsx'
 import Dashboard from './components/Dashboard.jsx'
 import LevelView from './components/LevelView.jsx'
 import LessonPlayer from './components/LessonPlayer.jsx'
@@ -22,6 +23,28 @@ export default function App() {
   const [showReview, setShowReview] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+
+  // Verborgen coach-/adminpagina via #admin in de URL (bookmarkbaar op je eigen
+  // toestel; onzichtbaar in de gewone leerflow).
+  const [showAdmin, setShowAdmin] = useState(
+    typeof window !== 'undefined' && window.location.hash === '#admin',
+  )
+  useEffect(() => {
+    const onHash = () => setShowAdmin(window.location.hash === '#admin')
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  if (showAdmin) {
+    return (
+      <AdminDashboard
+        onClose={() => {
+          if (window.location.hash === '#admin') window.location.hash = ''
+          setShowAdmin(false)
+        }}
+      />
+    )
+  }
 
   // Eerst het persoonlijke welkomstscherm.
   if (!started) {

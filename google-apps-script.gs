@@ -31,12 +31,22 @@
 
 var LOG_SHEET = 'FoutenLog'
 var PROP_LESSON = 'customLesson'
+var PROP_SNAPSHOT = 'latestSnapshot'
 var GEMINI_MODEL = 'gemini-2.5-flash'
 
-/* ───────────────────────── 1) Fouten opslaan ───────────────────────── */
+/* ──────────── 1) Binnenkomend: fout loggen OF snapshot opslaan ──────────── */
 function doPost(e) {
   try {
     var payload = JSON.parse(e.postData.contents)
+    // Voortgangs-snapshot (voor de admin-/coachpagina) → overschrijf de laatste.
+    if (payload.type === 'snapshot') {
+      PropertiesService.getScriptProperties().setProperty(
+        PROP_SNAPSHOT,
+        JSON.stringify(payload.data || {}),
+      )
+      return json_({ ok: true })
+    }
+    // Anders: een uitspraakfout loggen.
     var sheet = getLogSheet_()
     sheet.appendRow([
       payload.date || new Date().toISOString(),
@@ -51,10 +61,17 @@ function doPost(e) {
   }
 }
 
-/* ─────────────────────── 2) Herhaalles serveren ─────────────────────── */
+/* ──────── 2) Uitgaand: herhaalles OF voortgangs-snapshot serveren ──────── */
 function doGet(e) {
+  // ?type=snapshot → de laatst ontvangen voortgang (voor de admin-pagina).
+  if (e && e.parameter && e.parameter.type === 'snapshot') {
+    var snap = PropertiesService.getScriptProperties().getProperty(PROP_SNAPSHOT)
+    if (!snap) return json_({})
+    return ContentService.createTextOutput(snap).setMimeType(ContentService.MimeType.JSON)
+  }
+  // Standaard: de automatisch gegenereerde herhaalles.
   var stored = PropertiesService.getScriptProperties().getProperty(PROP_LESSON)
-  if (!stored) return json_({}) // geen les → de app toont niks
+  if (!stored) return json_({})
   return ContentService.createTextOutput(stored).setMimeType(ContentService.MimeType.JSON)
 }
 
