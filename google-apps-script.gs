@@ -32,6 +32,7 @@
 var LOG_SHEET = 'FoutenLog'
 var PROP_LESSON = 'customLesson'
 var PROP_SNAPSHOT = 'latestSnapshot'
+var PROP_MESSAGE = 'partnerMessage'
 var GEMINI_MODEL = 'gemini-2.5-flash'
 
 /* ──────────── 1) Binnenkomend: fout loggen OF snapshot opslaan ──────────── */
@@ -43,6 +44,14 @@ function doPost(e) {
       PropertiesService.getScriptProperties().setProperty(
         PROP_SNAPSHOT,
         JSON.stringify(payload.data || {}),
+      )
+      return json_({ ok: true })
+    }
+    // Persoonlijk berichtje van de partner → verschijnt op haar startscherm.
+    if (payload.type === 'message') {
+      PropertiesService.getScriptProperties().setProperty(
+        PROP_MESSAGE,
+        JSON.stringify({ text: payload.text || '', date: payload.date || new Date().toISOString() }),
       )
       return json_({ ok: true })
     }
@@ -68,6 +77,12 @@ function doGet(e) {
     var snap = PropertiesService.getScriptProperties().getProperty(PROP_SNAPSHOT)
     if (!snap) return json_({})
     return ContentService.createTextOutput(snap).setMimeType(ContentService.MimeType.JSON)
+  }
+  // ?type=message → het laatste berichtje van de partner (voor haar startscherm).
+  if (e && e.parameter && e.parameter.type === 'message') {
+    var msg = PropertiesService.getScriptProperties().getProperty(PROP_MESSAGE)
+    if (!msg) return json_({})
+    return ContentService.createTextOutput(msg).setMimeType(ContentService.MimeType.JSON)
   }
   // Standaard: de automatisch gegenereerde herhaalles.
   var stored = PropertiesService.getScriptProperties().getProperty(PROP_LESSON)

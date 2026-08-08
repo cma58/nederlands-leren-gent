@@ -34,6 +34,13 @@ export function buildSnapshot() {
 }
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
+
+/** Heeft de lerende vandaag geoefend (voor de dagelijkse aanmoediging)? */
+export function practicedToday() {
+  const t = todayStr()
+  const has = (o) => Object.values(o || {}).some((v) => v && v.lastDate === t)
+  return has(readJSON(KEYS.speak)) || has(readJSON(KEYS.review))
+}
 const nlFromKey = (k) => String(k).split('::').slice(1).join('::') || k
 
 /**

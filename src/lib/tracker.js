@@ -53,6 +53,38 @@ export function postSnapshot(snapshot) {
   }
 }
 
+/** Stuur een persoonlijk berichtje naar de lerende (fire-and-forget). */
+export function postMessage(text) {
+  const url = getWebhookUrl()
+  if (!url || !text?.trim()) return
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type: 'message', text: text.trim(), date: new Date().toISOString() }),
+    }).catch(() => {})
+  } catch {
+    /* negeren */
+  }
+}
+
+/** Haal het laatste berichtje op (voor haar startscherm), of null. */
+export async function fetchMessage() {
+  const url = getWebhookUrl()
+  if (!url) return null
+  try {
+    const sep = url.includes('?') ? '&' : '?'
+    const res = await fetch(`${url}${sep}type=message`, { method: 'GET', signal: AbortSignal.timeout(8000) })
+    if (!res.ok) return null
+    const data = await res.json().catch(() => null)
+    if (!data || !data.text) return null
+    return data
+  } catch {
+    return null
+  }
+}
+
 /** Haal de laatst opgeslagen snapshot op (voor de admin-pagina), of null. */
 export async function fetchSnapshot(urlOverride) {
   const url = urlOverride || getWebhookUrl()

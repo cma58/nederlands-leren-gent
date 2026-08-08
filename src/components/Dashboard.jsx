@@ -6,7 +6,9 @@ import resources from '../data/resources.js'
 import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
 import { dueCount } from '../lib/review.js'
-import { fetchCustomLesson } from '../lib/tracker.js'
+import { fetchCustomLesson, fetchMessage } from '../lib/tracker.js'
+import { practicedToday } from '../lib/snapshot.js'
+import { getCoachMode } from '../lib/config.js'
 
 /**
  * Startscherm: welkomstboodschap, totale voortgang en de niveaukeuze.
@@ -20,15 +22,41 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
 
   // Optioneel: automatisch gegenereerde herhaalles via de webhook ophalen.
   const [customLesson, setCustomLesson] = useState(null)
+  // Persoonlijk berichtje van de partner (verschijnt bovenaan).
+  const [coachMsg, setCoachMsg] = useState(null)
+  // Dagelijkse aanmoediging als ze vandaag nog niet geoefend heeft.
+  const [goalToday] = useState(() => !practicedToday())
+  const MSG_SEEN = 'nl-gent:msgSeen:v1'
+
   useEffect(() => {
     let alive = true
-    fetchCustomLesson().then((lesson) => {
-      if (alive) setCustomLesson(lesson)
-    })
+    fetchCustomLesson().then((lesson) => alive && setCustomLesson(lesson))
+    // Berichtje niet tonen op het coach-toestel (dat is de afzender).
+    if (!getCoachMode()) {
+      fetchMessage().then((m) => {
+        if (!alive || !m) return
+        let seen = ''
+        try {
+          seen = localStorage.getItem(MSG_SEEN) || ''
+        } catch {
+          /* negeren */
+        }
+        if ((m.date || '') > seen) setCoachMsg(m)
+      })
+    }
     return () => {
       alive = false
     }
   }, [])
+
+  function dismissMsg() {
+    try {
+      if (coachMsg?.date) localStorage.setItem(MSG_SEEN, coachMsg.date)
+    } catch {
+      /* negeren */
+    }
+    setCoachMsg(null)
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -48,6 +76,29 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
           <ProgressBar ratio={overall} />
         </div>
       </section>
+
+      {/* Persoonlijk berichtje van de partner */}
+      {coachMsg && (
+        <div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-rose-200 bg-rose-50 p-4">
+          <span className="text-2xl" aria-hidden="true">
+            💌
+          </span>
+          <p className="min-w-0 flex-1 text-sm font-medium text-rose-900">{coachMsg.text}</p>
+          <button onClick={dismissMsg} className="shrink-0 text-rose-400 hover:text-rose-600" aria-label={t('close')}>
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Dagelijkse aanmoediging */}
+      {goalToday && (
+        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-400 to-saffraan-500 p-4 text-white">
+          <span className="text-2xl" aria-hidden="true">
+            🌟
+          </span>
+          <p className="text-sm font-semibold">{t('dailyGoal')}</p>
+        </div>
+      )}
 
       {/* Automatisch gegenereerde herhaalles (webhook) — alleen indien aanwezig */}
       {customLesson && (

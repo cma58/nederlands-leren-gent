@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buildSnapshot, computeSummary } from '../lib/snapshot.js'
-import { fetchSnapshot } from '../lib/tracker.js'
+import { fetchSnapshot, postMessage } from '../lib/tracker.js'
 import { getWebhookUrl, setWebhookUrl, getCoachMode, setCoachMode, isCoachModeSet } from '../lib/config.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import ProgressBar from './ProgressBar.jsx'
@@ -22,6 +22,22 @@ export default function AdminDashboard({ onClose }) {
     if (!isCoachModeSet()) setCoachMode(true)
     return getCoachMode()
   })
+  const [msg, setMsg] = useState('')
+  const [msgSent, setMsgSent] = useState(false)
+
+  const PRESETS = [
+    '🌟 Vergeet niet: oefen vandaag 5 minuten!',
+    'Trots op je 💪 Elke dag een beetje!',
+    'Miss je ❤️ Even samen oefenen vanavond?',
+  ]
+
+  function sendMessage() {
+    if (!msg.trim()) return
+    postMessage(msg)
+    setMsgSent(true)
+    setMsg('')
+    setTimeout(() => setMsgSent(false), 2500)
+  }
 
   async function loadRemote() {
     if (!getWebhookUrl()) {
@@ -90,6 +106,35 @@ export default function AdminDashboard({ onClose }) {
           />
           <span className="min-w-0 flex-1 text-sm text-slate-600">{t('adminCoachMode')}</span>
         </label>
+
+        {/* Berichtje sturen naar de lerende */}
+        {getWebhookUrl() && (
+          <section className="card mb-4 p-5">
+            <p className="text-sm font-semibold text-slate-700">💌 {t('adminSendMsg')}</p>
+            <p className="mb-2 text-xs text-slate-500">{t('adminSendMsgHint')}</p>
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {PRESETS.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setMsg(p)}
+                  className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+            <textarea
+              value={msg}
+              onChange={(e) => setMsg(e.target.value)}
+              rows={2}
+              placeholder={t('adminMsgPlaceholder')}
+              className="w-full rounded-xl border-2 border-slate-200 px-4 py-2.5 text-sm focus:border-gent-400 focus:outline-none"
+            />
+            <button onClick={sendMessage} disabled={!msg.trim()} className="btn-primary mt-2 h-11 w-full">
+              {msgSent ? `✓ ${t('adminSent')}` : `${t('adminSend')} →`}
+            </button>
+          </section>
+        )}
 
         {/* Bron / webhook instellen */}
         {!getWebhookUrl() && (
