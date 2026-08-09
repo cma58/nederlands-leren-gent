@@ -64,7 +64,26 @@ export function confusionsFor(item) {
 }
 
 function isSentence(target) {
-  return normalize(target).split(' ').filter(Boolean).length >= 3
+  // Vanaf 2 woorden gebruiken we de vergevingsgezinde zin-vergelijking. Whisper
+  // voegt bij korte uitdrukkingen ("Tot ziens") vaak een woordje/leesteken toe;
+  // de strenge woord-tak zou dat onterecht als fout rekenen.
+  return normalize(target).split(' ').filter(Boolean).length >= 2
+}
+
+/**
+ * Varianten van wat gehoord werd, om veelvoorkomende Whisper-ruis bij LOSSE
+ * woorden weg te denken vóór de vergelijking: een lidwoord ervoor ("de man")
+ * of een meervouds-'s' erachter. Zo wordt een correct uitgesproken woord niet
+ * afgekeurd omdat Whisper er een lidwoord bij verzon.
+ */
+function wordVariants(heard) {
+  const set = new Set([heard])
+  const noArticle = heard.replace(/^(de|het|een)\s+/, '')
+  set.add(noArticle)
+  for (const v of [heard, noArticle]) {
+    if (v.length > 3 && v.endsWith('s')) set.add(v.slice(0, -1))
+  }
+  return [...set].filter(Boolean)
 }
 
 /**
@@ -82,6 +101,7 @@ export function scoreTranscript(item, transcript) {
   const confusions = confusionsFor(item)
 
   if (accepted.includes(heard)) return 'good'
+  // Een bekende verwarring (bv. het minimale paar) is het leerdoel: blijf streng.
   if (confusions.includes(heard)) return 'almost'
 
   if (isSentence(target)) {
@@ -92,11 +112,21 @@ export function scoreTranscript(item, transcript) {
     return 'retry'
   }
 
-  // Los woord: streng, want vaak is juist de klinker het leerdoel.
-  // Alleen een héél kleine afwijking (1 teken) geldt als 'bijna'.
-  const best = Math.min(...accepted.map((a) => levenshtein(heard, a)))
-  const targetLen = normalize(target).length
-  if (best <= 1 && targetLen >= 4) return 'almost'
+  // Los woord. We denken eerst een toegevoegd lidwoord/meervouds-'s' weg (dat is
+  // Whisper-ruis, geen uitspraakfout). Klopt het dan exact → goed.
+  const variants = wordVariants(heard)
+  if (variants.some((v) => accepted.includes(v))) return 'good'
+
+  // Anders: hoe ver zit de beste variant van een geaccepteerd woord af?
+  const best = Math.min(...accepted.flatMap((a) => variants.map((v) => levenshtein(v, a))))
+  if (best === 0) return 'good'
+  const maxLen = Math.max(...accepted.map((a) => a.length))
+  // 1 teken verschil = 'bijna' (ook bij korte woorden — dit is meestal gewoon
+  // transcriptieruis bij een correct uitgesproken kort woord, geen echte fout;
+  // de échte leerdoel-fouten zitten al in de commonConfusions-lijst hierboven).
+  if (best === 1) return 'almost'
+  // Iets meer marge voor langere woorden.
+  if (best === 2 && maxLen >= 6) return 'almost'
   return 'retry'
 }
 

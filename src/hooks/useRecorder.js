@@ -32,6 +32,9 @@ export function useRecorder() {
   const tickRef = useRef(null)
   const startedAtRef = useRef(0)
   const unmountedRef = useRef(false)
+  // Voorkomt een dubbele start terwijl we nog op de microfoon-toestemming wachten
+  // (getUserMedia is async; een tweede tik zou anders een tweede opname starten).
+  const startingRef = useRef(false)
 
   const clearTimers = () => {
     if (autoStopRef.current) {
@@ -70,14 +73,21 @@ export function useRecorder() {
         setError('micNotSupported')
         return
       }
-      // Voorkom meerdere gelijktijdige opnames.
+      // Voorkom meerdere gelijktijdige opnames — ook tijdens het toestemmings-
+      // venster (startingRef), niet alleen als de recorder al loopt.
+      if (startingRef.current) return
       if (mediaRef.current && mediaRef.current.state === 'recording') return
+      startingRef.current = true
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
+            // Voor spraakHERKENNING (niet bellen): ruisonderdrukking en
+            // automatische versterking UIT. Die kunnen bij een stille kamer het
+            // begin van korte woorden wegdempen/vervormen — precies schadelijk
+            // voor de losse woorden die hier geoefend worden.
             echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
+            noiseSuppression: false,
+            autoGainControl: false,
             channelCount: 1,
           },
         })
@@ -124,6 +134,9 @@ export function useRecorder() {
       } catch (e) {
         teardownStream()
         setError(e?.name === 'NotAllowedError' ? 'micNoPermission' : 'micNoStart')
+      } finally {
+        // Startvenster voorbij: vanaf hier bewaakt de 'recording'-status re-entry.
+        startingRef.current = false
       }
     },
     [supported],

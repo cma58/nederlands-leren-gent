@@ -90,8 +90,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     }
   }, [recUrl])
 
+  // Open-eind-opdrachten (het antwoord bevat "...", bv. "Ik ben ...") hebben geen
+  // vast juist antwoord: alleen luisteren/opnemen, geen streng oordeel.
+  const isOpenEnded = Boolean(item?.answer?.includes('...'))
   const canCheck = hasGroq() && recorder.supported // transcript-controle mogelijk
-  const usesVerdict = !isLetter // letters krijgen geen streng oordeel
+  const usesVerdict = !isLetter && !isOpenEnded // letters/open-eind: geen streng oordeel
   const hasRecording = Boolean(recUrl)
 
   /* -------- audio -------- */
@@ -115,7 +118,10 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     // en zou er state op een verdwenen component gezet worden.
     if (!mountedRef.current) return
     if (!blob) {
-      setStatus('idle')
+      // Niets opgenomen (te kort/leeg): niet stil terugvallen, maar het duidelijk
+      // zeggen — anders denkt de gebruiker dat de knop niet werkt.
+      setErrorMsg(t('errNoRecording'))
+      setStatus('error')
       return
     }
     const startIdx = i // welk woord was aan de beurt bij het opnemen
@@ -441,6 +447,7 @@ function errorKeyToText(e, t) {
   const status = e?.status
   if (msg.includes('GEEN_GROQ_SLEUTEL')) return t('errNoGroq')
   if (msg.includes('GEEN_GEMINI_SLEUTEL')) return t('errNoGemini')
+  if (msg.includes('GEEN_SPRAAK') || status === 'nospeech') return t('errNoAudio')
   if (status === 'offline') return t('errOffline')
   if (status === 'timeout') return t('errTimeout')
   if (status === 'network') return t('errGeneric')
