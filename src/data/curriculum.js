@@ -23,6 +23,7 @@ const curriculum = {
       "id": "niveau-0",
       "order": 0,
       "title": "Niveau 0",
+      "titleDarija": "المستوى 0",
       "subtitle": "Absolute basis & fonetiek",
       "description": "De klanken, de begroetingen, de getallen en je eerste woorden. De perfecte start als je nog geen Nederlands kent.",
       "cefr": null,
@@ -351,6 +352,7 @@ const curriculum = {
         {
           "id": "0.1",
           "title": "Klankleer & uitspraak",
+          "titleDarija": "الأصوات والنطق",
           "goal": "De Nederlandse klanken herkennen en uitspreken — met tips voor Darija-sprekers.",
           "icon": "🗣️",
           "lessons": [
@@ -497,6 +499,7 @@ const curriculum = {
             {
               "id": "0.1.1",
               "title": "Korte vs. lange klinkers",
+              "titleDarija": "الصوائت القصيرة والطويلة",
               "type": "speaking",
               "intro": "In het Nederlands verandert de betekenis van een woord als een klinker kort of lang is. Luister goed naar het verschil.",
               "darijaNote": "الفرق بين الصوت القصير والصوت الطويل يقدر يبدل معنى الكلمة بالهولندية.",
@@ -870,6 +873,7 @@ const curriculum = {
             {
               "id": "0.1.3",
               "title": "Moeilijke medeklinkers (P/B, F/V, G/CH)",
+              "titleDarija": "الصوامت الصعيبة (P/B، F/V، G/CH)",
               "type": "speaking",
               "intro": "Sommige medeklinkers zijn lastig omdat ze in het Darija niet (zo) bestaan. Oefen ze met minimale paren.",
               "darijaNote": "الحرف P ما كاينش فالدارجة، وكيقدر يخرج بحال B. ركزي على الفرق باش الكلمة تبان مفهومة.",
@@ -1147,6 +1151,7 @@ const curriculum = {
         {
           "id": "0.2",
           "title": "Begroetingen & beleefdheid",
+          "titleDarija": "التحيات والأدب",
           "goal": "Iemand groeten en beleefd reageren in het dagelijks leven.",
           "icon": "👋",
           "lessons": [
@@ -1204,6 +1209,7 @@ const curriculum = {
             {
               "id": "0.2.1",
               "title": "Groeten",
+              "titleDarija": "التحيات",
               "type": "vocab",
               "intro": "Zo begroet je mensen in Gent, van formeel tot informeel.",
               "items": [
@@ -1285,6 +1291,7 @@ const curriculum = {
             {
               "id": "0.2.2",
               "title": "Beleefdheid",
+              "titleDarija": "الأدب واللباقة",
               "type": "vocab",
               "intro": "Beleefde woorden die je elke dag nodig hebt.",
               "items": [
@@ -1418,12 +1425,14 @@ const curriculum = {
         {
           "id": "0.3",
           "title": "Getallen 0–20",
+          "titleDarija": "الأرقام 0–20",
           "goal": "Tot twintig tellen en getallen herkennen.",
           "icon": "🔢",
           "lessons": [
             {
               "id": "0.3.1",
               "title": "Tellen van 0 tot 20",
+              "titleDarija": "العدّ من 0 حتى 20",
               "type": "numbers",
               "intro": "Luister en spreek elk getal na. Let op: \"twaalf\" en \"dertien\" klinken anders dan je denkt.",
               "items": [
@@ -1654,12 +1663,14 @@ const curriculum = {
         {
           "id": "0.4",
           "title": "Vraagwoorden & omgeving",
+          "titleDarija": "أدوات الاستفهام والمحيط",
           "goal": "De basisvraagwoorden en woorden in en om het huis.",
           "icon": "🏠",
           "lessons": [
             {
               "id": "0.4.1",
               "title": "Vraagwoorden",
+              "titleDarija": "أدوات الاستفهام",
               "type": "vocab",
               "intro": "Met deze woorden stel je je eerste vragen.",
               "items": [
@@ -1716,6 +1727,7 @@ const curriculum = {
             {
               "id": "0.4.2",
               "title": "In en om het huis",
+              "titleDarija": "فالدار وحواليها",
               "type": "vocab",
               "intro": "Dingen die je thuis ziet. Let op het lidwoord (de/het).",
               "items": [
@@ -1993,6 +2005,7 @@ const curriculum = {
       "id": "niveau-1",
       "order": 1,
       "title": "Niveau 1",
+      "titleDarija": "المستوى 1",
       "subtitle": "Eerste communicatie",
       "description": "Jezelf voorstellen, over je familie praten, eenvoudige zinnen maken en boodschappen doen in Gent.",
       "cefr": "A1.1",
@@ -2002,12 +2015,14 @@ const curriculum = {
         {
           "id": "1.1",
           "title": "Jezelf voorstellen",
+          "titleDarija": "تقدّم راسك",
           "goal": "Vertellen wie je bent, waar je vandaan komt en waar je woont.",
           "icon": "🙋‍♀️",
           "lessons": [
             {
               "id": "1.1.1",
               "title": "Wie ben ik?",
+              "titleDarija": "شكون أنا؟",
               "type": "phrases",
               "intro": "De zinnen die je nodig hebt om jezelf voor te stellen in Gent.",
               "items": [
@@ -2073,6 +2088,7 @@ const curriculum = {
             {
               "id": "1.1.2",
               "title": "Spreekoefening: stel jezelf voor",
+              "titleDarija": "تمرين الكلام: قدّم راسك",
               "type": "speaking",
               "intro": "Spreek de zinnen in. De app luistert (Whisper) en een AI-docent (Gemini) helpt je verbeteren.",
               "items": [
@@ -2109,12 +2125,14 @@ const curriculum = {
         {
           "id": "1.2",
           "title": "Familie & gezin",
+          "titleDarija": "العائلة",
           "goal": "Praten over je familie en bezit aangeven (mijn, jouw, uw).",
           "icon": "👨‍👩‍👧‍👦",
           "lessons": [
             {
               "id": "1.2.1",
               "title": "De familieleden",
+              "titleDarija": "أفراد العائلة",
               "type": "vocab",
               "intro": "Woordenschat over het gezin.",
               "items": [
@@ -2236,6 +2254,7 @@ const curriculum = {
             {
               "id": "1.2.2",
               "title": "Bezittelijke voornaamwoorden",
+              "titleDarija": "ضمائر الملكية",
               "type": "grammar",
               "intro": "Met \"mijn\", \"jouw\" en \"uw\" laat je zien van wie iets is. \"Uw\" is beleefd (formeel).",
               "darijaNote": "ديالي = mijn، ديالك = jouw، وديالكم = uw أو jullie حسب السياق.",
@@ -2363,12 +2382,14 @@ const curriculum = {
         {
           "id": "1.3",
           "title": "Basisgrammatica",
+          "titleDarija": "قواعد أساسية",
           "goal": "De/het, de tegenwoordige tijd en de werkwoorden \"zijn\" en \"hebben\".",
           "icon": "📘",
           "lessons": [
             {
               "id": "1.3.1",
               "title": "DE of HET?",
+              "titleDarija": "DE ولا HET؟",
               "type": "grammar",
               "intro": "Elk zelfstandig naamwoord heeft \"de\" of \"het\". Handige regels: mensen zijn (bijna) altijd \"de\", een meervoud is ALTIJD \"de\", en een verkleinwoord (-je) is ALTIJD \"het\".",
               "darijaNote": "ما كايناش قاعدة كاملة، خاصك تحفظي الكلمات. ولكن الجمع ديما كياخد de، والتصغير بـ -je ديما كياخد het.",
@@ -2484,6 +2505,7 @@ const curriculum = {
             {
               "id": "1.3.2",
               "title": "Tegenwoordige tijd (stam + t)",
+              "titleDarija": "الحاضر (الجذر + t)",
               "type": "grammar",
               "intro": "Regel: ik = stam. jij/hij/zij = stam + t. wij/jullie/zij (mv) = hele werkwoord. Voorbeeld met \"wonen\" (stam = woon).",
               "items": [
@@ -2557,6 +2579,7 @@ const curriculum = {
             {
               "id": "1.3.3",
               "title": "Onregelmatig: zijn & hebben",
+              "titleDarija": "الشاذّ: zijn و hebben",
               "type": "grammar",
               "intro": "Deze twee werkwoorden zijn onregelmatig en heel belangrijk. Leer ze uit het hoofd.",
               "darijaNote": "مهم: فالدارجة ما كنستعملوش فعل zijn فالحاضر بحال الهولندية. مثلا ik ben Oumayma = أنا أميمة. وفعل hebben كيتعبر عليه بـ عند.",
@@ -2678,12 +2701,14 @@ const curriculum = {
         {
           "id": "1.4",
           "title": "Vragen stellen & boodschappen",
+          "titleDarija": "طرح الأسئلة والتسوّق",
           "goal": "Vragen maken met inversie, tellen tot 100 en boodschappen doen.",
           "icon": "🛒",
           "lessons": [
             {
               "id": "1.4.1",
               "title": "Vragen met inversie",
+              "titleDarija": "الأسئلة بقلب الترتيب",
               "type": "grammar",
               "intro": "Voor een ja/nee-vraag wissel je het werkwoord en het onderwerp om. \"Jij woont\" → \"Woon jij?\"",
               "darijaNote": "باش تسولي سؤال، كتبدلي بلاصة الفعل والفاعل: jij woont كتولي woon jij?",
@@ -2743,6 +2768,7 @@ const curriculum = {
             {
               "id": "1.4.2",
               "title": "Getallen 20–100",
+              "titleDarija": "الأرقام 20–100",
               "type": "numbers",
               "intro": "Let op de volgorde: eerst het eenheidsgetal, dan \"en\", dan het tiental. \"eenentwintig\" = 1 + en + 20.",
               "items": [
@@ -2849,6 +2875,7 @@ const curriculum = {
             {
               "id": "1.4.3",
               "title": "Bij de winkel & de bakker",
+              "titleDarija": "فالحانوت وعند الخبّاز",
               "type": "phrases",
               "intro": "Zinnen die je meteen kunt gebruiken bij de bakker of in de winkel in Gent.",
               "items": [
@@ -2936,6 +2963,7 @@ const curriculum = {
             {
               "id": "1.4.4",
               "title": "Spreekoefening: bij de bakker",
+              "titleDarija": "تمرين الكلام: عند الخبّاز",
               "type": "speaking",
               "intro": "Oefen hardop de zinnen die je bij de bakker of in de winkel gebruikt.",
               "items": [
@@ -4676,6 +4704,7 @@ const curriculum = {
             {
               "id": "1.13.1",
               "title": "Tegenstellingen en emoties",
+              "titleDarija": "الأضداد والمشاعر",
               "type": "vocab",
               "intro": "Handige woorden om dingen en mensen te beschrijven.",
               "darijaNote": "كلمات مهمة باش توصفي الناس والحوايج.",
@@ -4722,6 +4751,7 @@ const curriculum = {
             {
               "id": "1.14.1",
               "title": "Op de markt in Gent",
+              "titleDarija": "فالسوق ف غاند",
               "type": "phrases",
               "intro": "Woorden en zinnen voor de lokale markt (bijv. Vrijdagmarkt).",
               "items": [
@@ -4746,6 +4776,7 @@ const curriculum = {
             {
               "id": "1.14.2",
               "title": "In de buurt",
+              "titleDarija": "فالحومة",
               "type": "phrases",
               "items": [
                 {
@@ -4778,6 +4809,7 @@ const curriculum = {
     {
       "id": "niveau-2",
       "title": "Niveau 2",
+      "titleDarija": "المستوى 2",
       "subtitle": "Dagelijks leven & leren typen",
       "description": "Het leven thuis, kleding en weer, boodschappen en gevoelens — en je eerste typoefeningen.",
       "cefr": "A1.2",
