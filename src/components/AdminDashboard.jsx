@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react'
 import { buildSnapshot, computeSummary } from '../lib/snapshot.js'
 import { fetchSnapshot, postMessage } from '../lib/tracker.js'
-import { getWebhookUrl, setWebhookUrl, getCoachMode, setCoachMode, isCoachModeSet } from '../lib/config.js'
+import {
+  getWebhookUrl,
+  setWebhookUrl,
+  getWebhookToken,
+  setWebhookToken,
+  getCoachMode,
+  setCoachMode,
+  isCoachModeSet,
+} from '../lib/config.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import ProgressBar from './ProgressBar.jsx'
 import LangToggle from './LangToggle.jsx'
@@ -12,16 +20,14 @@ import LangToggle from './LangToggle.jsx'
  * Puur lezen — verandert niets aan de leer-app.
  */
 export default function AdminDashboard({ onClose }) {
-  const { t, isDarija } = useLang()
+  const { t, isDarija, arrowFwd } = useLang()
   const [summary, setSummary] = useState(null)
   const [status, setStatus] = useState('idle') // idle | loading | error | ok
   const [url, setUrl] = useState(getWebhookUrl())
+  const [token, setToken] = useState(getWebhookToken())
   // Wie de admin-pagina opent, is de coach: dit toestel stuurt voortaan geen
   // eigen voortgang meer (anders overschrijf je dat van de lerende).
-  const [coach, setCoach] = useState(() => {
-    if (!isCoachModeSet()) setCoachMode(true)
-    return getCoachMode()
-  })
+  const [coach, setCoach] = useState(() => getCoachMode())
   const [msg, setMsg] = useState('')
   const [msgSent, setMsgSent] = useState(false)
 
@@ -59,13 +65,42 @@ export default function AdminDashboard({ onClose }) {
     setStatus('ok')
   }
 
+  // Eerste keer dat de coach deze pagina opent: markeer dit toestel als coach,
+  // zodat het niet langer zijn eigen (test)voortgang naar de Sheet stuurt.
+  // Side-effect hoort in een effect, niet in een render/useState-initializer.
   useEffect(() => {
-    loadRemote()
+    if (!isCoachModeSet()) {
+      setCoachMode(true)
+      setCoach(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      if (!getWebhookUrl()) {
+        setStatus('idle')
+        return
+      }
+      setStatus('loading')
+      const snap = await fetchSnapshot()
+      if (!alive) return
+      if (snap) {
+        setSummary(computeSummary(snap))
+        setStatus('ok')
+      } else {
+        setStatus('error')
+      }
+    })()
+    return () => {
+      alive = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function saveUrl() {
     setWebhookUrl(url)
+    setWebhookToken(token)
     loadRemote()
   }
 
@@ -127,11 +162,12 @@ export default function AdminDashboard({ onClose }) {
               value={msg}
               onChange={(e) => setMsg(e.target.value)}
               rows={2}
+              dir="auto"
               placeholder={t('adminMsgPlaceholder')}
               className="w-full rounded-xl border-2 border-slate-200 px-4 py-2.5 text-sm focus:border-gent-400 focus:outline-none"
             />
             <button onClick={sendMessage} disabled={!msg.trim()} className="btn-primary mt-2 h-11 w-full">
-              {msgSent ? `✓ ${t('adminSent')}` : `${t('adminSend')} →`}
+              {msgSent ? `✓ ${t('adminSent')}` : `${t('adminSend')} ${arrowFwd}`}
             </button>
           </section>
         )}
@@ -146,6 +182,15 @@ export default function AdminDashboard({ onClose }) {
               type="url"
               dir="ltr"
               placeholder="https://script.google.com/…/exec"
+              className="mt-2 w-full rounded-xl border-2 border-slate-200 px-4 py-3 font-mono text-sm focus:border-gent-400 focus:outline-none"
+            />
+            <input
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              type="password"
+              dir="ltr"
+              autoComplete="off"
+              placeholder={t('webhookTokenLabel')}
               className="mt-2 w-full rounded-xl border-2 border-slate-200 px-4 py-3 font-mono text-sm focus:border-gent-400 focus:outline-none"
             />
             <div className="mt-2 flex gap-2">

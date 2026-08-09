@@ -31,6 +31,7 @@ export function useRecorder() {
   const autoStopRef = useRef(null)
   const tickRef = useRef(null)
   const startedAtRef = useRef(0)
+  const unmountedRef = useRef(false)
 
   const clearTimers = () => {
     if (autoStopRef.current) {
@@ -51,6 +52,7 @@ export function useRecorder() {
   // Ruim altijd op als de component verdwijnt (bv. les gesloten tijdens opname).
   useEffect(() => {
     return () => {
+      unmountedRef.current = true
       clearTimers()
       try {
         if (mediaRef.current && mediaRef.current.state !== 'inactive') mediaRef.current.stop()
@@ -79,6 +81,11 @@ export function useRecorder() {
             channelCount: 1,
           },
         })
+        // Ge-unmount terwijl de mic-toestemming nog liep → meteen opruimen.
+        if (unmountedRef.current) {
+          stream.getTracks().forEach((tr) => tr.stop())
+          return
+        }
         streamRef.current = stream
         chunksRef.current = []
         onCompleteRef.current = onComplete || null

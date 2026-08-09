@@ -6,7 +6,7 @@
  * komt terug als gestructureerde JSON, zodat de UI het netjes kan tonen.
  */
 
-import { getGeminiKey, GEMINI_MODEL } from './config.js'
+import { getGeminiKey, GEMINI_MODEL, timeoutSignal } from './config.js'
 
 const SYSTEM_PROMPT = `Je bent een geduldige NT2-docent in Gent (Vlaanderen). De leerling heeft als moedertaal Marokkaans-Arabisch (Darija) en komt uit Oujda.
 BELANGRIJK: gebruik NIET het formele Standaardarabisch (Fusha). Gebruik vlot, natuurlijk en alledaags Marokkaans-Darija zoals het in Oujda gesproken wordt (Arabisch schrift).
@@ -42,17 +42,17 @@ export async function evaluateAnswer(userAnswer, expectedAnswer, contextPrompt =
     .filter(Boolean)
     .join('\n')
 
-  const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=` +
-    encodeURIComponent(key)
+  // De sleutel via header (x-goog-api-key) i.p.v. in de URL: zo lekt hij niet
+  // in server-/proxylogs of de browsergeschiedenis.
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
 
   let res
   try {
     res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
       // Stopt een vastgelopen verzoek na 20s zodat de UI niet eeuwig 'bezig' blijft.
-      signal: AbortSignal.timeout(20000),
+      signal: timeoutSignal(20000),
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
         contents: [{ role: 'user', parts: [{ text: userText }] }],

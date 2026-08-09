@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { isTTSAvailable, speak, canProbablySpeak } from '../lib/speech.js'
+import { isTTSAvailable, speak, canProbablySpeak, stopAll } from '../lib/speech.js'
 import { transcribeAudio } from '../lib/groq.js'
 import { evaluateAnswer } from '../lib/gemini.js'
 import { hasGemini, hasGroq } from '../lib/config.js'
@@ -49,6 +49,26 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   const [extra, setExtra] = useState(null) // optionele Gemini-uitleg
   const [extraBusy, setExtraBusy] = useState(false)
   const playbackRef = useRef(null)
+  // Bewaakt dat een laat binnenkomend transcript niet op een volgend woord
+  // (of na sluiten) belandt.
+  const idxRef = useRef(i)
+  useEffect(() => {
+    idxRef.current = i
+  }, [i])
+  // Voorkomt state-updates nadat de les gesloten is (bv. traag Gemini-antwoord).
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      stopAll() // stop voorbeeld-spraak (TTS/online) bij het verlaten van de les
+      try {
+        playbackRef.current?.pause()
+      } catch {
+        /* negeren */
+      }
+    }
+  }, [])
 
   const key = item ? itemKey(lesson.id, item, i) : ''
   const mastered = key ? isMastered(key) : false
@@ -93,6 +113,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
       setStatus('idle')
       return
     }
+    const startIdx = i // welk woord was aan de beurt bij het opnemen
     setRecUrl(URL.createObjectURL(blob))
     // Losse letter of geen Groq-sleutel: geen oordeel, wel terugluisteren.
     if (!usesVerdict || !canCheck) {
@@ -102,6 +123,8 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     setStatus('busy')
     transcribeAudio(blob) // neutrale context — géén verwacht antwoord meegeven
       .then((text) => {
+        // De leerling ging al naar een volgend woord (of sloot de les): negeren.
+        if (!mountedRef.current || idxRef.current !== startIdx) return
         setTranscript(text)
         const res = scoreTranscript(item, text) // eerlijk, lokaal oordeel
         setResult(res)
@@ -116,6 +139,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         if (hasGemini()) fetchFeedback(text, res)
       })
       .catch((e) => {
+        if (!mountedRef.current || idxRef.current !== startIdx) return
         setErrorMsg(errorKeyToText(e, t))
         setStatus('error')
       })
@@ -137,6 +161,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   /* -------- Gemini-feedback (tekst, automatisch — niet het oordeel) -------- */
   async function fetchFeedback(heard, res) {
     if (!hasGemini()) return
+    const startIdx = i // aan welk woord deze feedback hoort
     setExtra(null)
     setExtraBusy(true)
     try {
@@ -144,11 +169,14 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         res === 'good' ? 'goed verstaanbaar' : res === 'almost' ? 'bijna goed' : 'nog niet goed verstaan'
       const context = `Uitspraakoefening. De leerling oefende het Nederlandse "${speakable}". De app verstond: "${heard}". Beoordeling: ${verdictNl}. Geef één korte, bemoedigende uitspraaktip in eenvoudig Nederlands en daarna in Darija (Arabisch schrift). Geen cijfers of scores.`
       const r = await evaluateAnswer(heard || speakable, target, context)
+      // Ondertussen van woord gewisseld of les gesloten? Niets meer tonen.
+      if (!mountedRef.current || idxRef.current !== startIdx) return
       setExtra({ nl: r.feedback_nl || '', dar: r.feedback_darija || '' })
     } catch {
+      if (!mountedRef.current || idxRef.current !== startIdx) return
       setExtra(null) // stil falen — het lokale oordeel + de vaste tip blijven staan
     }
-    setExtraBusy(false)
+    if (mountedRef.current && idxRef.current === startIdx) setExtraBusy(false)
   }
 
   function next() {
@@ -376,10 +404,12 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
 
       {/* 10 — verder (opnieuw = de opnameknop hierboven) */}
       <div className="mt-auto flex gap-2 py-4">
-        <button onClick={next} className="btn-ghost flex-1 h-12">
-          {t('skip')}
-        </button>
-        <button onClick={next} className="btn-primary flex-1 h-12">
+        {status !== 'result' && (
+          <button onClick={next} disabled={status === 'busy'} className="btn-ghost flex-1 h-12">
+            {t('skip')}
+          </button>
+        )}
+        <button onClick={next} disabled={status === 'busy'} className="btn-primary flex-1 h-12">
           {isLast ? `${t('finishArrow')} ${arrowFwd}` : `${t('next')} ${arrowFwd}`}
         </button>
       </div>

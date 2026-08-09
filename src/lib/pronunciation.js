@@ -51,7 +51,8 @@ function similarity(a, b) {
 /** Geaccepteerde transcripten voor dit item (uit de data of een terugval). */
 export function acceptedFor(item) {
   const p = item.pronunciation
-  const list = p?.acceptedTranscripts?.length ? p.acceptedTranscripts : [item.answer || item.nl]
+  const fallback = item.answer || item.nl || item.value
+  const list = p?.acceptedTranscripts?.length ? p.acceptedTranscripts : [fallback]
   return list.map(normalize).filter(Boolean)
 }
 
@@ -76,7 +77,7 @@ export function scoreTranscript(item, transcript) {
   const heard = normalize(transcript)
   if (!heard) return 'retry'
 
-  const target = item.answer || item.nl || ''
+  const target = item.answer || item.nl || item.value || ''
   const accepted = acceptedFor(item)
   const confusions = confusionsFor(item)
 

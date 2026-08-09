@@ -6,6 +6,8 @@ import {
   setGroqKey,
   getWebhookUrl,
   setWebhookUrl,
+  getWebhookToken,
+  setWebhookToken,
 } from '../lib/config.js'
 import { useLang } from '../context/LanguageContext.jsx'
 
@@ -18,6 +20,7 @@ export default function Settings({ onClose }) {
   const [gemini, setGemini] = useState('')
   const [groq, setGroq] = useState('')
   const [webhook, setWebhook] = useState('')
+  const [webhookToken, setWebhookTokenState] = useState('')
   const [show, setShow] = useState(false)
   const [saved, setSaved] = useState(false)
   const closeRef = useRef(null)
@@ -27,6 +30,7 @@ export default function Settings({ onClose }) {
     setGemini(getGeminiKey())
     setGroq(getGroqKey())
     setWebhook(getWebhookUrl())
+    setWebhookTokenState(getWebhookToken())
   }, [])
 
   useEffect(() => {
@@ -43,6 +47,7 @@ export default function Settings({ onClose }) {
     setGeminiKey(gemini)
     setGroqKey(groq)
     setWebhookUrl(webhook)
+    setWebhookToken(webhookToken)
     setSaved(true)
     // Kort "opgeslagen" tonen en dan sluiten.
     savedTimer.current = setTimeout(() => {
@@ -142,6 +147,25 @@ export default function Settings({ onClose }) {
             />
             <p className="mt-1 text-xs text-slate-500">{t('webhookTip')}</p>
           </div>
+
+          {webhook && (
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-slate-700">
+                {t('webhookTokenLabel')} <span className="text-slate-400">{t('webhookHint')}</span>
+              </label>
+              <input
+                value={webhookToken}
+                onChange={(e) => setWebhookTokenState(e.target.value)}
+                type={show ? 'text' : 'password'}
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="••••••••"
+                dir="ltr"
+                className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 font-mono text-sm focus:border-gent-400 focus:outline-none"
+              />
+              <p className="mt-1 text-xs text-slate-500">{t('webhookTokenTip')}</p>
+            </div>
+          )}
 
           <p className="rounded-lg bg-slate-50 p-3 text-xs text-slate-500">{t('settingsTip')}</p>
         </div>

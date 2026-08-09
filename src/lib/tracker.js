@@ -9,20 +9,34 @@
  * Alles is no-op als er geen webhook-URL is ingesteld (zie Settings). Fouten
  * worden stil ingeslikt zodat de app altijd blijft werken.
  */
-import { getWebhookUrl } from './config.js'
+import { getWebhookUrl, getWebhookToken, timeoutSignal } from './config.js'
+
+/** Voeg het gedeelde token toe aan een POST-payload (indien ingesteld). */
+function withToken(payload) {
+  const token = getWebhookToken()
+  return token ? { ...payload, token } : payload
+}
+
+/** Voeg het token als query-parameter toe aan een GET-URL (indien ingesteld). */
+function urlWithToken(base) {
+  const token = getWebhookToken()
+  if (!token) return base
+  const sep = base.includes('?') ? '&' : '?'
+  return `${base}${sep}token=${encodeURIComponent(token)}`
+}
 
 /** Log één fout (verwacht woord, transcriptie, les-ID, resultaat, datum). */
 export function logMistake({ expected, heard, lessonId, result }) {
   const url = getWebhookUrl()
   if (!url) return
-  const payload = {
+  const payload = withToken({
     type: 'mistake',
     expected: expected || '',
     heard: heard || '',
     lessonId: lessonId || '',
     result: result || 'retry',
     date: new Date().toISOString(),
-  }
+  })
   try {
     // no-cors: we kunnen het antwoord niet lezen, maar dat hoeft niet — het is
     // pure logging. Fire-and-forget; nooit awaiten.
@@ -46,7 +60,7 @@ export function postSnapshot(snapshot) {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ type: 'snapshot', data: snapshot, date: new Date().toISOString() }),
+      body: JSON.stringify(withToken({ type: 'snapshot', data: snapshot, date: new Date().toISOString() })),
     }).catch(() => {})
   } catch {
     /* negeren — mag de app nooit hinderen */
@@ -62,7 +76,7 @@ export function postMessage(text) {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ type: 'message', text: text.trim(), date: new Date().toISOString() }),
+      body: JSON.stringify(withToken({ type: 'message', text: text.trim(), date: new Date().toISOString() })),
     }).catch(() => {})
   } catch {
     /* negeren */
@@ -74,8 +88,8 @@ export async function fetchMessage() {
   const url = getWebhookUrl()
   if (!url) return null
   try {
-    const sep = url.includes('?') ? '&' : '?'
-    const res = await fetch(`${url}${sep}type=message`, { method: 'GET', signal: AbortSignal.timeout(8000) })
+    const target = urlWithToken(`${url}${url.includes('?') ? '&' : '?'}type=message`)
+    const res = await fetch(target, { method: 'GET', signal: timeoutSignal(8000) })
     if (!res.ok) return null
     const data = await res.json().catch(() => null)
     if (!data || !data.text) return null
@@ -90,10 +104,10 @@ export async function fetchSnapshot(urlOverride) {
   const url = urlOverride || getWebhookUrl()
   if (!url) return null
   try {
-    const sep = url.includes('?') ? '&' : '?'
-    const res = await fetch(`${url}${sep}type=snapshot`, {
+    const target = urlWithToken(`${url}${url.includes('?') ? '&' : '?'}type=snapshot`)
+    const res = await fetch(target, {
       method: 'GET',
-      signal: AbortSignal.timeout(10000),
+      signal: timeoutSignal(10000),
     })
     if (!res.ok) return null
     const data = await res.json().catch(() => null)
@@ -112,7 +126,7 @@ export async function fetchCustomLesson() {
   const url = getWebhookUrl()
   if (!url) return null
   try {
-    const res = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(8000) })
+    const res = await fetch(urlWithToken(url), { method: 'GET', signal: timeoutSignal(8000) })
     if (!res.ok) return null
     const data = await res.json().catch(() => null)
     if (!data || !Array.isArray(data.items) || data.items.length === 0) return null

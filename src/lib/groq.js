@@ -3,7 +3,7 @@
  * Zet een opgenomen audiofragment om naar Nederlandse tekst.
  */
 
-import { getGroqKey, GROQ_WHISPER_MODEL } from './config.js'
+import { getGroqKey, GROQ_WHISPER_MODEL, timeoutSignal } from './config.js'
 
 // NEUTRALE context. We geven Whisper BEWUST niet het verwachte woord of een
 // lijst mogelijke antwoorden mee — dat zou de herkenning sturen en de
@@ -46,7 +46,7 @@ export async function transcribeAudio(audioBlob, filename = '', prompt = NEUTRAL
       method: 'POST',
       headers: { Authorization: `Bearer ${key}` },
       // Stopt een vastgelopen upload na 25s (audio kan groter zijn dan tekst).
-      signal: AbortSignal.timeout(25000),
+      signal: timeoutSignal(25000),
       body: form,
     })
   } catch (e) {

@@ -77,6 +77,49 @@ export function setWebhookUrl(value) {
   }
 }
 
+// Gedeeld geheim token voor de webhook. Optioneel: als de Google Apps Script
+// een SECRET ingesteld heeft, moet elk verzoek dit token meesturen. Zo kan niet
+// zomaar iemand met de URL de voortgang lezen of een bericht injecteren.
+const WEBHOOK_TOKEN_KEY = 'nl-gent:webhook:token'
+
+export function getWebhookToken() {
+  try {
+    return localStorage.getItem(WEBHOOK_TOKEN_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setWebhookToken(value) {
+  try {
+    if (value) localStorage.setItem(WEBHOOK_TOKEN_KEY, value.trim())
+    else localStorage.removeItem(WEBHOOK_TOKEN_KEY)
+  } catch {
+    /* opslag geweigerd — negeren */
+  }
+}
+
+/**
+ * AbortSignal met time-out, veilig voor oudere toestellen. AbortSignal.timeout
+ * bestaat niet in oudere Safari/WebView — dan vallen we terug op een handmatige
+ * AbortController (of undefined als ook dat ontbreekt).
+ */
+export function timeoutSignal(ms) {
+  try {
+    if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+      return AbortSignal.timeout(ms)
+    }
+    if (typeof AbortController === 'function') {
+      const c = new AbortController()
+      setTimeout(() => c.abort(), ms)
+      return c.signal
+    }
+  } catch {
+    /* negeren */
+  }
+  return undefined
+}
+
 // Coach-modus: dit toestel KIJKT enkel (admin-pagina) en stuurt zélf geen
 // voortgang. Zo overschrijft het toestel van de partner niet dat van de lerende.
 const COACH_KEY = 'nl-gent:coach:v1'
