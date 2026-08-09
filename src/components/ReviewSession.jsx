@@ -107,7 +107,7 @@ function ReviewQuiz({ questions, onClose }) {
       </div>
 
       <div className="card flex flex-col items-center gap-2 p-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t('reviewPrompt')}</p>
+        <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t('reviewPrompt')}</p>
         <p
           className={`text-3xl font-bold text-slate-900 ${q.promptRtl ? 'rtl' : ''}`}
           dir={q.promptRtl ? 'rtl' : 'ltr'}
@@ -141,6 +141,13 @@ function ReviewQuiz({ questions, onClose }) {
           )
         })}
       </div>
+
+      {/* Schermlezer-aankondiging van het resultaat (visueel al zichtbaar). */}
+      {answered && (
+        <p className="sr-only" role="status" aria-live="polite">
+          {picked === q.answer ? t('speakingCorrect') : `${t('correctLabel')}: ${q.answer}`}
+        </p>
+      )}
 
       <div className="mt-auto py-4">
         <button onClick={next} disabled={!answered} className="btn-primary h-12 w-full">

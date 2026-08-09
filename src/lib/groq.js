@@ -3,7 +3,7 @@
  * Zet een opgenomen audiofragment om naar Nederlandse tekst.
  */
 
-import { getGroqKey, GROQ_WHISPER_MODEL, timeoutSignal } from './config.js'
+import { getGroqKey, GROQ_WHISPER_MODEL, fetchWithRetry } from './config.js'
 
 // NEUTRALE context. We geven Whisper BEWUST niet het verwachte woord of een
 // lijst mogelijke antwoorden mee — dat zou de herkenning sturen en de
@@ -40,20 +40,13 @@ export async function transcribeAudio(audioBlob, filename = '', prompt = NEUTRAL
   form.append('temperature', '0')
   if (prompt) form.append('prompt', prompt)
 
-  let res
-  try {
-    res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}` },
-      // Stopt een vastgelopen upload na 25s (audio kan groter zijn dan tekst).
-      signal: timeoutSignal(25000),
-      body: form,
-    })
-  } catch (e) {
-    const err = new Error(e?.name === 'TimeoutError' ? 'TIME_OUT' : 'NETWERK_FOUT')
-    err.status = e?.name === 'TimeoutError' ? 'timeout' : 'network'
-    throw err
-  }
+  // fetchWithRetry: stopt vastgelopen uploads na 25s, checkt offline vooraf en
+  // doet één automatische herpoging bij een netwerk-hikje/5xx (mobiel netwerk).
+  const res = await fetchWithRetry(
+    'https://api.groq.com/openai/v1/audio/transcriptions',
+    { method: 'POST', headers: { Authorization: `Bearer ${key}` }, body: form },
+    { timeoutMs: 25000 },
+  )
 
   if (!res.ok) {
     const detail = await res.text().catch(() => '')

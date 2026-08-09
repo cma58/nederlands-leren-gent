@@ -187,7 +187,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
             {item.example && <p className="text-sm text-slate-500">bv. {item.example}</p>}
           </div>
         ) : (
-          <span className="mt-1 text-xs text-slate-500">{t('tapToReveal')}</span>
+          <span className="mt-1 text-sm text-slate-500">{t('tapToReveal')}</span>
         )}
       </button>
 
@@ -252,7 +252,7 @@ function QuizPhase({ quiz, onFinish, onBack }) {
       </div>
 
       <div className="card flex flex-col items-center gap-2 p-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
           {t(q.labelKey || 'quizPrompt')}
         </p>
         <p className={`text-3xl font-bold text-slate-900 ${q.rtl ? 'rtl' : ''}`} dir={q.rtl ? 'rtl' : 'ltr'}>
@@ -283,6 +283,13 @@ function QuizPhase({ quiz, onFinish, onBack }) {
           )
         })}
       </div>
+
+      {/* Onhoorbaar voor het oog, wél voor een schermlezer: het resultaat. */}
+      {answered && (
+        <p className="sr-only" role="status" aria-live="polite">
+          {picked === q.answer ? t('speakingCorrect') : `${t('correctLabel')}: ${q.answer}`}
+        </p>
+      )}
 
       <div className="mt-auto py-4">
         <button onClick={next} disabled={!answered} className="btn-primary h-12 w-full">

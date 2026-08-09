@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Header from './components/Header.jsx'
 import AdminDashboard from './components/AdminDashboard.jsx'
 import Dashboard from './components/Dashboard.jsx'
@@ -23,6 +23,16 @@ export default function App() {
   const [showReview, setShowReview] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+
+  // Toegankelijkheid: staat er een venster (les/herhaling/instellingen/help)
+  // open, dan maken we de achterliggende inhoud `inert`. Zo kan een toetsenbord-
+  // of schermlezergebruiker niet per ongeluk "achter" de dialoog navigeren.
+  const overlayOpen = Boolean(activeLesson || showReview || showSettings || showHelp)
+  const bgRef = useRef(null)
+  useEffect(() => {
+    const el = bgRef.current
+    if (el) el.inert = overlayOpen // oudere browsers negeren dit gewoon
+  }, [overlayOpen])
 
   // Verborgen coach-/adminpagina via #admin in de URL (bookmarkbaar op je eigen
   // toestel; onzichtbaar in de gewone leerflow).
@@ -58,24 +68,27 @@ export default function App() {
 
   return (
     <div className="min-h-dvh" dir={dir}>
-      <Header
-        onBack={activeLevel ? () => setActiveLevel(null) : undefined}
-        subtitle={activeLevel ? `${activeLevel.title} · ${activeLevel.subtitle}` : undefined}
-        onSettings={() => setShowSettings(true)}
-        onHelp={() => setShowHelp(true)}
-      />
+      {/* Achterliggende inhoud: wordt `inert` zodra een venster open staat. */}
+      <div ref={bgRef}>
+        <Header
+          onBack={activeLevel ? () => setActiveLevel(null) : undefined}
+          subtitle={activeLevel ? `${activeLevel.title} · ${activeLevel.subtitle}` : undefined}
+          onSettings={() => setShowSettings(true)}
+          onHelp={() => setShowHelp(true)}
+        />
 
-      <main className="pb-16">
-        {activeLevel ? (
-          <LevelView level={activeLevel} onOpenLesson={setActiveLesson} />
-        ) : (
-          <Dashboard
-            onOpenLevel={setActiveLevel}
-            onOpenReview={() => setShowReview(true)}
-            onOpenLesson={setActiveLesson}
-          />
-        )}
-      </main>
+        <main className="pb-16">
+          {activeLevel ? (
+            <LevelView level={activeLevel} onOpenLesson={setActiveLesson} />
+          ) : (
+            <Dashboard
+              onOpenLevel={setActiveLevel}
+              onOpenReview={() => setShowReview(true)}
+              onOpenLesson={setActiveLesson}
+            />
+          )}
+        </main>
+      </div>
 
       {activeLesson && (
         <LessonPlayer
