@@ -120,6 +120,69 @@ export function timeoutSignal(ms) {
   return undefined
 }
 
+/**
+ * fetch() met (1) directe offline-detectie, (2) een time-out per poging en
+ * (3) één automatische herpoging bij een netwerk-hikje of tijdelijke serverfout.
+ *
+ * Bedoeld voor de wisselvallige mobiele netwerken van de doelgroep: één korte
+ * dip zorgt anders meteen voor een foutmelding, terwijl één retry het meestal
+ * oplost. We herproberen ALLEEN bij netwerk/time-out en 5xx — nooit bij 4xx
+ * (bv. een ongeldige sleutel), want dan is herproberen zinloos.
+ *
+ * Gooit bij mislukking een Error met `.status`:
+ *   'offline'  – er is helemaal geen internetverbinding
+ *   'timeout'  – het verzoek duurde te lang
+ *   'network'  – een andere netwerkfout
+ *
+ * @param {string} url
+ * @param {RequestInit} options   fetch-opties (zonder signal; die zetten wij).
+ * @param {{timeoutMs?:number, retries?:number, backoffMs?:number}} [cfg]
+ * @returns {Promise<Response>}
+ */
+export async function fetchWithRetry(url, options = {}, cfg = {}) {
+  const { timeoutMs = 20000, retries = 1, backoffMs = 800 } = cfg
+
+  // Meteen stoppen als de telefoon offline is: geen 20s wachten op een time-out.
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    const err = new Error('OFFLINE')
+    err.status = 'offline'
+    throw err
+  }
+
+  let lastErr
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, { ...options, signal: timeoutSignal(timeoutMs) })
+      // Tijdelijke serverfout (5xx): nog één keer proberen, daarna teruggeven.
+      if (res.status >= 500 && res.status < 600 && attempt < retries) {
+        await sleep_(backoffMs)
+        continue
+      }
+      return res
+    } catch (e) {
+      lastErr = e
+      const isTimeout = e?.name === 'TimeoutError' || e?.name === 'AbortError'
+      // Nog een poging over? Even wachten en opnieuw.
+      if (attempt < retries) {
+        await sleep_(backoffMs)
+        continue
+      }
+      const err = new Error(isTimeout ? 'TIME_OUT' : 'NETWERK_FOUT')
+      err.status = isTimeout ? 'timeout' : 'network'
+      err.cause = lastErr
+      throw err
+    }
+  }
+  // Onbereikbaar, maar voor de volledigheid:
+  const err = new Error('NETWERK_FOUT')
+  err.status = 'network'
+  throw err
+}
+
+function sleep_(ms) {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
 // Coach-modus: dit toestel KIJKT enkel (admin-pagina) en stuurt zélf geen
 // voortgang. Zo overschrijft het toestel van de partner niet dat van de lerende.
 const COACH_KEY = 'nl-gent:coach:v1'

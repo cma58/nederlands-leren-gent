@@ -6,7 +6,7 @@
  * komt terug als gestructureerde JSON, zodat de UI het netjes kan tonen.
  */
 
-import { getGeminiKey, GEMINI_MODEL, timeoutSignal } from './config.js'
+import { getGeminiKey, GEMINI_MODEL, fetchWithRetry } from './config.js'
 
 const SYSTEM_PROMPT = `Je bent een geduldige NT2-docent in Gent (Vlaanderen). De leerling heeft als moedertaal Marokkaans-Arabisch (Darija) en komt uit Oujda.
 BELANGRIJK: gebruik NIET het formele Standaardarabisch (Fusha). Gebruik vlot, natuurlijk en alledaags Marokkaans-Darija zoals het in Oujda gesproken wordt (Arabisch schrift).
@@ -46,13 +46,13 @@ export async function evaluateAnswer(userAnswer, expectedAnswer, contextPrompt =
   // in server-/proxylogs of de browsergeschiedenis.
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
 
-  let res
-  try {
-    res = await fetch(url, {
+  // fetchWithRetry: 20s time-out, offline-check vooraf en één automatische
+  // herpoging bij een netwerk-hikje/5xx (voor wisselvallige mobiele netwerken).
+  const res = await fetchWithRetry(
+    url,
+    {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      // Stopt een vastgelopen verzoek na 20s zodat de UI niet eeuwig 'bezig' blijft.
-      signal: timeoutSignal(20000),
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
         contents: [{ role: 'user', parts: [{ text: userText }] }],
@@ -65,13 +65,9 @@ export async function evaluateAnswer(userAnswer, expectedAnswer, contextPrompt =
           thinkingConfig: { thinkingBudget: 0 },
         },
       }),
-    })
-  } catch (e) {
-    // Time-out of netwerkfout: geef een herkenbare code mee.
-    const err = new Error(e?.name === 'TimeoutError' ? 'TIME_OUT' : 'NETWERK_FOUT')
-    err.status = e?.name === 'TimeoutError' ? 'timeout' : 'network'
-    throw err
-  }
+    },
+    { timeoutMs: 20000 },
+  )
 
   if (!res.ok) {
     const detail = await res.text().catch(() => '')

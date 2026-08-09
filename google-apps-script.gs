@@ -15,11 +15,12 @@
  * 2. Extensies ▸ Apps Script. Plak dit hele bestand en sla op.
  * 3. Projectinstellingen (tandwiel) ▸ Scripteigenschappen ▸ voeg toe:
  *       GEMINI_KEY = <jouw Gemini-sleutel>   (dezelfde soort als in de app)
- *       SECRET     = <een zelfgekozen geheim woord>   (AANBEVOLEN, optioneel)
- *    Zet je SECRET, dan moet élk verzoek dat geheim meesturen. Vul hetzelfde
- *    woord in de app in onder Instellingen ▸ "Webhook-geheim (token)". Zonder
- *    SECRET blijft alles werken zoals vroeger (maar iedereen met de URL kan dan
- *    de voortgang lezen en berichten sturen — daarom is een SECRET aangeraden).
+ *       SECRET     = <een zelfgekozen geheim woord>   (VERPLICHT)
+ *    Het SECRET is VERPLICHT: zonder SECRET weigert dit script élk verzoek
+ *    (het endpoint is dan dicht). Vul exact hetzelfde woord in de app in onder
+ *    Instellingen ▸ "Webhook-geheim (token)". Zo kan niemand met alleen de URL
+ *    de voortgang van de lerende lezen of nep-berichten sturen.
+ *    Kies iets lang en willekeurigs (bv. 20+ tekens), geen makkelijk woord.
  * 4. Implementeren ▸ Nieuwe implementatie ▸ type "Web-app":
  *       - Uitvoeren als: Ikzelf
  *       - Wie heeft toegang: Iedereen
@@ -40,16 +41,38 @@ var PROP_SNAPSHOT = 'latestSnapshot'
 var PROP_MESSAGE = 'partnerMessage'
 var GEMINI_MODEL = 'gemini-2.5-flash'
 
-/* ─────────── beveiliging: gedeeld geheim (optioneel maar aangeraden) ─────────── */
+/* ─────────────── beveiliging: gedeeld geheim (VERPLICHT) ─────────────── */
 // Geeft het ingestelde geheim terug, of '' als er geen ingesteld is.
 function getSecret_() {
   return PropertiesService.getScriptProperties().getProperty('SECRET') || ''
 }
-// True als er geen geheim is (alles toegestaan) OF het meegestuurde token klopt.
+// True ALLEEN als er een SECRET is ingesteld ÉN het meegestuurde token klopt.
+// Fail-closed: is er géén SECRET geconfigureerd, dan wordt alles geweigerd
+// (het endpoint is dan dicht) i.p.v. voor iedereen open te staan.
 function authOk_(token) {
   var secret = getSecret_()
-  if (!secret) return true
-  return String(token || '') === secret
+  if (!secret) return false
+  return safeEquals_(String(token || ''), secret)
+}
+// Vergelijking in (nagenoeg) constante tijd: geen vroegtijdige exit op het
+// eerste verschillende teken, zodat de responstijd niets over het geheim verraadt.
+function safeEquals_(a, b) {
+  if (a.length !== b.length) return false
+  var diff = 0
+  for (var i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return diff === 0
+}
+// Kapt te lange invoer af (beschermt de 9KB-limiet van Scripteigenschappen en
+// houdt het logboek schoon) en neutraliseert formule-injectie: waarden die met
+// =, +, -, @ beginnen krijgen een apostrof, zodat ze bij een latere CSV-export
+// niet als formule uitgevoerd worden in Excel/Sheets.
+function sanitizeCell_(value, maxLen) {
+  var s = String(value == null ? '' : value)
+  if (maxLen && s.length > maxLen) s = s.slice(0, maxLen)
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s
+  return s
 }
 
 /* ──────────── 1) Binnenkomend: fout loggen OF snapshot opslaan ──────────── */
@@ -70,18 +93,22 @@ function doPost(e) {
     if (payload.type === 'message') {
       PropertiesService.getScriptProperties().setProperty(
         PROP_MESSAGE,
-        JSON.stringify({ text: payload.text || '', date: payload.date || new Date().toISOString() }),
+        JSON.stringify({
+          text: sanitizeCell_(payload.text, 500),
+          date: sanitizeCell_(payload.date || new Date().toISOString(), 40),
+        }),
       )
       return json_({ ok: true })
     }
-    // Anders: een uitspraakfout loggen.
+    // Anders: een uitspraakfout loggen. Alle waarden worden begrensd en tegen
+    // formule-injectie beschermd (zie sanitizeCell_).
     var sheet = getLogSheet_()
     sheet.appendRow([
-      payload.date || new Date().toISOString(),
-      payload.lessonId || '',
-      payload.expected || '',
-      payload.heard || '',
-      payload.result || '',
+      sanitizeCell_(payload.date || new Date().toISOString(), 40),
+      sanitizeCell_(payload.lessonId, 60),
+      sanitizeCell_(payload.expected, 200),
+      sanitizeCell_(payload.heard, 200),
+      sanitizeCell_(payload.result, 20),
     ])
     return json_({ ok: true })
   } catch (err) {

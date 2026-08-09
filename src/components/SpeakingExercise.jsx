@@ -109,6 +109,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
 
   /* -------- opnemen -------- */
   function onRecordingDone(blob) {
+    // Belangrijk: de opname kan asynchroon binnenkomen NADAT de les gesloten is
+    // (MediaRecorder.onstop vuurt na unmount). Zonder deze guard zou hieronder
+    // een blob-URL aangemaakt worden die nooit meer opgeruimd wordt (geheugenlek)
+    // en zou er state op een verdwenen component gezet worden.
+    if (!mountedRef.current) return
     if (!blob) {
       setStatus('idle')
       return
@@ -422,6 +427,7 @@ function errorKeyToText(e, t) {
   const status = e?.status
   if (msg.includes('GEEN_GROQ_SLEUTEL')) return t('errNoGroq')
   if (msg.includes('GEEN_GEMINI_SLEUTEL')) return t('errNoGemini')
+  if (status === 'offline') return t('errOffline')
   if (status === 'timeout') return t('errTimeout')
   if (status === 'network') return t('errGeneric')
   if (status === 404 || /not found|is not supported|not supported for/i.test(msg))
