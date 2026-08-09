@@ -1,0 +1,61 @@
+name: Deploy naar GitHub Pages
+
+on:
+  # Bij elke push naar main automatisch bouwen en publiceren
+  push:
+    branches: [main]
+  # En handmatig te starten via de Actions-tab
+  workflow_dispatch:
+
+# Rechten die de deploy-actie nodig heeft
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Slechts één deploy tegelijk; nieuwe pushes annuleren een lopende run niet,
+# maar wachten netjes op elkaar.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node opzetten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Dependencies installeren
+        run: npm ci
+
+      - name: Bouwen
+        run: npm run build
+
+      - name: Pages configureren
+        uses: actions/configure-pages@v5
+        # Zet GitHub Pages automatisch aan (source = GitHub Actions)
+        with:
+          enablement: true
+
+      - name: Build-map uploaden
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publiceren op GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
