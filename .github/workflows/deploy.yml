@@ -37,6 +37,10 @@ jobs:
 
       - name: Bouwen
         run: npm run build
+        env:
+          # Op GitHub Pages draait de app onder /nederlands-leren-gent/.
+          # (Vercel zet deze variabele niet en gebruikt dus gewoon '/'.)
+          VITE_BASE: /nederlands-leren-gent/
 
       - name: Pages configureren
         uses: actions/configure-pages@v5
