@@ -16,6 +16,7 @@ import { getCoachMode } from '../lib/config.js'
 export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
   const { ratioFor, isDone } = useProgress()
   const { t, isDarija } = useLang()
+  const chevron = isDarija ? '‹' : '›'
   const allIds = curriculum.levels.flatMap(allLessonIds)
   const overall = ratioFor(allIds)
   const due = dueCount(curriculum, isDone)
@@ -83,8 +84,14 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
           <span className="text-2xl" aria-hidden="true">
             💌
           </span>
-          <p className="min-w-0 flex-1 text-sm font-medium text-rose-900">{coachMsg.text}</p>
-          <button onClick={dismissMsg} className="shrink-0 text-rose-400 hover:text-rose-600" aria-label={t('close')}>
+          <p className="min-w-0 flex-1 text-sm font-medium text-rose-900" dir="auto">
+            {coachMsg.text}
+          </p>
+          <button
+            onClick={dismissMsg}
+            className="-my-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-rose-400 hover:bg-rose-100 hover:text-rose-600"
+            aria-label={t('close')}
+          >
             ✕
           </button>
         </div>
@@ -92,7 +99,7 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
 
       {/* Dagelijkse aanmoediging */}
       {goalToday && (
-        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-400 to-saffraan-500 p-4 text-white">
+        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-600 to-saffraan-700 p-4 text-white">
           <span className="text-2xl" aria-hidden="true">
             🌟
           </span>
@@ -116,7 +123,7 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
             <span className="block text-sm text-gent-100">{t('customLessonSub')}</span>
           </span>
           <span aria-hidden="true" className="text-2xl font-bold">
-            ›
+            {chevron}
           </span>
         </button>
       )}
@@ -137,7 +144,7 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
             </span>
           </span>
           <span aria-hidden="true" className="text-2xl font-bold">
-            ›
+            {chevron}
           </span>
         </button>
       )}

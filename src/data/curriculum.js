@@ -4118,12 +4118,9 @@ const curriculum = {
                 },
                 {
                   "nl": "u",
-                  "darija": "ساعة",
-                  "darijaLat": "sa3a",
-                  "word": "uur",
-                  "icon": "⏰",
-                  "tip": "Ronde lippen zoals bij «oe», maar zeg «i».",
-                  "answer": "uur"
+                  "darija": "نتا / نتِ (بلاحترام)",
+                  "darijaLat": "nta / nti (b l'i7tiram)",
+                  "tip": "Beleefde vorm van 'jij' (tegen vreemden, de dokter, het loket)."
                 },
                 {
                   "nl": "hij",
@@ -4652,8 +4649,8 @@ const curriculum = {
                 {
                   "nl": "Wanneer is het oudercontact?",
                   "answer": "Wanneer is het oudercontact?",
-                  "darija": "فوقاش اجتماع الوالدين؟",
-                  "darijaLat": "fouqach ijtima3 lwalidin?"
+                  "darija": "وقتاش اجتماع الوالدين؟",
+                  "darijaLat": "weqtach ijtima3 lwalidin?"
                 },
                 {
                   "nl": "Hoe laat begint de school?",

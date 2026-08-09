@@ -7,18 +7,30 @@
  * snapshot van zijn vrouw renderen op zijn eigen toestel.
  */
 import curriculum from '../data/curriculum.js'
+import { reviewableItems } from './review.js'
 
 const KEYS = {
   progress: 'nl-gent:progress:v1',
   speak: 'nl-gent:speak:v1',
   review: 'nl-gent:review:v1',
 }
+// Losse datum: wanneer er voor het laatst een les afgerond werd (progress zelf
+// bewaart geen datums). Gezet in ProgressContext bij markDone.
+export const LAST_PRACTICED_KEY = 'nl-gent:lastPracticed:v1'
 
 function readJSON(key) {
   try {
     return JSON.parse(localStorage.getItem(key)) || {}
   } catch {
     return {}
+  }
+}
+
+function readStr(key) {
+  try {
+    return localStorage.getItem(key) || ''
+  } catch {
+    return ''
   }
 }
 
@@ -30,14 +42,16 @@ export function buildSnapshot() {
     progress: readJSON(KEYS.progress),
     speak: readJSON(KEYS.speak),
     review: readJSON(KEYS.review),
+    lastPracticed: readStr(LAST_PRACTICED_KEY),
   }
 }
 
 const todayStr = () => new Date().toISOString().slice(0, 10)
 
-/** Heeft de lerende vandaag geoefend (voor de dagelijkse aanmoediging)? */
+/** Heeft de lerende vandaag geoefend (les afgerond OF een woord geoefend)? */
 export function practicedToday() {
   const t = todayStr()
+  if (readStr(LAST_PRACTICED_KEY) === t) return true
   const has = (o) => Object.values(o || {}).some((v) => v && v.lastDate === t)
   return has(readJSON(KEYS.speak)) || has(readJSON(KEYS.review))
 }
@@ -102,10 +116,12 @@ export function computeSummary(snap) {
     .slice(0, 10)
     .map((s) => ({ word: s.word, attempts: s.attempts, good: s.good }))
 
-  // Klaar om te herhalen
+  // Klaar om te herhalen: alle herhaalbare items uit afgeronde lessen die nieuw
+  // of vervallen zijn (zelfde logica als het dashboard van de lerende).
   const t = todayStr()
-  const due = Object.keys(review).filter((k) => {
-    const s = review[k]
+  const reviewable = reviewableItems(curriculum, (id) => Boolean(progress[id]))
+  const due = reviewable.filter((r) => {
+    const s = review[r.key]
     return !s || (s.due || '') <= t
   }).length
 
@@ -113,6 +129,7 @@ export function computeSummary(snap) {
   const dates = []
   for (const k of Object.keys(speak)) if (speak[k]?.lastDate) dates.push(speak[k].lastDate)
   for (const k of Object.keys(review)) if (review[k]?.lastDate) dates.push(review[k].lastDate)
+  if (snap.lastPracticed) dates.push(snap.lastPracticed)
   const lastActivity = dates.length ? dates.slice().sort().at(-1) : null
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - 30)

@@ -15,6 +15,11 @@
  * 2. Extensies ▸ Apps Script. Plak dit hele bestand en sla op.
  * 3. Projectinstellingen (tandwiel) ▸ Scripteigenschappen ▸ voeg toe:
  *       GEMINI_KEY = <jouw Gemini-sleutel>   (dezelfde soort als in de app)
+ *       SECRET     = <een zelfgekozen geheim woord>   (AANBEVOLEN, optioneel)
+ *    Zet je SECRET, dan moet élk verzoek dat geheim meesturen. Vul hetzelfde
+ *    woord in de app in onder Instellingen ▸ "Webhook-geheim (token)". Zonder
+ *    SECRET blijft alles werken zoals vroeger (maar iedereen met de URL kan dan
+ *    de voortgang lezen en berichten sturen — daarom is een SECRET aangeraden).
  * 4. Implementeren ▸ Nieuwe implementatie ▸ type "Web-app":
  *       - Uitvoeren als: Ikzelf
  *       - Wie heeft toegang: Iedereen
@@ -35,10 +40,24 @@ var PROP_SNAPSHOT = 'latestSnapshot'
 var PROP_MESSAGE = 'partnerMessage'
 var GEMINI_MODEL = 'gemini-2.5-flash'
 
+/* ─────────── beveiliging: gedeeld geheim (optioneel maar aangeraden) ─────────── */
+// Geeft het ingestelde geheim terug, of '' als er geen ingesteld is.
+function getSecret_() {
+  return PropertiesService.getScriptProperties().getProperty('SECRET') || ''
+}
+// True als er geen geheim is (alles toegestaan) OF het meegestuurde token klopt.
+function authOk_(token) {
+  var secret = getSecret_()
+  if (!secret) return true
+  return String(token || '') === secret
+}
+
 /* ──────────── 1) Binnenkomend: fout loggen OF snapshot opslaan ──────────── */
 function doPost(e) {
   try {
     var payload = JSON.parse(e.postData.contents)
+    // Geheim controleren (indien ingesteld): niemand anders mag schrijven.
+    if (!authOk_(payload.token)) return json_({ ok: false, error: 'unauthorized' })
     // Voortgangs-snapshot (voor de admin-/coachpagina) → overschrijf de laatste.
     if (payload.type === 'snapshot') {
       PropertiesService.getScriptProperties().setProperty(
@@ -72,6 +91,10 @@ function doPost(e) {
 
 /* ──────── 2) Uitgaand: herhaalles OF voortgangs-snapshot serveren ──────── */
 function doGet(e) {
+  // Geheim controleren (indien ingesteld): niemand anders mag meelezen.
+  if (!authOk_(e && e.parameter && e.parameter.token)) {
+    return json_({ error: 'unauthorized' })
+  }
   // ?type=snapshot → de laatst ontvangen voortgang (voor de admin-pagina).
   if (e && e.parameter && e.parameter.type === 'snapshot') {
     var snap = PropertiesService.getScriptProperties().getProperty(PROP_SNAPSHOT)
@@ -156,12 +179,12 @@ function askGeminiForLesson_(words) {
   var url =
     'https://generativelanguage.googleapis.com/v1beta/models/' +
     GEMINI_MODEL +
-    ':generateContent?key=' +
-    encodeURIComponent(key)
+    ':generateContent'
 
   var res = UrlFetchApp.fetch(url, {
     method: 'post',
     contentType: 'application/json',
+    headers: { 'x-goog-api-key': key },
     muteHttpExceptions: true,
     payload: JSON.stringify({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],

@@ -59,7 +59,7 @@ export function canProbablySpeak() {
 }
 
 /** Stop alle lopende spraak (native + online). */
-function stopAll() {
+export function stopAll() {
   try {
     if (window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
       window.speechSynthesis.cancel()

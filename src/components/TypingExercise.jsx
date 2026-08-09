@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { isTTSAvailable, speak } from '../lib/speech.js'
+import { isTTSAvailable, speak, stopAll } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import { scoreTranscript, tipsFor } from '../lib/pronunciation.js'
 import SoundText from './SoundText.jsx'
@@ -25,12 +25,17 @@ export default function TypingExercise({ lesson, onFinish }) {
     setResult(null)
   }, [i])
 
+  // Stop het voorlezen als de les gesloten wordt.
+  useEffect(() => () => stopAll(), [])
+
   if (!hasItems) {
     return <p className="p-6 text-center text-slate-500">{t('lessonEmpty')}</p>
   }
 
   const target = item.answer || item.nl
   const tip = tipsFor(item)
+  // Ze typt per ongeluk in het Arabisch → herinner haar aan het toetsenbord.
+  const hasArabic = /[؀-ۿ]/.test(value)
 
   function check() {
     if (!value.trim()) return
@@ -121,10 +126,15 @@ export default function TypingExercise({ lesson, onFinish }) {
           placeholder={t('typeYourAnswer')}
           className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-center text-2xl font-bold text-slate-900 focus:border-gent-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500 disabled:opacity-60"
         />
+        {hasArabic && (
+          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-center text-sm text-amber-900">
+            ⌨️ {t('typArabicHint')}
+          </p>
+        )}
       </div>
 
       {/* Oordeel */}
-      <div className="mt-4 flex-1">
+      <div className="mt-4 flex-1" aria-live="polite">
         {result && (
           <div className={`rounded-xl p-4 ${resultMeta[result].box}`}>
             <p className={`font-bold ${resultMeta[result].head}`}>

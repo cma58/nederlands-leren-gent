@@ -46,8 +46,14 @@ export function ProgressProvider({ children }) {
     () => ({
       completed,
       isDone: (lessonId) => Boolean(completed[lessonId]),
-      markDone: (lessonId) =>
-        setCompleted((prev) => ({ ...prev, [lessonId]: true })),
+      markDone: (lessonId) => {
+        try {
+          localStorage.setItem('nl-gent:lastPracticed:v1', new Date().toISOString().slice(0, 10))
+        } catch {
+          /* negeren */
+        }
+        setCompleted((prev) => ({ ...prev, [lessonId]: true }))
+      },
       toggle: (lessonId) =>
         setCompleted((prev) => {
           const next = { ...prev }
