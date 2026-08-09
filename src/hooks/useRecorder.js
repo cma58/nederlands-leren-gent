@@ -81,13 +81,12 @@ export function useRecorder() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
-            // Voor spraakHERKENNING (niet bellen): ruisonderdrukking en
-            // automatische versterking UIT. Die kunnen bij een stille kamer het
-            // begin van korte woorden wegdempen/vervormen — precies schadelijk
-            // voor de losse woorden die hier geoefend worden.
+            // Standaard browser-audiobewerking AAN: op de meeste telefoons
+            // normaliseert autoGainControl het volume, wat Whisper juist helpt.
+            // (Uitzetten bleek in de praktijk slechtere herkenning te geven.)
             echoCancellation: true,
-            noiseSuppression: false,
-            autoGainControl: false,
+            noiseSuppression: true,
+            autoGainControl: true,
             channelCount: 1,
           },
         })
