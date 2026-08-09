@@ -81,7 +81,7 @@ export default function TypingExercise({ lesson, onFinish }) {
 
       {/* Het over te typen woord */}
       <div className="card p-5 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
           ⌨️ {t('typeThisWord')}
         </p>
         <p className="mt-2 text-3xl font-bold text-slate-900" dir="ltr">

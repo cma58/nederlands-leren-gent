@@ -67,10 +67,10 @@ export default function ListenExercise({ lesson, onFinish }) {
         ))}
       </div>
 
-      <p className="mb-3 text-center text-sm font-semibold text-slate-600">{t('listenWhichWord')}</p>
+      <p className="mb-3 text-center text-base font-semibold text-slate-700">{t('listenWhichWord')}</p>
 
       {!canProbablySpeak() && (
-        <p className="mb-3 rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-700">
+        <p className="mb-3 rounded-lg bg-amber-50 p-3 text-center text-sm text-amber-800">
           ⚠️ {t('ttsOffline')}
         </p>
       )}
@@ -110,12 +110,12 @@ export default function ListenExercise({ lesson, onFinish }) {
       </div>
 
       {!played && (
-        <p className="mt-3 text-center text-xs text-slate-500">{t('listenTapPlay')} 👆</p>
+        <p className="mt-3 text-center text-sm text-slate-500">{t('listenTapPlay')} 👆</p>
       )}
 
       {/* Feedback + uitleg na het antwoord */}
       {answered && (
-        <div className="mt-4 rounded-xl bg-slate-50 p-4 text-center">
+        <div className="mt-4 rounded-xl bg-slate-50 p-4 text-center" role="status" aria-live="polite">
           <p className={`font-bold ${picked === target ? 'text-emerald-700' : 'text-amber-800'}`}>
             {picked === target ? `✅ ${t('speakingCorrect')}` : `👂 ${t('listenItWas')} “${target}”`}
           </p>

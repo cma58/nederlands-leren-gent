@@ -36,7 +36,7 @@ export default function LessonRow({ lesson, index, onOpen }) {
         <span
           aria-hidden="true"
           className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 text-xs font-bold ${
-            done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-white text-slate-400'
+            done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-400 bg-white text-slate-600'
           }`}
         >
           {done ? '✓' : index}
@@ -50,7 +50,7 @@ export default function LessonRow({ lesson, index, onOpen }) {
             {title}
             {done && <span className="sr-only"> ({t('completed')})</span>}
           </span>
-          <span className="block truncate text-xs text-slate-500">
+          <span className="block truncate text-sm text-slate-500">
             {icon} {label} · {lesson.items.length} {t('items')}
           </span>
         </span>

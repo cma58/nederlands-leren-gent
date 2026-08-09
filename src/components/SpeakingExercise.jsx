@@ -224,7 +224,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         )}
         {isLetter ? (
           <>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               🎙️ {t('sayLetterWord')}
             </p>
             <div className="mt-2 flex items-center justify-center gap-4" dir="ltr">
@@ -237,7 +237,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
           </>
         ) : (
           <>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               🎙️ {t(labelKey)}
             </p>
             {typeof item.value === 'number' && (
@@ -300,7 +300,15 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         </div>
       )}
       {isLetter && (
-        <p className="mt-4 text-center text-xs text-slate-500">{t('spkLetterHint')}</p>
+        <p className="mt-4 text-center text-sm text-slate-500">{t('spkLetterHint')}</p>
+      )}
+
+      {/* Korte uitleg vóór de allereerste opname: voorkomt schrik bij de
+          onverwachte systeem-popup voor microfoontoegang. */}
+      {recorder.supported && i === 0 && !hasRecording && !recorder.recording && status === 'idle' && (
+        <p className="mt-4 rounded-xl bg-slate-100 p-3 text-center text-sm text-slate-600">
+          🎤 {t('micWhyPermission')}
+        </p>
       )}
 
       {/* 5 — Opnemen (met timer + auto-stop) */}
@@ -309,6 +317,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
           <button
             onClick={toggleRecord}
             disabled={status === 'busy'}
+            aria-pressed={recorder.recording}
             className={`flex h-16 w-full items-center justify-center gap-3 rounded-2xl text-lg font-bold text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-saffraan-600 ${
               recorder.recording ? 'animate-pulse bg-rose-600' : 'bg-saffraan-600 hover:bg-saffraan-700'
             } disabled:opacity-50`}
@@ -341,8 +350,13 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         </div>
       )}
 
-      {/* 8 — wat Groq verstond, 9 — het oordeel van de app */}
-      <div className="mt-4">
+      {/* 8 — wat Groq verstond, 9 — het oordeel van de app.
+          role=status + aria-live: schermlezers (en meeluisterende begeleiders)
+          horen automatisch "bezig", de foutmelding of het oordeel. */}
+      <div className="mt-4" role="status" aria-live="polite">
+        {status === 'recording' && (
+          <p className="sr-only">{t('record')}…</p>
+        )}
         {status === 'busy' && (
           <p className="text-center text-sm text-slate-500">⏳ {t('pleaseWait')}</p>
         )}
