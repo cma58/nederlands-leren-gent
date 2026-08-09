@@ -56,5 +56,14 @@ export async function transcribeAudio(audioBlob, filename = '', prompt = NEUTRAL
   }
 
   const data = await res.json()
-  return (data?.text || '').trim()
+  const text = (data?.text || '').trim()
+  // Whisper gaf niets bruikbaars terug: dat is een OPNAME-probleem (te stil / te
+  // kort / mic), geen uitspraakfout. Maak dat onderscheid zichtbaar met een
+  // eigen code, zodat de UI "ik heb niets verstaan" toont i.p.v. "probeer opnieuw".
+  if (!text) {
+    const err = new Error('GEEN_SPRAAK')
+    err.status = 'nospeech'
+    throw err
+  }
+  return text
 }
