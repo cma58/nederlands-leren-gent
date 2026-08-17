@@ -1,4 +1,5 @@
 name = "nederlands-leren-gent-api"
+account_id = "586f6e20a0f9d62a214e636e32f40bc0"
 main = "worker/src/index.js"
 compatibility_date = "2026-08-01"
 

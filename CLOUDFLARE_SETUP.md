@@ -54,17 +54,18 @@ Plak geen van beide waarden in broncode, een issue, chat of e-mail.
 6. Kopieer ook je **Account ID** vanuit de Cloudflare-startpagina of het
    Worker-overzicht.
 
-## 4. Vier GitHub Actions-secrets instellen
+## 4. Drie GitHub Actions-secrets instellen
 
 Open rechtstreeks:
 [Repository secrets](https://github.com/cma58/nederlands-leren-gent/settings/secrets/actions)
 
-Kies telkens **New repository secret** en voeg exact deze vier namen toe:
+De Cloudflare Account ID staat al als niet-geheime configuratiewaarde in
+`wrangler.toml`. Kies telkens **New repository secret** en voeg exact deze drie
+namen toe:
 
 | Naam | Waarde |
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | het Cloudflare-token uit stap 3 |
-| `CLOUDFLARE_ACCOUNT_ID` | jouw Cloudflare Account ID |
 | `ADMIN_BOOTSTRAP_SECRET` | het lange eigen geheim uit stap 2 |
 | `GROQ_API_KEY` | de Groq-key uit stap 2 |
 
