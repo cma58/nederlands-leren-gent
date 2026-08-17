@@ -46,13 +46,20 @@ Plak geen van beide waarden in broncode, een issue, chat of e-mail.
 ## 3. Cloudflare-token voor GitHub maken
 
 1. Open [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens).
-2. Kies **Create Token**.
-3. Gebruik de template **Edit Cloudflare Workers**.
-4. Beperk het token tot jouw eigen account en maak het aan.
-5. Kopieer het token meteen naar je wachtwoordbeheerder; Cloudflare toont het
+2. Kies **Create Token** → **Create Custom Token**.
+3. Geef het token bijvoorbeeld de naam `GitHub deploy Nederlands Gent`.
+4. Voeg onder **Permissions** exact deze twee accountrechten toe:
+   - **Account** → **Workers Scripts** → **Edit**
+   - **Account** → **D1** → **Edit**
+5. Kies onder **Account Resources** → **Include** → jouw eigen account. Voeg
+   geen IP-filter of vervaldatum toe tijdens de eerste installatie.
+6. Kies **Continue to summary** → **Create Token**.
+7. Kopieer het token meteen naar je wachtwoordbeheerder; Cloudflare toont het
    maar één keer.
-6. Kopieer ook je **Account ID** vanuit de Cloudflare-startpagina of het
-   Worker-overzicht.
+
+`D1:Edit` is nodig omdat dezelfde workflow vóór iedere deploy gecontroleerde
+databasemigraties uitvoert. Zonder dat recht kan de frontend wel bouwen, maar
+stopt de clouddeploy vóór het databaseschema klaarstaat.
 
 ## 4. Drie GitHub Actions-secrets instellen
 
