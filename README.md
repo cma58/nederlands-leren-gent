@@ -2,107 +2,70 @@
 
 Een interactieve webapp waarmee een Marokkaans-Darija sprekende gebruiker (uit
 Oujda) stap voor stap **Vlaams-Nederlands** leert om vlot in **Gent** te
-integreren. De cursus houdt rekening met de klank- en taalverschillen tussen
-het Darija en het Nederlands.
+integreren. De cursus houdt rekening met de klank- en taalverschillen tussen het
+Darija en het Nederlands, is volledig **tweetalig (NL + Darija, met RTL)** en
+**mobiel-eerst** ontworpen.
 
-> **Status: Stap 2b afgerond.** Volledige leerlijn (~220 items), dashboard met
-> voortgang, interactieve lessen (kaartjes + audio + auto-quiz, werkt offline)
-> én de spreekoefening: opnemen met **Groq Whisper** + AI-feedback met **Gemini**.
+> 📖 **Nieuwe ontwikkelaar?** Lees **[`DEVELOPMENT.md`](./DEVELOPMENT.md)** — dat
+> beschrijft de volledige architectuur, hoe elke functie werkt, de deploy, de
+> veiligheid, de huidige status en hoe je uitbreidt.
+
+## Wat kan de app?
+
+- **Volledige leerlijn:** 3 niveaus, 25 modules, 76 lessen, ~629 items.
+- **Lestypes:** kaartjes + auto-quiz (woordenschat/zinnen/getallen/grammatica),
+  **spreekoefening** (opnemen + herkenning + oordeel), **luisteroefening**
+  (minimale paren) en **typoefening**.
+- **Voorlezen** in het Vlaams (Web Speech API, met online fallback).
+- **Dagelijkse herhaling** met een Leitner-systeem (volledig offline).
+- **Coach-modus:** een partner kan de voortgang op afstand volgen en een berichtje
+  sturen (via een Google Sheet-webhook).
+- **Offline & installeerbaar** (PWA): de app-schil werkt zonder internet.
 
 ## Tech stack
 
-- **React 18 + Vite** — snelle, moderne frontend
-- **Tailwind CSS** — strakke, mobiel-vriendelijke UI
-- **Web Speech API** (`window.speechSynthesis`, `nl-BE`) — voorlezen, native en gratis
-- **Google Gemini API** (gratis tier) — grammatica-/antwoordcontrole _(Stap 2)_
-- **Groq Whisper** (`whisper-large-v3`) — spraak-naar-tekst _(Stap 2)_
+**React 18 + Vite 6** · **Tailwind CSS** · **Web Speech API** (voorlezen) ·
+**Groq Whisper** (spraak → tekst) · **Google Gemini** (optionele AI-uitleg) ·
+**Google Apps Script** (voortgang op afstand) · **vite-plugin-pwa** (offline).
+
+De app is volledig client-side; er is geen eigen backend.
 
 ## Snel starten
 
 ```bash
-cd nl-leren-gent
 npm install
-npm run dev
+npm run dev        # http://localhost:5173
+npm run build      # productie-build in dist/
 ```
 
-De app draait dan op http://localhost:5173.
+Alle lessen, quizzen, luister- en typoefeningen werken **zonder sleutels**. Alleen
+de **spreekoefening** heeft twee gratis sleutels nodig:
 
-### Sleutels voor de spreekoefening (gratis)
-
-Alle lessen en quizzen werken **zonder** sleutels. Enkel de spreekoefening
-(microfoon + AI-feedback) heeft twee gratis sleutels nodig. Twee manieren:
-
-1. **In de app (makkelijkst):** open het tandwiel (⚙️) rechtsboven en plak de
-   sleutels. Ze worden lokaal op het toestel bewaard.
-2. **Via .env:** `cp .env.example .env` en vul `VITE_GEMINI_API_KEY` en
-   `VITE_GROQ_API_KEY` in.
+1. **In de app (makkelijkst):** tandwiel (⚙️) rechtsboven → sleutels plakken
+   (worden lokaal op het toestel bewaard).
+2. **Via `.env`:** `VITE_GEMINI_API_KEY` en `VITE_GROQ_API_KEY`.
 
 - Gemini-sleutel: https://aistudio.google.com/app/apikey
 - Groq-sleutel: https://console.groq.com/keys
 
-## Projectstructuur
+> ⚠️ Zet deze sleutels **nooit** als omgevingsvariabele in een publieke Vercel-/
+> hostingdeployment — ze belanden dan leesbaar in de JS-bundel. Zie `DEVELOPMENT.md` §9/§11.
+
+## Deploy
+
+Elke merge naar `main` deployt automatisch naar **GitHub Pages**
+(https://cma58.github.io/nederlands-leren-gent/) en **Vercel**. Details, inclusief
+het `VITE_BASE`-pad per host, staan in [`DEVELOPMENT.md`](./DEVELOPMENT.md) §10.
+
+## Structuur (kort)
 
 ```
-nl-leren-gent/
-├── index.html
-├── package.json
-├── vite.config.js
-├── tailwind.config.js
-├── postcss.config.js
-├── .env.example
-└── src/
-    ├── main.jsx                  # entry point
-    ├── App.jsx                   # navigatie (dashboard ⇄ niveau ⇄ les)
-    ├── index.css                 # Tailwind + basiscomponenten
-    ├── data/
-    │   ├── curriculum.js         # ⭐ de volledige leerlijn (Niveau 0 & 1)
-    │   └── resources.js          # externe oefenbronnen (links)
-    ├── context/
-    │   └── ProgressContext.jsx   # voortgang (localStorage)
-    ├── hooks/
-    │   └── useRecorder.js        # microfoon-opname (MediaRecorder)
-    ├── lib/
-    │   ├── speech.js             # Text-to-Speech helper (nl-BE)
-    │   ├── quiz.js               # bouwt quizvragen uit een les
-    │   ├── config.js             # API-sleutels & modelnamen
-    │   ├── gemini.js             # evaluateAnswer() — AI-feedback
-    │   └── groq.js               # transcribeAudio() — Whisper
-    └── components/
-        ├── Header.jsx
-        ├── Dashboard.jsx         # niveaukeuze + totale voortgang
-        ├── LevelCard.jsx
-        ├── LevelView.jsx         # modules + lessen van één niveau
-        ├── LessonRow.jsx
-        ├── LessonPlayer.jsx      # leren → quiz → klaar (of spreekoefening)
-        ├── SpeakingExercise.jsx  # opnemen → Whisper → Gemini-feedback
-        ├── Settings.jsx          # API-sleutels invullen
-        └── ProgressBar.jsx
+src/
+├── data/curriculum.js     # ⭐ de volledige leerlijn (data-gedreven)
+├── context/               # taal (i18n/RTL) + voortgang
+├── lib/                   # speech, groq, gemini, pronunciation (oordeel), review, …
+└── components/            # Dashboard, LessonPlayer, SpeakingExercise, …
 ```
 
-## De leerlijn (`src/data/curriculum.js`)
-
-Alles staat in één helder gestructureerd data-object met het schema
-`Level → Module → Lesson → Item`. Zie de uitgebreide toelichting bovenaan het
-bestand. Elk `Item` kan Nederlandse tekst, een Darija-vertaling (Arabisch én
-Latijns schrift), IPA-uitspraak, een uitspraaktip voor Darija-sprekers en een
-voorbeeldzin bevatten.
-
-### Niveau 0 — Absolute basis & fonetiek
-- **0.1** Klankleer & uitspraak (korte/lange klinkers, tweeklanken, P/B · F/V · G/CH)
-- **0.2** Begroetingen & beleefdheid
-- **0.3** Getallen 0–20
-- **0.4** Vraagwoorden & omgeving
-
-### Niveau 1 — Eerste communicatie (A1.1)
-- **1.1** Jezelf voorstellen
-- **1.2** Familie & gezin
-- **1.3** Basisgrammatica (de/het, tegenwoordige tijd, zijn & hebben)
-- **1.4** Vragen stellen & boodschappen (inversie, getallen 20–100, winkel/bakker)
-
-## Zo breid je uit
-
-- **Nieuwe les/module:** voeg een object toe aan `curriculum.js`. De UI en de
-  voortgangsberekening passen zich automatisch aan.
-- **Nieuw lestype:** geef de les een `type` en plug in Stap 2 een component in
-  op basis van `lesson.type` (`phonetics`, `vocab`, `grammar`, `speaking`, …).
-```
+Uitgebreide toelichting per bestand: zie [`DEVELOPMENT.md`](./DEVELOPMENT.md).
+</content>
