@@ -14,7 +14,7 @@ run_worker_first = true
 [[d1_databases]]
 binding = "DB"
 database_name = "nederlands-leren-gent"
-# Geldige lokale placeholder; vervang vóór remote deploy door de echte D1-id.
+# D1-productiedatabase, aangemaakt met EU-jurisdictie.
 database_id = "eb55feb7-f597-4e08-a1c3-9ba2d0949d6e"
 migrations_dir = "migrations"
 
