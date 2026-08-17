@@ -21,8 +21,8 @@ function loadInitial() {
   } catch {
     /* negeren */
   }
-  // Standaard Darija: dit is Oumayma's taal. Bij de eerste start moet de knop
-  // die ze indrukt in háár taal staan, niet in het Nederlands.
+  // Standaard Darija in Latijnse letters, zodat een nieuwe gebruiker de eerste
+  // handeling meteen begrijpt. Zowel Nederlands als Darija blijven LTR.
   return 'dar'
 }
 
@@ -39,7 +39,7 @@ export function LanguageProvider({ children }) {
       /* negeren */
     }
     if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('lang', lang === 'dar' ? 'ar' : 'nl-BE')
+      document.documentElement.setAttribute('lang', lang === 'dar' ? 'ary-Latn' : 'nl-BE')
       document.documentElement.setAttribute('dir', dir)
     }
   }, [lang, dir])

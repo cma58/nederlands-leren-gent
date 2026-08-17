@@ -1,11 +1,7 @@
 import { useLang } from '../context/LanguageContext.jsx'
 import LangToggle from './LangToggle.jsx'
 
-/**
- * Persoonlijk welkomstscherm — het eerste dat Oumayma ziet.
- * Toont de begroeting in het Nederlands én in het Darija, met knoppen
- * om te beginnen, de taal te kiezen en de help te openen.
- */
+/** Algemene startpagina voor alle cursisten. */
 export default function Welcome({ onBegin, onHelp }) {
   const { t, arrowFwd } = useLang()
 
@@ -22,15 +18,8 @@ export default function Welcome({ onBegin, onHelp }) {
           🌷
         </div>
 
-        {/* Nederlands */}
-        <p className="text-lg font-medium text-gent-100">Welkom</p>
-        <h1 className="text-4xl font-black leading-tight">Oumayma</h1>
-
-        {/* Darija */}
-        <div className="rtl mt-4 border-t border-white/20 pt-4">
-          <p className="text-lg font-medium text-gent-100">مرحبا</p>
-          <h2 className="font-arabic text-4xl font-black leading-tight">أميمة</h2>
-        </div>
+        <p className="text-lg font-medium text-gent-100">{t('welcome')}</p>
+        <h1 className="max-w-md text-4xl font-black leading-tight">{t('appTitle')}</h1>
 
         <p className="mt-6 max-w-sm text-sm leading-relaxed text-gent-50">
           {t('welcomeTagline')}

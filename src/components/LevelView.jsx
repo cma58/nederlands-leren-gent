@@ -22,14 +22,14 @@ export default function LevelView({ level, onOpenLesson }) {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-slate-900">{level.title}</h2>
+            <h2 className="text-xl font-bold text-slate-900">{isDarija ? level.titleDarijaLat || level.title : level.title}</h2>
             {level.cefr && (
               <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700">
                 {level.cefr}
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-500">{level.subtitle}</p>
+          <p className="text-sm text-slate-500">{isDarija ? level.subtitleDarijaLat || level.subtitle : level.subtitle}</p>
         </div>
       </div>
 
@@ -52,9 +52,9 @@ export default function LevelView({ level, onOpenLesson }) {
                     <span className="text-xs font-bold text-slate-400">{t('module')} {module.id}</span>
                   </div>
                   <h3 className="text-base font-bold text-slate-900">
-                    {isDarija && module.titleDarija ? module.titleDarija : module.title}
+                    {isDarija && module.titleDarijaLat ? module.titleDarijaLat : module.title}
                   </h3>
-                  <p className="text-sm text-slate-500">{module.goal}</p>
+                  <p className="text-sm text-slate-500">{isDarija ? module.goalDarijaLat || module.goal : module.goal}</p>
                 </div>
               </div>
 

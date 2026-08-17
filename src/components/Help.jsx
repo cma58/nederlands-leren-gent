@@ -3,8 +3,7 @@ import { useLang } from '../context/LanguageContext.jsx'
 
 /**
  * Help-scherm: uitleg over hoe de app werkt en wat je kan verwachten.
- * Elke sectie staat in het Nederlands én in het Darija, zodat Oumayma
- * het altijd in beide talen kan lezen.
+ * Elke sectie staat in het Nederlands én in Darija met Latijnse letters.
  */
 
 // Inhoud staat bewust hier (tweetalig per sectie) i.p.v. in translations.js,
@@ -17,19 +16,19 @@ const SECTIONS = [
       body: 'Een app om stap voor stap Nederlands te leren voor het leven in Gent. Ze is gemaakt voor jou, met vertalingen en tips in het Darija.',
     },
     dar: {
-      title: 'شنو هو هاد التطبيق؟',
-      body: 'تطبيق باش تعلمي الهولندية شوية بشوية للحياة فگاند. مصايب ليك نتِ، بالترجمة والنصائح بالدارجة.',
+      title: 'Chno howa had l-app?',
+      body: 'App bach t3ellem Nederlands chwya b chwya l-7ayat f Gent, m3a tarjama w nsa2e7 b Darija.',
     },
   },
   {
     icon: '📚',
     nl: {
       title: 'De lessen',
-      body: 'Kies een niveau en een les. Eerst zie je kaartjes met een woord of zin (leren), daarna een kleine quiz om te oefenen. Alles werkt zonder internet.',
+      body: 'Kies een niveau en een les. Eerst zie je woorden of zinnen, daarna een korte oefening. Zonder internet kan je verder oefenen; synchronisatie gebeurt zodra je weer online bent.',
     },
     dar: {
-      title: 'الدروس',
-      body: 'ختاري مستوى ودرس. الأول كتشوفي كارطات فيهم كلمة ولا جملة (التعلم)، من بعد تمرين صغير. كلشي كيخدم بلا أنترنت.',
+      title: 'Dorous',
+      body: 'Khtar niveau w dars. Luwel katqra kalimat w jomal, mn be3d katdir tamrin sghir. Ila ma kaynch internet, sync kaytder mlli trje3 online.',
     },
   },
   {
@@ -39,30 +38,41 @@ const SECTIONS = [
       body: 'Tik op de knop met het luidsprekertje om te horen hoe een woord in het Vlaams wordt uitgesproken. Je kan zo vaak luisteren als je wil.',
     },
     dar: {
-      title: 'الاستماع',
-      body: 'كليكي على زر السمّاعة باش تسمعي كيفاش كتنطق الكلمة بالفلامنكية. تقدري تسمعي قد ما بغيتي.',
+      title: 'Sma3',
+      body: 'Klik 3la zerr dyal ssot bach tsme3 kifach katntaq l-kelma b Nederlands. Tqder t3awed qedd ma bghiti.',
     },
   },
   {
     icon: '🎙️',
     nl: {
       title: 'De spreekoefening',
-      body: 'Bij de spreeklessen kan je een zin inspreken. De app luistert en een AI-lerares verbetert je, met uitleg in het Darija. Hiervoor zijn twee gratis sleutels nodig (via de instellingen ⚙️).',
+      body: 'Bij spreeklessen kan je een woord of zin opnemen. De app controleert eerst de audiokwaliteit en geeft alleen een oordeel wanneer dat betrouwbaar kan.',
     },
     dar: {
-      title: 'تمرين الكلام',
-      body: 'فدروس الكلام تقدري تسجلي جملة. التطبيق كيسمع وأستاذة ذكية كتصححلك، بشرح بالدارجة. لهاد الشي خاصك جوج مفاتيح فابور (من الإعدادات ⚙️).',
+      title: 'Tamrin dyal l-hdra',
+      body: 'F drous dyal l-hdra tqder tsjjel kelma wela jomla. L-app kaychouf luwel wach ssot wad7, w kay3ti natija ghir ila kan met2ekked.',
     },
   },
   {
     icon: '💾',
     nl: {
       title: 'Je voortgang',
-      body: 'De app onthoudt welke lessen je afgerond hebt, op dit toestel. Je kan dus altijd verdergaan waar je gestopt was.',
+      body: 'Je voortgang wordt veilig aan je account gekoppeld. Je kan op een ander toestel verdergaan waar je gestopt was.',
     },
     dar: {
-      title: 'التقدم ديالك',
-      body: 'التطبيق كيتفكر الدروس اللي كمّلتي، فهاد الجهاز. تقدري ديما تكملي من فين وقفتي.',
+      title: 'Taqaddom dyalek',
+      body: 'Taqaddom kaytbqa merbout b compte dyalek. Tqder tkmel mn téléphone akhor mn fin wqefti.',
+    },
+  },
+  {
+    icon: '🔐',
+    nl: {
+      title: 'Privacy en actieve tijd',
+      body: 'De admin ziet je voortgang, opdrachten, leerpogingen en een schatting van je actieve leertijd. Bij een spreekcontrole gaat je opname beveiligd naar Groq voor transcriptie; de app bewaart de ruwe audio en het vrije transcript niet.',
+    },
+    dar: {
+      title: 'Privacy w lwaqt actif',
+      body: 'L-admin kaychouf taqaddom, devoirat, mo7awalat w taqdir dyal lwaqt li kenti actif. F ta7qiq dyal l-hdra, tsjil kaymchi b aman l Groq bach ytektb; l-app ma katkhzzench ssot l-asli wla transcript kamel.',
     },
   },
   {
@@ -72,8 +82,8 @@ const SECTIONS = [
       body: 'Met de knop 🌐 kan je de hele app tussen het Nederlands en het Darija wisselen. De Nederlandse woorden die je leert, blijven natuurlijk Nederlands.',
     },
     dar: {
-      title: 'تبديل اللغة',
-      body: 'بزر 🌐 تقدري تبدلي التطبيق كامل بين الهولندية والدارجة. الكلمات الهولندية اللي كتعلمي كيبقاو بالهولندية طبعا.',
+      title: 'Beddel l-logha',
+      body: 'B zerr 🌐 tqder tbeddel l-app bin Nederlands w Darija b 7orouf Latin. Kalimat li katqra kaybqaw b Nederlands.',
     },
   },
 ]
@@ -101,7 +111,7 @@ export default function Help({ onClose }) {
         <div className="flex items-center justify-between border-b border-slate-100 p-5">
           <div>
             <h3 className="text-lg font-bold text-slate-900">{t('helpTitle')}</h3>
-            <p className="rtl text-sm text-slate-500">كيفاش كيخدم التطبيق؟</p>
+            <p className="text-sm text-slate-500" dir="ltr">Kifach katkhdem l-app?</p>
           </div>
           <button ref={closeRef} onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={t('close')}>
             ✕
@@ -119,7 +129,7 @@ export default function Help({ onClose }) {
                 <h4 className="font-bold text-slate-900">{s.nl.title}</h4>
                 <p className="text-sm leading-snug text-slate-600">{s.nl.body}</p>
                 {/* Darija */}
-                <div className="rtl mt-2 rounded-lg bg-saffraan-50 p-2.5">
+                <div className="mt-2 rounded-lg bg-saffraan-50 p-2.5" dir="ltr">
                   <h4 className="font-bold text-saffraan-900">{s.dar.title}</h4>
                   <p className="text-sm leading-snug text-saffraan-800">{s.dar.body}</p>
                 </div>

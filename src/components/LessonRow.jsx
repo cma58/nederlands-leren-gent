@@ -22,7 +22,7 @@ export default function LessonRow({ lesson, index, onOpen }) {
   const { isDone } = useProgress()
   const { t, isDarija } = useLang()
   const done = isDone(lesson.id)
-  const title = isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title
+  const title = isDarija && lesson.titleDarijaLat ? lesson.titleDarijaLat : lesson.title
   const meta = TYPE_META[lesson.type]
   const label = meta ? t(meta.key) : lesson.type
   const icon = meta?.icon ?? '•'

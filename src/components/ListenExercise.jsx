@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { isTTSAvailable, speak, canProbablySpeak } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import SoundText from './SoundText.jsx'
+import { recordLearningAttempt } from '../lib/attempts.js'
 
 /**
  * Luister-discriminatie ("Welk woord hoor je?").
@@ -41,6 +42,15 @@ export default function ListenExercise({ lesson, onFinish }) {
   function choose(opt) {
     if (answered) return
     setPicked(opt)
+    const correct = opt === target
+    recordLearningAttempt({
+      lessonId: lesson.id,
+      itemKey: `listening:${lesson.id}:${i}`,
+      type: 'listening',
+      result: correct ? 'correct' : 'incorrect',
+      score: correct ? 1 : 0,
+      maxScore: 1,
+    }).catch(() => {})
     speak(target)
   }
 

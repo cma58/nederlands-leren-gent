@@ -10,7 +10,8 @@
     @apply bg-slate-50 text-slate-800 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
-  /* Arabisch/Darija tekst netjes van rechts naar links */
+  /* Oude lesinhoud kan nog Arabisch schrift bevatten. Nieuwe Darija-interface
+     gebruikt uitsluitend Latijnse letters en dus de gewone LTR-richting. */
   .rtl {
     direction: rtl;
     @apply font-arabic;

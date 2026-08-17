@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { isTTSAvailable, speak, stopAll } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import { scoreTranscript, tipsFor } from '../lib/pronunciation.js'
+import { recordLearningAttempt } from '../lib/attempts.js'
 import SoundText from './SoundText.jsx'
 
 /**
@@ -35,12 +36,18 @@ export default function TypingExercise({ lesson, onFinish }) {
   const target = item.answer || item.nl
   const tip = tipsFor(item)
   // Ze typt per ongeluk in het Arabisch → herinner haar aan het toetsenbord.
-  const hasArabic = /[؀-ۿ]/.test(value)
+  const hasArabic = /\p{Script=Arabic}/u.test(value)
 
   function check() {
     if (!value.trim()) return
     const res = scoreTranscript(item, value)
     setResult(res)
+    recordLearningAttempt({
+      lessonId: lesson.id,
+      itemKey: `typing:${lesson.id}:${i}`,
+      type: 'typing',
+      result: res === 'GOOD' ? 'correct' : res === 'ALMOST' ? 'almost' : 'incorrect',
+    }).catch(() => {})
     if (isTTSAvailable()) speak(item.nl)
   }
 
@@ -56,9 +63,9 @@ export default function TypingExercise({ lesson, onFinish }) {
   }
 
   const resultMeta = {
-    good: { title: t('typGoodTitle'), sub: t('typGoodSub'), box: 'bg-emerald-50', head: 'text-emerald-800', icon: '✅' },
-    almost: { title: t('typAlmostTitle'), sub: t('typAlmostSub'), box: 'bg-amber-50', head: 'text-amber-900', icon: '✏️' },
-    retry: { title: t('typRetryTitle'), sub: t('typRetrySub'), box: 'bg-rose-50', head: 'text-rose-700', icon: '🔁' },
+    GOOD: { title: t('typGoodTitle'), sub: t('typGoodSub'), box: 'bg-emerald-50', head: 'text-emerald-800', icon: '✅' },
+    ALMOST: { title: t('typAlmostTitle'), sub: t('typAlmostSub'), box: 'bg-amber-50', head: 'text-amber-900', icon: '✏️' },
+    RETRY: { title: t('typRetryTitle'), sub: t('typRetrySub'), box: 'bg-rose-50', head: 'text-rose-700', icon: '🔁' },
   }
 
   return (
@@ -75,8 +82,8 @@ export default function TypingExercise({ lesson, onFinish }) {
         ))}
       </div>
 
-      {lesson.darijaNote && (
-        <p className="rtl mb-2 text-center text-sm text-slate-500">{lesson.darijaNote}</p>
+      {lesson.darijaNoteLat && (
+        <p className="mb-2 text-center text-sm text-slate-500" dir="ltr">{lesson.darijaNoteLat}</p>
       )}
 
       {/* Het over te typen woord */}
@@ -87,11 +94,9 @@ export default function TypingExercise({ lesson, onFinish }) {
         <p className="mt-2 text-3xl font-bold text-slate-900" dir="ltr">
           <SoundText text={item.nl} />
         </p>
-        {(item.darija || item.darijaLat) && (
-          <p className="mt-1 text-slate-500">
-            {item.darija && <span className="rtl">{item.darija}</span>}
-            {item.darija && item.darijaLat && ' · '}
-            {item.darijaLat && <span className="italic">{item.darijaLat}</span>}
+        {item.darijaLat && (
+          <p className="mt-1 text-slate-500" dir="ltr">
+            <span className="italic">{item.darijaLat}</span>
           </p>
         )}
         {isTTSAvailable() && (
@@ -113,7 +118,7 @@ export default function TypingExercise({ lesson, onFinish }) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && (result ? next() : check())}
-          disabled={result === 'good'}
+          disabled={result === 'GOOD'}
           type="text"
           dir="ltr"
           lang="nl"
@@ -141,16 +146,16 @@ export default function TypingExercise({ lesson, onFinish }) {
               {resultMeta[result].icon} {resultMeta[result].title}
             </p>
             <p className="mt-1 text-sm text-slate-700">{resultMeta[result].sub}</p>
-            {result !== 'good' && (
+            {result !== 'GOOD' && (
               <p className="mt-2 text-sm text-slate-800" dir="ltr">
                 {t('correctLabel')}: <span className="font-bold"><SoundText text={target} /></span>
               </p>
             )}
-            {result !== 'good' && tip.tipNl && (
+            {result !== 'GOOD' && tip.tipNl && (
               <p className="mt-1 text-sm text-emerald-700">💡 {tip.tipNl}</p>
             )}
-            {result !== 'good' && tip.tipDarija && (
-              <p className="rtl mt-1 text-sm text-emerald-700">{tip.tipDarija}</p>
+            {result !== 'GOOD' && tip.tipDarijaLat && (
+              <p className="mt-1 text-sm text-emerald-700" dir="ltr">{tip.tipDarijaLat}</p>
             )}
           </div>
         )}
@@ -158,7 +163,7 @@ export default function TypingExercise({ lesson, onFinish }) {
 
       {/* Knoppen */}
       <div className="mt-auto flex gap-2 py-4">
-        {result && result !== 'good' ? (
+        {result && result !== 'GOOD' ? (
           <button onClick={retry} className="btn-ghost flex-1 h-12">
             ↻ {t('tryAgain')}
           </button>

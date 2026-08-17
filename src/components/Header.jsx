@@ -6,14 +6,13 @@ import LangToggle from './LangToggle.jsx'
  * (optioneel) een terugknop wanneer je in een level/module zit.
  */
 export default function Header({ onBack, subtitle, onSettings, onHelp }) {
-  const { t, isDarija } = useLang()
+  const { t } = useLang()
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur">
       <div className="mx-auto flex max-w-2xl items-center gap-1.5 px-3 py-2">
         {onBack ? (
           <button onClick={onBack} className="btn-ghost -ml-1 h-11 w-11 !px-0" aria-label={t('back')}>
-            {/* Pijl draait mee in het Darija (rechts-naar-links) */}
-            <span aria-hidden="true" className={`inline-block text-lg ${isDarija ? 'rotate-180' : ''}`}>
+            <span aria-hidden="true" className="inline-block text-lg">
               ←
             </span>
           </button>

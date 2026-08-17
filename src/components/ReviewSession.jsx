@@ -5,6 +5,7 @@ import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
 import { speak } from '../lib/speech.js'
 import SoundText from './SoundText.jsx'
+import { recordLearningAttempt } from '../lib/attempts.js'
 
 /**
  * Herhaalsessie: meerkeuze uit de woorden die vandaag klaarstaan. Elk antwoord
@@ -70,6 +71,14 @@ function ReviewQuiz({ questions, onClose }) {
     const correct = option === q.answer
     if (correct) setScore((s) => s + 1)
     grade(q.key, correct)
+    recordLearningAttempt({
+      lessonId: String(q.key).split('::')[0] || 'review',
+      itemKey: q.key,
+      type: 'review',
+      result: correct ? 'correct' : 'incorrect',
+      score: correct ? 1 : 0,
+      maxScore: 1,
+    }).catch(() => {})
     speak(q.say)
   }
 

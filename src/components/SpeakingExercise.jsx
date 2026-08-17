@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { isTTSAvailable, speak, canProbablySpeak, stopAll } from '../lib/speech.js'
-import { transcribeAudio } from '../lib/groq.js'
-import { evaluateAnswer } from '../lib/gemini.js'
-import { hasGemini, hasGroq } from '../lib/config.js'
 import { useRecorder } from '../hooks/useRecorder.js'
 import { useLang } from '../context/LanguageContext.jsx'
-import { scoreTranscript, tipsFor } from '../lib/pronunciation.js'
+import { PRONUNCIATION_RESULT, tipsFor } from '../lib/pronunciation.js'
+import { assessPronunciation } from '../lib/speechCascade.js'
 import { itemKey, recordAttempt, isMastered } from '../lib/speakingProgress.js'
-import { logMistake } from '../lib/tracker.js'
+import { recordLearningAttempt } from '../lib/attempts.js'
 import SoundText from './SoundText.jsx'
 
 /**
@@ -16,15 +14,14 @@ import SoundText from './SoundText.jsx'
  * Volgorde per item:
  *   1) NL-woord/zin tonen  2) Darija tonen  3) voorbeeld beluisteren
  *   4) langzaam beluisteren 5) opnemen (met timer) 6) eigen opname terug
- *   7) voorbeeld + eigen opname na elkaar  8) Groq schrijft uit (neutraal)
- *   9) app vergelijkt zelf → goed / bijna goed / probeer opnieuw (+ vaste tip)
+ *   7) voorbeeld + eigen opname na elkaar  8) kwaliteitscontrole + transcriptie
+ *   9) risicogestuurde cascade → expliciet resultaat (+ vaste tip)
  *  10) opnieuw luisteren/opnemen.
  *
- * Het OORDEEL komt van de app (lib/pronunciation.js), niet van een AI. Gemini
- * is optioneel en geeft enkel extra uitleg. Losse letters krijgen geen streng
- * oordeel (Whisper is daar te onbetrouwbaar voor).
+ * Provider-sleutels blijven server-side. Bij korte klanken/minimale paren volgt
+ * zonder onafhankelijke lokale second opinion altijd docentcontrole.
  */
-export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
+export default function SpeakingExercise({ lesson, onFinish }) {
   const { t, arrowFwd } = useLang()
   const [i, setI] = useState(0)
   const hasItems = lesson?.items?.length > 0
@@ -43,11 +40,10 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   const recorder = useRecorder()
   const [status, setStatus] = useState('idle') // idle | recording | busy | recorded | result | error
   const [transcript, setTranscript] = useState('')
-  const [result, setResult] = useState(null) // 'good' | 'almost' | 'retry'
+  const [result, setResult] = useState(null)
+  const [resultReason, setResultReason] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [recUrl, setRecUrl] = useState(null)
-  const [extra, setExtra] = useState(null) // optionele Gemini-uitleg
-  const [extraBusy, setExtraBusy] = useState(false)
   const playbackRef = useRef(null)
   // Bewaakt dat een laat binnenkomend transcript niet op een volgend woord
   // (of na sluiten) belandt.
@@ -55,7 +51,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   useEffect(() => {
     idxRef.current = i
   }, [i])
-  // Voorkomt state-updates nadat de les gesloten is (bv. traag Gemini-antwoord).
+  // Voorkomt state-updates nadat de les gesloten is (bv. trage transcriptie).
   const mountedRef = useRef(true)
   useEffect(() => {
     mountedRef.current = true
@@ -79,8 +75,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     setResult(null)
     setErrorMsg('')
     setRecUrl(null)
-    setExtra(null)
-    setExtraBusy(false)
+    setResultReason('')
   }, [i])
 
   // Blob-URL van de vorige opname opruimen (geen geheugenlek per opname).
@@ -93,8 +88,8 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   // Open-eind-opdrachten (het antwoord bevat "...", bv. "Ik ben ...") hebben geen
   // vast juist antwoord: alleen luisteren/opnemen, geen streng oordeel.
   const isOpenEnded = Boolean(item?.answer?.includes('...'))
-  const canCheck = hasGroq() && recorder.supported // transcript-controle mogelijk
-  const usesVerdict = !isLetter && !isOpenEnded // letters/open-eind: geen streng oordeel
+  const canCheck = recorder.supported
+  const usesVerdict = !isOpenEnded
   const hasRecording = Boolean(recUrl)
 
   /* -------- audio -------- */
@@ -111,7 +106,7 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   }
 
   /* -------- opnemen -------- */
-  function onRecordingDone(blob) {
+  function onRecordingDone(blob, durationMs) {
     // Belangrijk: de opname kan asynchroon binnenkomen NADAT de les gesloten is
     // (MediaRecorder.onstop vuurt na unmount). Zonder deze guard zou hieronder
     // een blob-URL aangemaakt worden die nooit meer opgeruimd wordt (geheugenlek)
@@ -126,28 +121,33 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     }
     const startIdx = i // welk woord was aan de beurt bij het opnemen
     setRecUrl(URL.createObjectURL(blob))
-    // Losse letter of geen Groq-sleutel: geen oordeel, wel terugluisteren.
+    // Open antwoorden hebben geen vast doel en krijgen geen machineoordeel.
     if (!usesVerdict || !canCheck) {
       setStatus('recorded')
       return
     }
     setStatus('busy')
-    transcribeAudio(blob) // neutrale context — géén verwacht antwoord meegeven
-      .then((text) => {
+    assessPronunciation({ audioBlob: blob, durationMs, item })
+      .then((assessment) => {
         // De leerling ging al naar een volgend woord (of sloot de les): negeren.
         if (!mountedRef.current || idxRef.current !== startIdx) return
-        setTranscript(text)
-        const res = scoreTranscript(item, text) // eerlijk, lokaal oordeel
+        const res = assessment.result
+        setTranscript(assessment.transcript)
         setResult(res)
-        recordAttempt(key, res)
-        setStatus('result')
-        // Bij "probeer opnieuw": stuur de fout (fire-and-forget) naar de webhook.
-        if (res === 'retry') {
-          logMistake({ expected: target, heard: text, lessonId: lesson.id, result: res })
+        setResultReason(assessment.reason || '')
+        if ([PRONUNCIATION_RESULT.GOOD, PRONUNCIATION_RESULT.ALMOST, PRONUNCIATION_RESULT.RETRY].includes(res)) {
+          recordAttempt(key, res.toLowerCase())
         }
-        // Hybride: toon automatisch Gemini's bemoedigende feedback-tekst (het
-        // OORDEEL blijft lokaal; Gemini geeft alleen uitleg). Werkt zonder Gemini.
-        if (hasGemini()) fetchFeedback(text, res)
+        // Alleen het pedagogische resultaat gaat naar de server; nooit de audio
+        // of het vrije transcript. REVIEW_PENDING wordt zo zichtbaar voor de docent.
+        recordLearningAttempt({
+          lessonId: lesson.id,
+          itemKey: key,
+          type: 'speaking',
+          result: res,
+          metadata: { reason: assessment.reason || 'UNKNOWN' },
+        }).catch(() => {})
+        setStatus('result')
       })
       .catch((e) => {
         if (!mountedRef.current || idxRef.current !== startIdx) return
@@ -164,30 +164,9 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
     setTranscript('')
     setResult(null)
     setErrorMsg('')
-    setExtra(null)
+    setResultReason('')
     setStatus('recording')
     recorder.start({ maxMs, onComplete: onRecordingDone })
-  }
-
-  /* -------- Gemini-feedback (tekst, automatisch — niet het oordeel) -------- */
-  async function fetchFeedback(heard, res) {
-    if (!hasGemini()) return
-    const startIdx = i // aan welk woord deze feedback hoort
-    setExtra(null)
-    setExtraBusy(true)
-    try {
-      const verdictNl =
-        res === 'good' ? 'goed verstaanbaar' : res === 'almost' ? 'bijna goed' : 'nog niet goed verstaan'
-      const context = `Uitspraakoefening. De leerling oefende het Nederlandse "${speakable}". De app verstond: "${heard}". Beoordeling: ${verdictNl}. Geef één korte, bemoedigende uitspraaktip in eenvoudig Nederlands en daarna in Darija (Arabisch schrift). Geen cijfers of scores.`
-      const r = await evaluateAnswer(heard || speakable, target, context)
-      // Ondertussen van woord gewisseld of les gesloten? Niets meer tonen.
-      if (!mountedRef.current || idxRef.current !== startIdx) return
-      setExtra({ nl: r.feedback_nl || '', dar: r.feedback_darija || '' })
-    } catch {
-      if (!mountedRef.current || idxRef.current !== startIdx) return
-      setExtra(null) // stil falen — het lokale oordeel + de vaste tip blijven staan
-    }
-    if (mountedRef.current && idxRef.current === startIdx) setExtraBusy(false)
   }
 
   function next() {
@@ -204,9 +183,12 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
   }
 
   const resultMeta = {
-    good: { title: t('spkGoodTitle'), sub: t('spkGoodSub'), box: 'bg-emerald-50', head: 'text-emerald-800', icon: '✅' },
-    almost: { title: t('spkAlmostTitle'), sub: t('spkAlmostSub'), box: 'bg-amber-50', head: 'text-amber-900', icon: '👂' },
-    retry: { title: t('spkRetryTitle'), sub: t('spkRetrySub'), box: 'bg-rose-50', head: 'text-rose-700', icon: '🔁' },
+    GOOD: { title: t('spkGoodTitle'), sub: t('spkGoodSub'), box: 'bg-emerald-50', head: 'text-emerald-800', icon: '✅' },
+    ALMOST: { title: t('spkAlmostTitle'), sub: t('spkAlmostSub'), box: 'bg-amber-50', head: 'text-amber-900', icon: '👂' },
+    RETRY: { title: t('spkRetryTitle'), sub: t('spkRetrySub'), box: 'bg-rose-50', head: 'text-rose-700', icon: '🔁' },
+    UNSCORABLE: { title: t('spkUnscorableTitle'), sub: t(`spkReason_${resultReason}`), box: 'bg-slate-100', head: 'text-slate-800', icon: '🎤' },
+    TECHNICAL_ERROR: { title: t('spkTechnicalTitle'), sub: t(`spkReason_${resultReason}`), box: 'bg-slate-100', head: 'text-slate-800', icon: '⚠️' },
+    REVIEW_PENDING: { title: t('spkReviewTitle'), sub: t('spkReviewSub'), box: 'bg-blue-50', head: 'text-blue-800', icon: '👩‍🏫' },
   }
 
   return (
@@ -268,19 +250,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
             {item.ipa && <p className="text-sm text-slate-500" dir="ltr">{item.ipa}</p>}
           </>
         )}
-        {(item.darija || item.darijaLat) && (
-          <p className="mt-1 text-slate-500">
-            {item.darija && <span className="rtl">{item.darija}</span>}
-            {item.darija && item.darijaLat && ' · '}
-            {item.darijaLat && <span className="italic">{item.darijaLat}</span>}
-          </p>
-        )}
+        {item.darijaLat && <p className="mt-1 italic text-slate-500" dir="ltr">{item.darijaLat}</p>}
         {(tip.tipNl || item.tip) && (
           <p className="mt-2 text-sm text-emerald-700">💡 {tip.tipNl || item.tip}</p>
         )}
-        {tip.tipDarija && (
-          <p className="rtl mt-1 text-sm text-emerald-700">{tip.tipDarija}</p>
-        )}
+        {item.tipDarijaLat && <p className="mt-1 text-sm text-emerald-700" dir="ltr">{item.tipDarijaLat}</p>}
 
         {/* 3+4 — Luisteren: normaal + langzaam */}
         {isTTSAvailable() && (
@@ -296,17 +270,8 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
         {ttsSilent && <p className="mt-2 text-xs text-amber-700">⚠️ {t('ttsOffline')}</p>}
       </div>
 
-      {/* Geen Groq-sleutel (en geen letter): luisteren/opnemen werkt, controle niet */}
-      {usesVerdict && !canCheck && recorder.supported && (
-        <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
-          {t('spkCheckNeedsGroq')}{' '}
-          <button onClick={onOpenSettings} className="font-semibold underline">
-            {t('openSettingsLink')} (⚙️)
-          </button>
-        </div>
-      )}
       {isLetter && (
-        <p className="mt-4 text-center text-sm text-slate-500">{t('spkLetterHint')}</p>
+        <p className="mt-4 text-center text-sm text-slate-500">{t('spkHighRiskHint')}</p>
       )}
 
       {/* Korte uitleg vóór de allereerste opname: voorkomt schrik bij de
@@ -401,26 +366,11 @@ export default function SpeakingExercise({ lesson, onFinish, onOpenSettings }) {
                 {resultMeta[result].icon} {resultMeta[result].title}
               </p>
               <p className="mt-1 text-sm text-slate-700">{resultMeta[result].sub}</p>
-              {result !== 'good' && tip.tipNl && (
+              {result !== PRONUNCIATION_RESULT.GOOD && tip.tipNl && (
                 <p className="mt-2 text-sm text-slate-700">💡 {tip.tipNl}</p>
               )}
-              {result !== 'good' && tip.tipDarija && (
-                <p className="rtl mt-1 text-sm text-slate-600">{tip.tipDarija}</p>
-              )}
-
-              {/* Gemini-feedback (tekst), automatisch getoond — niet het oordeel */}
-              {hasGemini() && (extraBusy || extra) && (
-                <div className="mt-3 border-t border-black/5 pt-2">
-                  {extraBusy && !extra && (
-                    <p className="text-sm text-slate-500">💬 {t('extraExplain')}… ⏳</p>
-                  )}
-                  {extra && (
-                    <div className="text-sm">
-                      {extra.nl && <p className="text-slate-700">💬 {extra.nl}</p>}
-                      {extra.dar && <p className="rtl mt-1 text-slate-600">{extra.dar}</p>}
-                    </div>
-                  )}
-                </div>
+              {result !== PRONUNCIATION_RESULT.GOOD && item.tipDarijaLat && (
+                <p className="mt-1 text-sm text-slate-600" dir="ltr">{item.tipDarijaLat}</p>
               )}
             </div>
           </>
@@ -446,7 +396,6 @@ function errorKeyToText(e, t) {
   const msg = String(e?.message || e)
   const status = e?.status
   if (msg.includes('GEEN_GROQ_SLEUTEL')) return t('errNoGroq')
-  if (msg.includes('GEEN_GEMINI_SLEUTEL')) return t('errNoGemini')
   if (msg.includes('GEEN_SPRAAK') || status === 'nospeech') return t('errNoAudio')
   if (status === 'offline') return t('errOffline')
   if (status === 'timeout') return t('errTimeout')

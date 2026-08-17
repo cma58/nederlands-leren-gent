@@ -3,6 +3,7 @@ import { isTTSAvailable, speak } from '../lib/speech.js'
 import { buildQuiz } from '../lib/quiz.js'
 import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
+import { recordLearningAttempt } from '../lib/attempts.js'
 import SpeakingExercise from './SpeakingExercise.jsx'
 import ListenExercise from './ListenExercise.jsx'
 import TypingExercise from './TypingExercise.jsx'
@@ -16,7 +17,7 @@ import SoundText from './SoundText.jsx'
  *   2) 'quiz'  — meerkeuzevragen (indien mogelijk voor deze les).
  *   3) 'done'  — samenvatting + de les wordt afgevinkt.
  */
-export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
+export default function LessonPlayer({ lesson, onClose, onOpenSettings, onCompleted }) {
   const { markDone } = useProgress()
   const { t, isDarija } = useLang()
   const isSpeaking = lesson?.type === 'speaking'
@@ -47,7 +48,7 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
       className="fixed inset-0 z-40 flex flex-col bg-slate-50"
       role="dialog"
       aria-modal="true"
-      aria-label={isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title}
+      aria-label={isDarija && lesson.titleDarijaLat ? lesson.titleDarijaLat : lesson.title}
     >
       <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
         <button ref={closeRef} onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={t('close')}>
@@ -58,7 +59,7 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
             {t('lesson')} {lesson.id}
           </p>
           <h2 className="truncate text-base font-bold text-slate-900">
-            {isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title}
+            {isDarija && lesson.titleDarijaLat ? lesson.titleDarijaLat : lesson.title}
           </h2>
         </div>
       </div>
@@ -85,14 +86,20 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
           />
         )}
         {phase === 'quiz' && (
-          <QuizPhase quiz={quiz} onFinish={() => setPhase('done')} onBack={() => setPhase('learn')} />
+          <QuizPhase
+            lesson={lesson}
+            quiz={quiz}
+            onFinish={() => setPhase('done')}
+            onBack={() => setPhase('learn')}
+          />
         )}
         {phase === 'done' && (
           <DonePhase
             lesson={lesson}
             onClose={() => {
               markDone(lesson.id)
-              onClose()
+              if (onCompleted) onCompleted(lesson)
+              else onClose()
             }}
             onRestart={() =>
               setPhase(isSpeaking ? 'speaking' : isListen ? 'listen' : isTyping ? 'typing' : 'learn')
@@ -108,7 +115,7 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings }) {
 /*  Fase 1 — Leren (kaartjes)                                          */
 /* ------------------------------------------------------------------ */
 function LearnPhase({ lesson, onFinish, hasQuiz }) {
-  const { t, arrowFwd, arrowBack } = useLang()
+  const { t, arrowFwd, arrowBack, isDarija } = useLang()
   const [i, setI] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const hasItems = lesson?.items?.length > 0
@@ -142,7 +149,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
       </div>
 
       {lesson.intro && i === 0 && (
-        <p className="mb-2 text-center text-sm text-slate-500">{lesson.intro}</p>
+        <p className="mb-2 text-center text-sm text-slate-500">{isDarija ? lesson.introDarijaLat || lesson.intro : lesson.intro}</p>
       )}
 
       {/* Het NL-woord blijft altijd links-naar-rechts (het is wat je leert) */}
@@ -171,17 +178,15 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
 
         {revealed ? (
           <div className="mt-1 space-y-1">
-            {(item.darija || item.darijaLat) && (
-              <p className="text-lg text-slate-700">
-                {item.darija && <span className="rtl">{item.darija}</span>}
-                {item.darija && item.darijaLat && ' · '}
-                {item.darijaLat && <span className="italic">{item.darijaLat}</span>}
+            {item.darijaLat && (
+              <p className="text-lg text-slate-700" dir="ltr">
+                <span className="italic">{item.darijaLat}</span>
               </p>
             )}
             {item.tip && <p className="text-sm text-emerald-700">💡 {item.tip}</p>}
-            {(item.tipDarija || item.pronunciation?.tipDarija) && (
-              <p className="rtl text-sm text-emerald-700">
-                {item.tipDarija || item.pronunciation?.tipDarija}
+            {(item.tipDarijaLat || item.pronunciation?.tipDarijaLat) && (
+              <p className="text-sm text-emerald-700" dir="ltr">
+                {item.tipDarijaLat || item.pronunciation?.tipDarijaLat}
               </p>
             )}
             {item.example && <p className="text-sm text-slate-500">bv. {item.example}</p>}
@@ -215,7 +220,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
 /* ------------------------------------------------------------------ */
 /*  Fase 2 — Quiz (meerkeuze)                                          */
 /* ------------------------------------------------------------------ */
-function QuizPhase({ quiz, onFinish, onBack }) {
+function QuizPhase({ lesson, quiz, onFinish, onBack }) {
   const { t, arrowFwd, arrowBack } = useLang()
   const [i, setI] = useState(0)
   const [picked, setPicked] = useState(null)
@@ -233,6 +238,13 @@ function QuizPhase({ quiz, onFinish, onBack }) {
 
   function next() {
     if (isLast) {
+      recordLearningAttempt({
+        lessonId: lesson.id,
+        type: 'quiz',
+        result: score === quiz.length ? 'good' : 'completed',
+        score,
+        maxScore: quiz.length,
+      }).catch(() => {})
       onFinish()
       return
     }
@@ -309,7 +321,7 @@ function QuizPhase({ quiz, onFinish, onBack }) {
 /* ------------------------------------------------------------------ */
 function DonePhase({ lesson, onClose, onRestart }) {
   const { t, isDarija } = useLang()
-  const title = isDarija && lesson.titleDarija ? lesson.titleDarija : lesson.title
+  const title = isDarija && lesson.titleDarijaLat ? lesson.titleDarijaLat : lesson.title
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
       <div className="grid h-20 w-20 place-items-center rounded-full bg-emerald-100 text-4xl">🎉</div>

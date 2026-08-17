@@ -1,29 +1,27 @@
 /**
- * Groq API — spraak-naar-tekst met Whisper (whisper-large-v3).
- * Zet een opgenomen audiofragment om naar Nederlandse tekst.
+ * Server-side Groq/Whisper adapter.
+ *
+ * De browser krijgt nooit een provider-sleutel. Hij stuurt uitsluitend de
+ * opname naar onze eigen beveiligde route. De server kiest model, taal,
+ * quotum en bewaartermijn. Het verwachte antwoord wordt bewust niet meegestuurd:
+ * anders kan Whisper naar het antwoord toe worden gestuurd.
  */
 
-import { getGroqKey, GROQ_WHISPER_MODEL, fetchWithRetry } from './config.js'
-
-// NEUTRALE context. We geven Whisper BEWUST niet het verwachte woord of een
-// lijst mogelijke antwoorden mee — dat zou de herkenning sturen en de
-// verstaanbaarheidscontrole waardeloos maken. De vergelijking met het
-// verwachte woord gebeurt daarná in de app (zie lib/pronunciation.js).
-const NEUTRAL_PROMPT = 'Korte Nederlandse uitspraakoefening door een beginnende NT2-leerder.'
+const TRANSCRIBE_ENDPOINT = '/api/speech/transcribe'
 
 /**
  * @param {Blob} audioBlob   De opgenomen audio (bv. audio/webm).
+ * @param {number} durationMs Gemeten opnameduur; server gebruikt dit voor quota.
  * @param {string} [filename]
- * @param {string} [prompt]   Neutrale context. Standaard een neutrale zin —
- *   geef hier NOOIT het verwachte antwoord aan mee.
- * @returns {Promise<string>} De herkende tekst.
+ * @returns {Promise<{text:string, confidence:number|null, noSpeechProbability:number|null, provider:string}>}
  */
-export async function transcribeAudio(audioBlob, filename = '', prompt = NEUTRAL_PROMPT) {
-  const key = getGroqKey()
-  if (!key) throw new Error('GEEN_GROQ_SLEUTEL')
+export async function transcribeAudio(audioBlob, durationMs, filename = '') {
+  if (!audioBlob?.size) {
+    const error = new Error('GEEN_SPRAAK')
+    error.status = 'nospeech'
+    throw error
+  }
 
-  // Bestandsnaam-extensie moet bij het echte formaat passen: Whisper kijkt deels
-  // naar de extensie. iOS levert audio/mp4, Android meestal audio/webm.
   const type = audioBlob?.type || ''
   const ext = type.includes('mp4') || type.includes('m4a')
     ? 'm4a'
@@ -33,37 +31,47 @@ export async function transcribeAudio(audioBlob, filename = '', prompt = NEUTRAL
   const name = filename || `opname.${ext}`
 
   const form = new FormData()
-  form.append('file', audioBlob, name)
-  form.append('model', GROQ_WHISPER_MODEL)
-  form.append('language', 'nl') // Nederlands
-  form.append('response_format', 'json')
-  form.append('temperature', '0')
-  if (prompt) form.append('prompt', prompt)
+  form.append('audio', audioBlob, name)
+  form.append('durationMs', String(Math.max(250, Math.round(Number(durationMs) || 0))))
 
-  // fetchWithRetry: stopt vastgelopen uploads na 25s, checkt offline vooraf en
-  // doet één automatische herpoging bij een netwerk-hikje/5xx (mobiel netwerk).
-  const res = await fetchWithRetry(
-    'https://api.groq.com/openai/v1/audio/transcriptions',
-    { method: 'POST', headers: { Authorization: `Bearer ${key}` }, body: form },
-    { timeoutMs: 25000 },
-  )
-
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '')
-    const err = new Error(`Groq-fout (${res.status}): ${detail.slice(0, 200)}`)
-    err.status = res.status
-    throw err
+  let response
+  try {
+    response = await fetch(TRANSCRIBE_ENDPOINT, {
+      method: 'POST',
+      body: form,
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    })
+  } catch (cause) {
+    const error = new Error('NETWERK_FOUT')
+    error.status = typeof navigator !== 'undefined' && navigator.onLine === false ? 'offline' : 'network'
+    error.cause = cause
+    throw error
   }
 
-  const data = await res.json()
-  const text = (data?.text || '').trim()
-  // Whisper gaf niets bruikbaars terug: dat is een OPNAME-probleem (te stil / te
-  // kort / mic), geen uitspraakfout. Maak dat onderscheid zichtbaar met een
-  // eigen code, zodat de UI "ik heb niets verstaan" toont i.p.v. "probeer opnieuw".
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const error = new Error(payload?.code || payload?.error || `SPRAAK_API_${response.status}`)
+    error.status = response.status
+    throw error
+  }
+
+  const text = String(payload?.text || '').trim()
   if (!text) {
-    const err = new Error('GEEN_SPRAAK')
-    err.status = 'nospeech'
-    throw err
+    const error = new Error('GEEN_SPRAAK')
+    error.status = 'nospeech'
+    throw error
   }
-  return text
+  return {
+    text,
+    confidence: numberOrNull(payload?.confidence),
+    noSpeechProbability: numberOrNull(payload?.noSpeechProbability),
+    provider: payload?.provider || 'groq-whisper',
+  }
+}
+
+function numberOrNull(value) {
+  if (value === null || value === undefined || value === '') return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
 }

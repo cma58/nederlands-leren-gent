@@ -1,0 +1,15 @@
+# Kopieer lokaal naar .dev.vars. Commit .dev.vars nooit.
+ADMIN_BOOTSTRAP_SECRET=maak-een-lange-willekeurige-eenmalige-geheime-code
+
+# Optioneel: melding bij nieuwe registratie. Zonder deze waarden blijft registratie werken.
+RESEND_API_KEY=
+# Met het gratis resend.dev-domein kan alleen naar het e-mailadres van het
+# Resend-account worden gestuurd; maak dat account met amine.chtaiti@gmail.com.
+RESEND_FROM_EMAIL=Nederlands Leren <onboarding@resend.dev>
+
+# Alleen lokaal nodig als cookies via http://localhost worden getest.
+COOKIE_SECURE=false
+APP_ORIGIN=http://localhost:5173
+
+# Alleen server-side; nooit als VITE_ variabele instellen.
+GROQ_API_KEY=

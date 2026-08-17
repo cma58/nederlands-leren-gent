@@ -1,83 +1,246 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { buildSnapshot } from '../lib/snapshot.js'
-import { postSnapshot } from '../lib/tracker.js'
-import { getCoachMode } from '../lib/config.js'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useAuth } from './AuthContext.jsx'
+import { fetchJSON } from '../lib/api.js'
+import {
+  clearLegacyLearningState,
+  hasLegacyLearningState,
+  LEGACY_LEARNING_KEYS,
+  readLegacyLearningState,
+} from '../lib/legacyMigration.js'
 
-/**
- * Houdt bij welke lessen de gebruiker heeft afgerond.
- * Voorlopig lokaal opgeslagen in de browser (localStorage), zodat de
- * voortgang bewaard blijft zonder account. Later eenvoudig te vervangen
- * door een backend zonder de rest van de app te wijzigen.
- */
-
-const STORAGE_KEY = 'nl-gent:progress:v1'
+const QUEUE_PREFIX = 'nl-gent:sync-queue:v2:'
+const MIGRATION_PREFIX = 'nl-gent:migration-dismissed:v2:'
 const ProgressContext = createContext(null)
 
-function loadInitial() {
+function eventId() {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+function readQueue(userId) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
+    return JSON.parse(localStorage.getItem(`${QUEUE_PREFIX}${userId}`)) || null
   } catch {
-    return {}
+    return null
+  }
+}
+
+function writeQueue(userId, payload) {
+  try {
+    localStorage.setItem(`${QUEUE_PREFIX}${userId}`, JSON.stringify(payload))
+  } catch {
+    // De UI blijft bruikbaar; syncstatus toont dat synchroniseren nog nodig is.
+  }
+}
+
+function clearQueue(userId) {
+  try {
+    localStorage.removeItem(`${QUEUE_PREFIX}${userId}`)
+  } catch {
+    // Best-effort.
+  }
+}
+
+function hydrateLocalPracticeState(reviewState = {}, speakingState = {}) {
+  try {
+    localStorage.setItem(LEGACY_LEARNING_KEYS.reviewState, JSON.stringify(reviewState))
+    localStorage.setItem(LEGACY_LEARNING_KEYS.speakingState, JSON.stringify(speakingState))
+  } catch {
+    // Herhalingen blijven tijdens deze sessie bruikbaar waar opslag beschikbaar is.
   }
 }
 
 export function ProgressProvider({ children }) {
-  // { [lessonId]: true }
-  const [completed, setCompleted] = useState(loadInitial)
+  const { user, isAuthenticated } = useAuth()
+  const [completed, setCompleted] = useState({})
+  const [syncStatus, setSyncStatus] = useState('idle')
+  const [updatedAt, setUpdatedAt] = useState(null)
+  const [legacyState, setLegacyState] = useState(null)
+
+  const activeUser = isAuthenticated && user?.status === 'ACTIVE' ? user : null
+
+  const persist = useCallback(
+    async (payload) => {
+      if (!activeUser?.id) return undefined
+      const request = { ...payload, eventId: payload.eventId || eventId() }
+      setSyncStatus('pending')
+      try {
+        const data = await fetchJSON('/api/progress', { method: 'PUT', body: request })
+        clearQueue(activeUser.id)
+        if (data.completed) setCompleted(data.completed)
+        if (data.reviewState || data.speakingState) {
+          hydrateLocalPracticeState(data.reviewState || {}, data.speakingState || {})
+        }
+        setUpdatedAt(data.updatedAt || new Date().toISOString())
+        setSyncStatus('synced')
+        return data
+      } catch (error) {
+        const queued = readQueue(activeUser.id) || {}
+        writeQueue(activeUser.id, {
+          ...queued,
+          ...request,
+          merge: queued.merge === true || request.merge === true,
+          // De samengevoegde payload is nieuw. Zo hergebruiken we nooit een
+          // eventId met andere inhoud wanneer een eerdere response verloren ging.
+          eventId: eventId(),
+        })
+        setSyncStatus(navigator.onLine === false ? 'pending' : 'error')
+        throw error
+      }
+    },
+    [activeUser?.id],
+  )
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(completed))
-    } catch {
-      /* opslag kan geweigerd zijn (privémodus) — geen probleem */
+    let cancelled = false
+    if (!activeUser?.id) {
+      setCompleted({})
+      setSyncStatus('idle')
+      setUpdatedAt(null)
+      setLegacyState(null)
+      return undefined
     }
-  }, [completed])
 
-  // Stuur (indien een webhook is ingesteld) een voortgangs-snapshot naar de
-  // Google Sheet, zodat de partner-/adminpagina op afstand kan meekijken.
-  // Fire-and-forget: bij app-start en telkens als er een les afgerond wordt.
+    const legacy = readLegacyLearningState()
+    let dismissed = false
+    try {
+      dismissed = localStorage.getItem(`${MIGRATION_PREFIX}${activeUser.id}`) === '1'
+    } catch {
+      // Geen lokale opslag.
+    }
+    setLegacyState(!dismissed && hasLegacyLearningState(legacy) ? legacy : null)
+    hydrateLocalPracticeState({}, {})
+
+    setSyncStatus('loading')
+    fetchJSON('/api/progress')
+      .then((data) => {
+        if (cancelled) return
+        setCompleted(data.completed || {})
+        hydrateLocalPracticeState(data.reviewState || {}, data.speakingState || {})
+        setUpdatedAt(data.updatedAt || null)
+        setSyncStatus('synced')
+      })
+      .catch(() => {
+        if (cancelled) return
+        const queued = readQueue(activeUser.id)
+        setCompleted(queued?.completed || {})
+        setSyncStatus(queued ? 'pending' : 'error')
+      })
+
+    return () => {
+      cancelled = true
+      hydrateLocalPracticeState({}, {})
+    }
+  }, [activeUser?.id])
+
   useEffect(() => {
-    // Coach-toestel (de partner die enkel meekijkt) stuurt niets.
-    if (!getCoachMode()) postSnapshot(buildSnapshot())
-  }, [completed])
+    if (!activeUser?.id) return undefined
+    const onLearningState = (event) => {
+      const kind = event?.detail?.kind
+      const state = event?.detail?.state
+      if (!['reviewState', 'speakingState'].includes(kind) || !state) return
+      persist({ [kind]: state }).catch(() => {})
+    }
+    window.addEventListener('nl-gent:learning-state-changed', onLearningState)
+    return () => window.removeEventListener('nl-gent:learning-state-changed', onLearningState)
+  }, [activeUser?.id, persist])
+
+  useEffect(() => {
+    if (!activeUser?.id) return undefined
+    const flush = () => {
+      const queued = readQueue(activeUser.id)
+      if (queued) persist(queued).catch(() => {})
+    }
+    window.addEventListener('online', flush)
+    flush()
+    return () => window.removeEventListener('online', flush)
+  }, [activeUser?.id, persist])
+
+  const markDone = useCallback(
+    (lessonId) => {
+      setCompleted((previous) => {
+        const next = { ...previous, [lessonId]: true }
+        persist({ completed: next }).catch(() => {})
+        return next
+      })
+    },
+    [persist],
+  )
+
+  const toggle = useCallback(
+    (lessonId) => {
+      setCompleted((previous) => {
+        const next = { ...previous }
+        if (next[lessonId]) delete next[lessonId]
+        else next[lessonId] = true
+        persist({ completed: next }).catch(() => {})
+        return next
+      })
+    },
+    [persist],
+  )
+
+  const reset = useCallback(() => {
+    setCompleted({})
+    persist({ completed: {} }).catch(() => {})
+  }, [persist])
+
+  const importLegacy = useCallback(async () => {
+    if (!legacyState || !activeUser?.id) return undefined
+    const data = await persist({
+      completed: legacyState.completed,
+      reviewState: legacyState.reviewState,
+      speakingState: legacyState.speakingState,
+      merge: true,
+      eventId: `legacy-v1:${activeUser.id}`,
+    })
+    clearLegacyLearningState()
+    hydrateLocalPracticeState(data?.reviewState || legacyState.reviewState, data?.speakingState || legacyState.speakingState)
+    try {
+      localStorage.setItem(`${MIGRATION_PREFIX}${activeUser.id}`, '1')
+    } catch {
+      // De serverimport is al geslaagd.
+    }
+    setLegacyState(null)
+    return data
+  }, [activeUser?.id, legacyState, persist])
+
+  const dismissLegacy = useCallback(() => {
+    try {
+      if (activeUser?.id) localStorage.setItem(`${MIGRATION_PREFIX}${activeUser.id}`, '1')
+    } catch {
+      // Geen lokale opslag.
+    }
+    setLegacyState(null)
+  }, [activeUser?.id])
 
   const api = useMemo(
     () => ({
       completed,
+      syncStatus,
+      updatedAt,
+      legacyState,
+      importLegacy,
+      dismissLegacy,
       isDone: (lessonId) => Boolean(completed[lessonId]),
-      markDone: (lessonId) => {
-        try {
-          localStorage.setItem('nl-gent:lastPracticed:v1', new Date().toISOString().slice(0, 10))
-        } catch {
-          /* negeren */
-        }
-        setCompleted((prev) => ({ ...prev, [lessonId]: true }))
-      },
-      toggle: (lessonId) =>
-        setCompleted((prev) => {
-          const next = { ...prev }
-          if (next[lessonId]) delete next[lessonId]
-          else next[lessonId] = true
-          return next
-        }),
-      reset: () => setCompleted({}),
-      /** Aandeel afgeronde lessen (0–1) voor een lijst met les-id's. */
+      markDone,
+      toggle,
+      reset,
       ratioFor: (lessonIds) => {
         if (!lessonIds.length) return 0
-        const done = lessonIds.filter((id) => completed[id]).length
-        return done / lessonIds.length
+        return lessonIds.filter((id) => completed[id]).length / lessonIds.length
       },
       countFor: (lessonIds) => lessonIds.filter((id) => completed[id]).length,
     }),
-    [completed],
+    [completed, dismissLegacy, importLegacy, legacyState, markDone, reset, syncStatus, toggle, updatedAt],
   )
 
   return <ProgressContext.Provider value={api}>{children}</ProgressContext.Provider>
 }
 
 export function useProgress() {
-  const ctx = useContext(ProgressContext)
-  if (!ctx) throw new Error('useProgress moet binnen <ProgressProvider> gebruikt worden')
-  return ctx
+  const context = useContext(ProgressContext)
+  if (!context) throw new Error('useProgress moet binnen <ProgressProvider> gebruikt worden')
+  return context
 }

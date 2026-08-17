@@ -39,6 +39,11 @@ function loadAll() {
 function saveAll(map) {
   try {
     localStorage.setItem(KEY, JSON.stringify(map))
+    window.dispatchEvent(
+      new CustomEvent('nl-gent:learning-state-changed', {
+        detail: { kind: 'reviewState', state: map },
+      }),
+    )
   } catch {
     /* opslag geweigerd — negeren */
   }
@@ -58,7 +63,7 @@ export function reviewableItems(curriculum, isDone) {
         const seen = new Set()
         les.items.forEach((it, idx) => {
           if (!it.nl || seen.has(it.nl)) return
-          const usable = Boolean(it.darija) || (les.type === 'numbers' && typeof it.value === 'number')
+          const usable = Boolean(it.darijaLat) || (les.type === 'numbers' && typeof it.value === 'number')
           if (!usable) return
           seen.add(it.nl)
           out.push({ key: itemKey(les.id, it, idx), item: it, lessonType: les.type })
@@ -88,33 +93,33 @@ export function dueCount(curriculum, isDone) {
 export function buildReviewSession(curriculum, isDone, max = 15) {
   const pool = reviewableItems(curriculum, isDone)
   const allNl = [...new Set(pool.map((r) => r.item.nl))]
-  const allDar = [...new Set(pool.map((r) => r.item.darija).filter(Boolean))]
+  const allDar = [...new Set(pool.map((r) => r.item.darijaLat).filter(Boolean))]
   const due = shuffle(dueList(curriculum, isDone)).slice(0, max)
 
   const questions = []
   for (const r of due) {
     const it = r.item
-    const toDarija = Boolean(it.darija) && Math.random() < 0.5
+    const toDarija = Boolean(it.darijaLat) && Math.random() < 0.5
     if (toDarija) {
       // Nederlands tonen → kies de Darija-vertaling.
-      const distract = shuffle(allDar.filter((a) => a !== it.darija)).slice(0, 3)
+      const distract = shuffle(allDar.filter((a) => a !== it.darijaLat)).slice(0, 3)
       questions.push({
         key: r.key,
         prompt: it.nl,
         promptRtl: false,
-        answer: it.darija,
+        answer: it.darijaLat,
         say: it.nl,
-        optionsRtl: true,
-        options: shuffle([it.darija, ...distract]),
+        optionsRtl: false,
+        options: shuffle([it.darijaLat, ...distract]),
       })
     } else {
       // Darija of getal tonen → kies het Nederlandse woord.
-      const prompt = it.darija || String(it.value)
+      const prompt = it.darijaLat || String(it.value)
       const distract = shuffle(allNl.filter((a) => a !== it.nl)).slice(0, 3)
       questions.push({
         key: r.key,
         prompt,
-        promptRtl: Boolean(it.darija),
+        promptRtl: false,
         answer: it.nl,
         say: it.nl,
         optionsRtl: false,
