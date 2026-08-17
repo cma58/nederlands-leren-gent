@@ -8,8 +8,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  *   recording   – of er nu opgenomen wordt
  *   elapsedMs   – hoe lang de huidige opname al loopt (voor een timer)
  *   error       – foutcode voor vertaling (micNoPermission/micNoStart/micNotSupported)
- *   start(opts) – begin met opnemen. opts = { maxMs, onComplete(blob) }.
- *                 Stopt automatisch na maxMs; onComplete krijgt de Blob (of null).
+ *   start(opts) – begin met opnemen. opts = { maxMs, onComplete(blob, durationMs) }.
+ *                 Stopt automatisch na maxMs; onComplete krijgt Blob + echte duur.
  *   stop()      – stop nu; onComplete wordt aangeroepen met de opname
  *   reset()     – wis de laatste fout
  */
@@ -108,13 +108,14 @@ export function useRecorder() {
         rec.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data)
         rec.onstop = () => {
           clearTimers()
+          const durationMs = Math.max(0, Date.now() - startedAtRef.current)
           const blob = new Blob(chunksRef.current, { type: rec.mimeType || 'audio/webm' })
           teardownStream()
           setRecording(false)
           setElapsedMs(0)
           const cb = onCompleteRef.current
           onCompleteRef.current = null
-          if (cb) cb(blob.size ? blob : null)
+          if (cb) cb(blob.size ? blob : null, durationMs)
         }
         mediaRef.current = rec
         rec.start()

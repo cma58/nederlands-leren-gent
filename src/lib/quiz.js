@@ -3,10 +3,8 @@
  * Werkt volledig lokaal — geen API of internet nodig.
  *
  * Twee soorten vragen:
- *  1) Vertaalvragen: toon de Darija (Arabisch) of het cijfer, kies het juiste
- *     Nederlandse woord.  (We gebruiken bewust NIET de transliteratie als
- *     vraagtekst: in grammaticalessen staat daar de infinitief, wat tot
- *     dubbelzinnige/kapotte vragen leidde.)
+ *  1) Vertaalvragen: toon de Darija in Latijnse letters of het cijfer en kies
+ *     het juiste Nederlandse woord.
  *  2) de/het-vragen: toon het woord, kies het juiste lidwoord.
  */
 
@@ -25,7 +23,7 @@ function translatePrompt(item, lessonType) {
   if (lessonType === 'numbers' && typeof item.value === 'number') {
     return { text: String(item.value), rtl: false }
   }
-  if (item.darija) return { text: item.darija, rtl: true }
+  if (item.darijaLat) return { text: item.darijaLat, rtl: false }
   return null
 }
 

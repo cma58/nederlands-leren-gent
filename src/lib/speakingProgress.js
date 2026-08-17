@@ -29,6 +29,11 @@ function loadAll() {
 function saveAll(map) {
   try {
     localStorage.setItem(KEY, JSON.stringify(map))
+    window.dispatchEvent(
+      new CustomEvent('nl-gent:learning-state-changed', {
+        detail: { kind: 'speakingState', state: map },
+      }),
+    )
   } catch {
     /* opslag geweigerd — negeren */
   }

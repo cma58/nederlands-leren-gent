@@ -8,7 +8,7 @@ import { useLang } from '../context/LanguageContext.jsx'
  */
 export default function LevelCard({ level, onOpen }) {
   const { ratioFor, countFor } = useProgress()
-  const { t } = useLang()
+  const { t, isDarija } = useLang()
   const ids = allLessonIds(level)
   const ratio = ratioFor(ids)
   const done = countFor(ids)
@@ -31,15 +31,15 @@ export default function LevelCard({ level, onOpen }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-bold text-slate-900">{level.title}</h3>
+            <h3 className="text-lg font-bold text-slate-900">{isDarija ? level.titleDarijaLat || level.title : level.title}</h3>
             {level.cefr && (
               <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge}`}>
                 {level.cefr}
               </span>
             )}
           </div>
-          <p className="text-sm font-medium text-slate-600">{level.subtitle}</p>
-          <p className="mt-1.5 text-sm leading-snug text-slate-500">{level.description}</p>
+          <p className="text-sm font-medium text-slate-600">{isDarija ? level.subtitleDarijaLat || level.subtitle : level.subtitle}</p>
+          <p className="mt-1.5 text-sm leading-snug text-slate-500">{isDarija ? level.descriptionDarijaLat || level.description : level.description}</p>
         </div>
         <span
           className="mt-1 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-500"

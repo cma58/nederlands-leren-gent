@@ -2,23 +2,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev/config/
-// `base` bepaalt onder welk pad de app geserveerd wordt en verschilt per host:
-//   - Vercel (en de dev-server): op de root  -> '/'
-//   - GitHub Pages (project-site): onder een submap
-//     -> https://<gebruiker>.github.io/nederlands-leren-gent/
-// Daarom sturen we het via de omgevingsvariabele VITE_BASE. Vercel zet die niet,
-// dus daar blijft het '/'. Alleen de GitHub Pages-workflow zet
-// VITE_BASE=/nederlands-leren-gent/ tijdens de build.
 export default defineConfig(() => ({
-  base: process.env.VITE_BASE || '/',
+  // Frontend en beveiligde API draaien samen op de root van de Worker-origin.
+  base: '/',
   plugins: [
     react(),
     // Service worker + manifest: maakt de app-schil (HTML/JS/CSS) offline
     // beschikbaar en installeerbaar op het beginscherm. De service worker
-    // respecteert automatisch `base`, dus werkt op zowel Vercel als GitHub Pages.
-    // Externe AI-/voorlees-verzoeken (Groq/Gemini/Google TTS) worden NIET
-    // gecachet en gaan gewoon naar het netwerk als er verbinding is.
+    // API-antwoorden vallen niet onder de statische precache.
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
@@ -30,7 +21,7 @@ export default defineConfig(() => ({
         name: 'Nederlands leren in Gent',
         short_name: 'NL leren',
         description:
-          'Leer Nederlands (Vlaams) voor Gent — een cursus op maat van Marokkaans-Darija sprekers.',
+          'Leer Nederlands voor het dagelijkse leven in Gent, met hulp in Darija in Latijnse letters.',
         lang: 'nl-BE',
         dir: 'ltr',
         theme_color: '#154ce1',
@@ -49,5 +40,10 @@ export default defineConfig(() => ({
   server: {
     host: true,
     port: 5173,
+    // Tijdens ontwikkeling draait `wrangler dev` op 8787. Productie serveert
+    // frontend en /api vanaf dezelfde origin, zodat de HttpOnly-cookie first-party is.
+    proxy: {
+      '/api': 'http://127.0.0.1:8787',
+    },
   },
 }))

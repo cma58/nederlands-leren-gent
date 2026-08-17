@@ -1,60 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
-import {
-  getGeminiKey,
-  getGroqKey,
-  setGeminiKey,
-  setGroqKey,
-  getWebhookUrl,
-  setWebhookUrl,
-  getWebhookToken,
-  setWebhookToken,
-} from '../lib/config.js'
+import { useEffect, useRef } from 'react'
 import { useLang } from '../context/LanguageContext.jsx'
+import LangToggle from './LangToggle.jsx'
 
-/**
- * Instellingenpaneel om de (gratis) API-sleutels in te vullen.
- * De sleutels worden lokaal in de browser bewaard — niet verstuurd naar ons.
- */
+/** Instellingen zonder client-side providergeheimen. */
 export default function Settings({ onClose }) {
   const { t } = useLang()
-  const [gemini, setGemini] = useState('')
-  const [groq, setGroq] = useState('')
-  const [webhook, setWebhook] = useState('')
-  const [webhookToken, setWebhookTokenState] = useState('')
-  const [show, setShow] = useState(false)
-  const [saved, setSaved] = useState(false)
   const closeRef = useRef(null)
-  const savedTimer = useRef(null)
 
   useEffect(() => {
-    setGemini(getGeminiKey())
-    setGroq(getGroqKey())
-    setWebhook(getWebhookUrl())
-    setWebhookTokenState(getWebhookToken())
-  }, [])
-
-  useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && onClose()
+    const onKey = (event) => event.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
     closeRef.current?.focus()
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      if (savedTimer.current) clearTimeout(savedTimer.current)
-    }
+    return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
-
-  function save() {
-    setGeminiKey(gemini)
-    setGroqKey(groq)
-    setWebhookUrl(webhook)
-    setWebhookToken(webhookToken)
-    setSaved(true)
-    // Kort "opgeslagen" tonen en dan sluiten.
-    savedTimer.current = setTimeout(() => {
-      setSaved(false)
-      onClose()
-    }, 900)
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
@@ -73,107 +31,25 @@ export default function Settings({ onClose }) {
         </div>
 
         <div className="space-y-5 overflow-y-auto p-5">
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-sm text-slate-500">{t('settingsDesc')}</p>
-            <button
-              onClick={() => setShow((s) => !s)}
-              className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-gent-600 hover:bg-slate-100"
-            >
-              {show ? `🙈 ${t('hideKeys')}` : `👁 ${t('showKeys')}`}
-            </button>
-          </div>
+          <section>
+            <h4 className="font-bold text-slate-800">{t('language')}</h4>
+            <p className="mt-1 text-sm text-slate-500">{t('settingsLanguageDesc')}</p>
+            <LangToggle className="mt-3" />
+          </section>
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">
-              {t('geminiLabel')} <span className="text-slate-400">{t('geminiHint')}</span>
-            </label>
-            <input
-              value={gemini}
-              onChange={(e) => setGemini(e.target.value)}
-              type={show ? 'text' : 'password'}
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="AIza…"
-              dir="ltr"
-              className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 font-mono text-sm focus:border-gent-400 focus:outline-none"
-            />
-            <a
-              href="https://aistudio.google.com/app/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 inline-block text-xs font-semibold text-gent-600 underline"
-            >
-              → {t('makeGeminiKey')}
-            </a>
-          </div>
+          <section className="rounded-xl bg-emerald-50 p-4">
+            <h4 className="font-bold text-emerald-900">🔐 {t('settingsSecureTitle')}</h4>
+            <p className="mt-1 text-sm leading-relaxed text-emerald-800">{t('settingsSecureDesc')}</p>
+          </section>
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">
-              {t('groqLabel')} <span className="text-slate-400">{t('groqHint')}</span>
-            </label>
-            <input
-              value={groq}
-              onChange={(e) => setGroq(e.target.value)}
-              type={show ? 'text' : 'password'}
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="gsk_…"
-              dir="ltr"
-              className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 font-mono text-sm focus:border-gent-400 focus:outline-none"
-            />
-            <a
-              href="https://console.groq.com/keys"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 inline-block text-xs font-semibold text-gent-600 underline"
-            >
-              → {t('makeGroqKey')}
-            </a>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">
-              {t('webhookLabel')} <span className="text-slate-400">{t('webhookHint')}</span>
-            </label>
-            <input
-              value={webhook}
-              onChange={(e) => setWebhook(e.target.value)}
-              type="url"
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="https://script.google.com/…/exec"
-              dir="ltr"
-              className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 font-mono text-sm focus:border-gent-400 focus:outline-none"
-            />
-            <p className="mt-1 text-xs text-slate-500">{t('webhookTip')}</p>
-          </div>
-
-          {webhook && (
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">
-                {t('webhookTokenLabel')} <span className="text-slate-400">{t('webhookHint')}</span>
-              </label>
-              <input
-                value={webhookToken}
-                onChange={(e) => setWebhookTokenState(e.target.value)}
-                type={show ? 'text' : 'password'}
-                autoComplete="off"
-                spellCheck={false}
-                placeholder="••••••••"
-                dir="ltr"
-                className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 font-mono text-sm focus:border-gent-400 focus:outline-none"
-              />
-              <p className="mt-1 text-xs text-slate-500">{t('webhookTokenTip')}</p>
-            </div>
-          )}
-
-          <p className="rounded-lg bg-slate-50 p-3 text-xs text-slate-500">{t('settingsTip')}</p>
+          <section className="rounded-xl bg-slate-50 p-4">
+            <h4 className="font-bold text-slate-800">🎙️ {t('settingsAudioTitle')}</h4>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">{t('settingsAudioDesc')}</p>
+          </section>
         </div>
 
         <div className="border-t border-slate-100 p-4">
-          <button onClick={save} className="btn-primary h-12 w-full">
-            {saved ? `✓ ${t('saved')}` : t('save')}
-          </button>
+          <button onClick={onClose} className="btn-primary h-12 w-full">{t('close')}</button>
         </div>
       </div>
     </div>

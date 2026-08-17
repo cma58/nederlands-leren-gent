@@ -1,71 +1,84 @@
-# Nederlands leren in Gent 🇧🇪 — voor Darija-sprekers
+# Nederlands leren in Gent
 
-Een interactieve webapp waarmee een Marokkaans-Darija sprekende gebruiker (uit
-Oujda) stap voor stap **Vlaams-Nederlands** leert om vlot in **Gent** te
-integreren. De cursus houdt rekening met de klank- en taalverschillen tussen het
-Darija en het Nederlands, is volledig **tweetalig (NL + Darija, met RTL)** en
-**mobiel-eerst** ontworpen.
+Een mobiele, tweetalige leerapp voor Nederlands in Gent. De volledige interface
+is beschikbaar in Nederlands en Darija met Latijnse letters.
 
-> 📖 **Nieuwe ontwikkelaar?** Lees **[`DEVELOPMENT.md`](./DEVELOPMENT.md)** — dat
-> beschrijft de volledige architectuur, hoe elke functie werkt, de deploy, de
-> veiligheid, de huidige status en hoe je uitbreidt.
+## Wat deze versie bevat
 
-## Wat kan de app?
+- zelfregistratie met gebruikersnaam en wachtwoord;
+- status `PENDING` totdat een admin de aanvraag goedkeurt;
+- veilige HttpOnly-sessies en eenmalige resetcodes;
+- cloudvoortgang, herhaling en spreekstatistieken per account;
+- geschatte actieve leertijd zonder dubbel tellen van tabbladen;
+- adminoverzicht voor gebruikers, activiteit en recente pogingen;
+- tweetalige extra en verplichte opdrachten;
+- Groq Whisper via een beveiligde serverroute, nooit met een sleutel in de browser;
+- lokale audiokwaliteitscontrole en expliciete onzekere/technische uitkomsten;
+- een veilige eenmalige import van voortgang uit de vroegere lokale versie.
 
-- **Volledige leerlijn:** 3 niveaus, 25 modules, 76 lessen, ~629 items.
-- **Lestypes:** kaartjes + auto-quiz (woordenschat/zinnen/getallen/grammatica),
-  **spreekoefening** (opnemen + herkenning + oordeel), **luisteroefening**
-  (minimale paren) en **typoefening**.
-- **Voorlezen** in het Vlaams (Web Speech API, met online fallback).
-- **Dagelijkse herhaling** met een Leitner-systeem (volledig offline).
-- **Coach-modus:** een partner kan de voortgang op afstand volgen en een berichtje
-  sturen (via een Google Sheet-webhook).
-- **Offline & installeerbaar** (PWA): de app-schil werkt zonder internet.
+De oude verborgen `#admin`, Google Sheet-webhook, coachmodus en lokale
+providerkeys zijn verwijderd.
 
-## Tech stack
+## Architectuur
 
-**React 18 + Vite 6** · **Tailwind CSS** · **Web Speech API** (voorlezen) ·
-**Groq Whisper** (spraak → tekst) · **Google Gemini** (optionele AI-uitleg) ·
-**Google Apps Script** (voortgang op afstand) · **vite-plugin-pwa** (offline).
+- React 18, Vite en Tailwind voor de PWA-interface;
+- Cloudflare Worker als same-origin `/api`;
+- Cloudflare D1 voor accounts, sessies, voortgang, activiteit en opdrachten;
+- optioneel Resend voor een registratiebericht aan `amine.chtaiti@gmail.com`;
+- Groq Free als primaire spraakherkenner, met harde quota in de Worker;
+- een voorbereide lokale second-opinion-adapter die eerlijk `niet beschikbaar`
+  meldt totdat een gecontroleerd Nederlands Vosk-model wordt meegeleverd.
 
-De app is volledig client-side; er is geen eigen backend.
+Er is geen betaalde fallback en de app bevat geen betaalkaart- of
+facturatie-integratie.
 
-## Snel starten
+## Lokaal starten
+
+Vereisten: Node.js 20+ en een gratis Cloudflare-account voor D1.
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # productie-build in dist/
+cp .dev.vars.example .dev.vars
+npm run db:migrate:local
+npm run dev:api
 ```
 
-Alle lessen, quizzen, luister- en typoefeningen werken **zonder sleutels**. Alleen
-de **spreekoefening** heeft twee gratis sleutels nodig:
+Start in een tweede terminal:
 
-1. **In de app (makkelijkst):** tandwiel (⚙️) rechtsboven → sleutels plakken
-   (worden lokaal op het toestel bewaard).
-2. **Via `.env`:** `VITE_GEMINI_API_KEY` en `VITE_GROQ_API_KEY`.
-
-- Gemini-sleutel: https://aistudio.google.com/app/apikey
-- Groq-sleutel: https://console.groq.com/keys
-
-> ⚠️ Zet deze sleutels **nooit** als omgevingsvariabele in een publieke Vercel-/
-> hostingdeployment — ze belanden dan leesbaar in de JS-bundel. Zie `DEVELOPMENT.md` §9/§11.
-
-## Deploy
-
-Elke merge naar `main` deployt automatisch naar **GitHub Pages**
-(https://cma58.github.io/nederlands-leren-gent/) en **Vercel**. Details, inclusief
-het `VITE_BASE`-pad per host, staan in [`DEVELOPMENT.md`](./DEVELOPMENT.md) §10.
-
-## Structuur (kort)
-
-```
-src/
-├── data/curriculum.js     # ⭐ de volledige leerlijn (data-gedreven)
-├── context/               # taal (i18n/RTL) + voortgang
-├── lib/                   # speech, groq, gemini, pronunciation (oordeel), review, …
-└── components/            # Dashboard, LessonPlayer, SpeakingExercise, …
+```bash
+npm run dev
 ```
 
-Uitgebreide toelichting per bestand: zie [`DEVELOPMENT.md`](./DEVELOPMENT.md).
-</content>
+De Vite-server draait op `http://localhost:5173` en stuurt `/api` door naar de
+lokale Worker op poort 8787. Zet lokaal `COOKIE_SECURE=false` in `.dev.vars`.
+
+## Eerste admin
+
+De enige admin wordt eenmalig aangemaakt met het servergeheim
+`ADMIN_BOOTSTRAP_SECRET`. Het e-mailadres wordt server-side vastgezet op
+`amine.chtaiti@gmail.com`. Na de eerste deploy open je `#setup-admin`; het
+geheim wordt niet in de browser bewaard en de server weigert daarna een tweede
+bootstrap. Zie [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md) voor de volledige
+klikhandleiding en [worker/README.md](worker/README.md) voor het API-contract.
+
+## GitHub en deployment
+
+Een push of pull request voert automatisch tests en de productiebuild uit. De
+oude GitHub Pages-deploy is verwijderd, omdat een statische host geen veilige
+accounts of `/api` kan leveren. Na het invullen van de echte D1-ID en de GitHub
+secrets `CLOUDFLARE_API_TOKEN` en `CLOUDFLARE_ACCOUNT_ID` kan de workflow
+`Controle en Cloudflare-deploy` handmatig naar Cloudflare publiceren.
+
+De workflow voert de D1-migraties uit en zet de twee verplichte Worker-secrets
+`ADMIN_BOOTSTRAP_SECRET` en `GROQ_API_KEY` tijdens de deploy veilig door.
+
+## Testen
+
+```bash
+npm test
+npm run build
+```
+
+Voor productie moeten ook de registratie-, goedkeurings-, reset-, opdracht-,
+multi-tab- en spraakflows met echte testaccounts worden doorlopen. Ruwe audio
+wordt niet opgeslagen.

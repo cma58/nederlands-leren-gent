@@ -6,8 +6,17 @@
  * valse belofte dat een model elke klank perfect kan beoordelen — we meten
  * enkel of de leerling verstaanbaar was.
  *
- * Resultaat: 'good' | 'almost' | 'retry'
+ * Resultaatcodes zijn expliciet en worden ook zo server-side opgeslagen.
  */
+
+export const PRONUNCIATION_RESULT = Object.freeze({
+  GOOD: 'GOOD',
+  ALMOST: 'ALMOST',
+  RETRY: 'RETRY',
+  UNSCORABLE: 'UNSCORABLE',
+  TECHNICAL_ERROR: 'TECHNICAL_ERROR',
+  REVIEW_PENDING: 'REVIEW_PENDING',
+})
 
 /** Kleine letters, accenten en leestekens weg, spaties samengevoegd. */
 export function normalize(s) {
@@ -90,44 +99,56 @@ function wordVariants(heard) {
  * Vergelijk wat Whisper verstond met het verwachte antwoord.
  * @param {object} item        Het lesitem (nl/answer/pair/pronunciation).
  * @param {string} transcript  Wat Groq Whisper verstond.
- * @returns {'good'|'almost'|'retry'}
+ * @returns {'GOOD'|'ALMOST'|'RETRY'}
  */
 export function scoreTranscript(item, transcript) {
   const heard = normalize(transcript)
-  if (!heard) return 'retry'
+  if (!heard) return PRONUNCIATION_RESULT.RETRY
 
   const target = item.answer || item.nl || item.value || ''
   const accepted = acceptedFor(item)
   const confusions = confusionsFor(item)
 
-  if (accepted.includes(heard)) return 'good'
+  if (accepted.includes(heard)) return PRONUNCIATION_RESULT.GOOD
   // Een bekende verwarring (bv. het minimale paar) is het leerdoel: blijf streng.
-  if (confusions.includes(heard)) return 'almost'
+  if (confusions.includes(heard)) return PRONUNCIATION_RESULT.ALMOST
 
   if (isSentence(target)) {
     // Korte zin: dicht genoeg telt als goed/bijna, anders opnieuw.
     const sim = Math.max(...accepted.map((a) => similarity(heard, a)))
-    if (sim >= 0.85) return 'good'
-    if (sim >= 0.55) return 'almost'
-    return 'retry'
+    if (sim >= 0.85) return PRONUNCIATION_RESULT.GOOD
+    if (sim >= 0.55) return PRONUNCIATION_RESULT.ALMOST
+    return PRONUNCIATION_RESULT.RETRY
   }
 
   // Los woord. We denken eerst een toegevoegd lidwoord/meervouds-'s' weg (dat is
   // Whisper-ruis, geen uitspraakfout). Klopt het dan exact → goed.
   const variants = wordVariants(heard)
-  if (variants.some((v) => accepted.includes(v))) return 'good'
+  if (variants.some((v) => accepted.includes(v))) return PRONUNCIATION_RESULT.GOOD
 
   // Anders: hoe ver zit de beste variant van een geaccepteerd woord af?
   const best = Math.min(...accepted.flatMap((a) => variants.map((v) => levenshtein(v, a))))
-  if (best === 0) return 'good'
+  if (best === 0) return PRONUNCIATION_RESULT.GOOD
   const maxLen = Math.max(...accepted.map((a) => a.length))
   // 1 teken verschil = 'bijna' (ook bij korte woorden — dit is meestal gewoon
   // transcriptieruis bij een correct uitgesproken kort woord, geen echte fout;
   // de échte leerdoel-fouten zitten al in de commonConfusions-lijst hierboven).
-  if (best === 1) return 'almost'
+  if (best === 1) return PRONUNCIATION_RESULT.ALMOST
   // Iets meer marge voor langere woorden.
-  if (best === 2 && maxLen >= 6) return 'almost'
-  return 'retry'
+  if (best === 2 && maxLen >= 6) return PRONUNCIATION_RESULT.ALMOST
+  return PRONUNCIATION_RESULT.RETRY
+}
+
+/** Letters, zeer korte woorden/klanken en minimale paren zijn STT-risicovol. */
+export function isHighRiskPronunciation(item) {
+  const target = normalize(item?.answer || item?.nl || item?.value || '')
+  const wordCount = target.split(' ').filter(Boolean).length
+  return Boolean(
+    item?.word ||
+    item?.pair ||
+    item?.pronunciation?.commonConfusions?.length ||
+    (wordCount === 1 && target.length <= 3),
+  )
 }
 
 /** Tip uit de data (indien aanwezig), voor 'bijna'/'opnieuw'. */
@@ -135,7 +156,7 @@ export function tipsFor(item) {
   const p = item.pronunciation || {}
   return {
     tipNl: p.tipNl || item.tip || '',
-    tipDarija: item.tipDarija || p.tipDarija || '',
+    tipDarijaLat: item.tipDarijaLat || p.tipDarijaLat || '',
     focus: p.focus || '',
   }
 }

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import LevelCard from './LevelCard.jsx'
 import ProgressBar from './ProgressBar.jsx'
 import curriculum, { allLessonIds } from '../data/curriculum.js'
@@ -6,58 +5,20 @@ import resources from '../data/resources.js'
 import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
 import { dueCount } from '../lib/review.js'
-import { fetchCustomLesson, fetchMessage } from '../lib/tracker.js'
-import { practicedToday } from '../lib/snapshot.js'
-import { getCoachMode } from '../lib/config.js'
 
 /**
  * Startscherm: welkomstboodschap, totale voortgang en de niveaukeuze.
  */
 export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
-  const { ratioFor, isDone } = useProgress()
-  const { t, isDarija } = useLang()
-  const chevron = isDarija ? '‹' : '›'
+  const { ratioFor, isDone, updatedAt } = useProgress()
+  const { t } = useLang()
+  const chevron = '›'
   const allIds = curriculum.levels.flatMap(allLessonIds)
   const overall = ratioFor(allIds)
   const due = dueCount(curriculum, isDone)
 
-  // Optioneel: automatisch gegenereerde herhaalles via de webhook ophalen.
-  const [customLesson, setCustomLesson] = useState(null)
-  // Persoonlijk berichtje van de partner (verschijnt bovenaan).
-  const [coachMsg, setCoachMsg] = useState(null)
   // Dagelijkse aanmoediging als ze vandaag nog niet geoefend heeft.
-  const [goalToday] = useState(() => !practicedToday())
-  const MSG_SEEN = 'nl-gent:msgSeen:v1'
-
-  useEffect(() => {
-    let alive = true
-    fetchCustomLesson().then((lesson) => alive && setCustomLesson(lesson))
-    // Berichtje niet tonen op het coach-toestel (dat is de afzender).
-    if (!getCoachMode()) {
-      fetchMessage().then((m) => {
-        if (!alive || !m) return
-        let seen = ''
-        try {
-          seen = localStorage.getItem(MSG_SEEN) || ''
-        } catch {
-          /* negeren */
-        }
-        if ((m.date || '') > seen) setCoachMsg(m)
-      })
-    }
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  function dismissMsg() {
-    try {
-      if (coachMsg?.date) localStorage.setItem(MSG_SEEN, coachMsg.date)
-    } catch {
-      /* negeren */
-    }
-    setCoachMsg(null)
-  }
+  const goalToday = !updatedAt || updatedAt.slice(0, 10) !== new Date().toISOString().slice(0, 10)
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -65,7 +26,7 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
       <section className="card overflow-hidden">
         <div className="bg-gradient-to-br from-gent-700 to-gent-500 p-6 text-white">
           <p className="text-sm font-medium text-gent-100">
-            {t('welcome')} · <span className="rtl">مرحبا</span>
+            {t('welcome')} · <span>Marhba</span>
           </p>
           <h2 className="mt-1 text-2xl font-bold leading-tight">{t('dashTitle')}</h2>
           <p className="mt-2 max-w-md text-sm text-gent-100">{t('dashSub')}</p>
@@ -78,25 +39,6 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
         </div>
       </section>
 
-      {/* Persoonlijk berichtje van de partner */}
-      {coachMsg && (
-        <div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-rose-200 bg-rose-50 p-4">
-          <span className="text-2xl" aria-hidden="true">
-            💌
-          </span>
-          <p className="min-w-0 flex-1 text-sm font-medium text-rose-900" dir="auto">
-            {coachMsg.text}
-          </p>
-          <button
-            onClick={dismissMsg}
-            className="-my-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-rose-400 hover:bg-rose-100 hover:text-rose-600"
-            aria-label={t('close')}
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
       {/* Dagelijkse aanmoediging */}
       {goalToday && (
         <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-600 to-saffraan-700 p-4 text-white">
@@ -105,27 +47,6 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
           </span>
           <p className="text-sm font-semibold">{t('dailyGoal')}</p>
         </div>
-      )}
-
-      {/* Automatisch gegenereerde herhaalles (webhook) — alleen indien aanwezig */}
-      {customLesson && (
-        <button
-          onClick={() => onOpenLesson?.(customLesson)}
-          className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-br from-gent-700 to-gent-500 p-4 text-left text-white shadow-sm transition hover:from-gent-800 hover:to-gent-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gent-500"
-        >
-          <span className="text-3xl" aria-hidden="true">
-            🎯
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-bold">
-              {isDarija && customLesson.titleDarija ? customLesson.titleDarija : t('customLessonTitle')}
-            </span>
-            <span className="block text-sm text-gent-100">{t('customLessonSub')}</span>
-          </span>
-          <span aria-hidden="true" className="text-2xl font-bold">
-            {chevron}
-          </span>
-        </button>
       )}
 
       {/* Herhaling — alleen tonen als er woorden klaarstaan */}
