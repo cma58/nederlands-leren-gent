@@ -21,12 +21,12 @@ const validResponse = {
 }
 
 test('coach gebruikt uitsluitend een bestaand lesitem als invoer', () => {
-  const input = coachInput({ lessonId: '0.0.1', itemIndex: 0, mode: 'WORD' })
-  assert.equal(input.item.target, 'appel')
-  assert.equal(input.item.darijaLat, 'tffa7a')
+  const input = coachInput({ lessonId: '0.start.1', itemIndex: 0, mode: 'WORD' })
+  assert.equal(input.item.target, 'hallo')
+  assert.equal(input.item.darijaLat, 'salam')
   assert.equal(coachInput({ lessonId: 'niet-bestaand', itemIndex: 0, mode: 'WORD' }), null)
-  assert.equal(coachInput({ lessonId: '0.0.1', itemIndex: 999, mode: 'WORD' }), null)
-  assert.equal(coachInput({ lessonId: '0.0.1', itemIndex: 0, mode: 'VRIJE_PROMPT' }), null)
+  assert.equal(coachInput({ lessonId: '0.start.1', itemIndex: 999, mode: 'WORD' }), null)
+  assert.equal(coachInput({ lessonId: '0.start.1', itemIndex: 0, mode: 'VRIJE_PROMPT' }), null)
 })
 
 test('coach valideert tweetalige gestructureerde uitvoer', () => {
@@ -39,7 +39,7 @@ test('coach valideert tweetalige gestructureerde uitvoer', () => {
 })
 
 test('ingebouwde fallback bevat alleen Darija in Latijnse letters', () => {
-  const input = coachInput({ lessonId: '0.0.1', itemIndex: 0, mode: 'PRONUNCIATION' })
+  const input = coachInput({ lessonId: '0.start.1', itemIndex: 0, mode: 'PRONUNCIATION' })
   const result = fallbackCoach(input.item, input.mode)
   const darijaValues = [
     result.meaning.darijaLat,
@@ -50,5 +50,5 @@ test('ingebouwde fallback bevat alleen Darija in Latijnse letters', () => {
     result.pronunciationTip.darijaLat,
   ]
   assert.equal(darijaValues.some((value) => /[\u0600-\u06ff]/u.test(value)), false)
-  assert.match(result.pronunciationTip.nl, /Mond wijd open/)
+  assert.match(result.pronunciationTip.nl, /Luister nog eens naar/)
 })
