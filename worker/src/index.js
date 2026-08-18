@@ -30,6 +30,10 @@ const ATTEMPT_METADATA_KEYS = new Set([
   'reason', 'model', 'quality', 'pronunciationStatus',
 ]);
 const AUDIO_TYPES = new Set(['audio/webm', 'audio/ogg', 'audio/wav', 'audio/x-wav', 'audio/mp4', 'audio/m4a', 'audio/x-m4a', 'audio/mpeg']);
+// workerd weigert PBKDF2-aanvragen boven 100.000 iteraties. We gebruiken het
+// platformmaximum en voegen daarnaast een server-side pepper toe, zodat een
+// los D1-databaselek niet volstaat om wachtwoorden offline te kraken.
+const PASSWORD_ITERATIONS = 100_000;
 
 class ApiError extends Error {
   constructor(code, status = 400, details = undefined) {
@@ -123,6 +127,12 @@ async function readJson(request, maxBytes = MAX_BODY_BYTES) {
 
 function isoNow() {
   return new Date().toISOString();
+}
+
+function passwordMaterial(password, env) {
+  const pepper = String(env.ADMIN_BOOTSTRAP_SECRET || '');
+  if (!pepper) throw new Error('PASSWORD_PEPPER_UNAVAILABLE');
+  return `${String(password)}\u0000${pepper}`;
 }
 
 function publicUser(row) {
@@ -262,7 +272,7 @@ async function register(request, env, ctx) {
   const displayName = String(body.displayName || '').normalize('NFKC').trim().slice(0, 80) || null;
   const exists = await env.DB.prepare('SELECT 1 FROM users WHERE username_normalized = ?').bind(normalized).first();
   if (exists) throw new ApiError('USERNAME_TAKEN', 409);
-  const derived = await hashPassword(body.password, Number(env.PBKDF2_ITERATIONS || 310000));
+  const derived = await hashPassword(passwordMaterial(body.password, env), PASSWORD_ITERATIONS);
   const user = { id: randomId(), username, displayName };
   try {
     await env.DB.prepare(`
@@ -283,7 +293,7 @@ async function login(request, env) {
   await rateLimit(env, request, 'login', body.username, 10, 15);
   const row = await env.DB.prepare('SELECT * FROM users WHERE username_normalized = ? LIMIT 1')
     .bind(normalizeUsername(body.username)).first();
-  if (!row || !validPassword(body.password) || !(await verifyPassword(body.password, row.password_hash, row.password_salt, row.password_iterations))) {
+  if (!row || !validPassword(body.password) || !(await verifyPassword(passwordMaterial(body.password, env), row.password_hash, row.password_salt, row.password_iterations))) {
     throw new ApiError('INVALID_CREDENTIALS', 401);
   }
   const statusErrors = { PENDING: 'ACCOUNT_PENDING', REJECTED: 'ACCOUNT_REJECTED', SUSPENDED: 'ACCOUNT_SUSPENDED' };
@@ -321,7 +331,7 @@ async function bootstrapAdmin(request, env) {
   const body = await readJson(request, 20_000);
   if (!validUsername(body.username)) throw new ApiError('USERNAME_INVALID');
   if (!validPassword(body.password)) throw new ApiError('PASSWORD_WEAK');
-  const password = await hashPassword(body.password, Number(env.PBKDF2_ITERATIONS || 310000));
+  const password = await hashPassword(passwordMaterial(body.password, env), PASSWORD_ITERATIONS);
   const id = randomId();
   const email = String(env.ADMIN_EMAIL || 'amine.chtaiti@gmail.com').trim().toLowerCase();
   try {
@@ -359,7 +369,7 @@ async function recoverAdmin(request, env) {
   const admin = await env.DB.prepare("SELECT * FROM users WHERE role = 'ADMIN' AND lower(email) = ? LIMIT 1")
     .bind(email).first();
   if (!admin) throw new ApiError('NOT_FOUND', 404);
-  const next = await hashPassword(body.newPassword, Number(env.PBKDF2_ITERATIONS || 310000));
+  const next = await hashPassword(passwordMaterial(body.newPassword, env), PASSWORD_ITERATIONS);
   await env.DB.batch([
     env.DB.prepare(`UPDATE users SET password_hash = ?, password_salt = ?, password_iterations = ?,
       must_change_password = 0, status = 'ACTIVE', updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
@@ -375,10 +385,10 @@ async function changePassword(request, env) {
   const user = await requireUser(request, env);
   const body = await readJson(request, 20_000);
   if (!validPassword(body.newPassword)) throw new ApiError('PASSWORD_WEAK');
-  if (!(await verifyPassword(body.currentPassword || '', user.password_hash, user.password_salt, user.password_iterations))) {
+  if (!(await verifyPassword(passwordMaterial(body.currentPassword || '', env), user.password_hash, user.password_salt, user.password_iterations))) {
     throw new ApiError('INVALID_CREDENTIALS', 401);
   }
-  const next = await hashPassword(body.newPassword, Number(env.PBKDF2_ITERATIONS || 310000));
+  const next = await hashPassword(passwordMaterial(body.newPassword, env), PASSWORD_ITERATIONS);
   await env.DB.batch([
     env.DB.prepare(`UPDATE users SET password_hash = ?, password_salt = ?, password_iterations = ?, must_change_password = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
       .bind(next.hash, next.salt, next.iterations, user.id),
@@ -401,7 +411,7 @@ async function redeemReset(request, env) {
     LIMIT 1
   `).bind(normalizeUsername(body.username), codeHash).first();
   if (!row) throw new ApiError('RESET_CODE_INVALID', 400);
-  const next = await hashPassword(body.newPassword, Number(env.PBKDF2_ITERATIONS || 310000));
+  const next = await hashPassword(passwordMaterial(body.newPassword, env), PASSWORD_ITERATIONS);
   await env.DB.batch([
     env.DB.prepare(`UPDATE users SET password_hash = ?, password_salt = ?, password_iterations = ?, must_change_password = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
       .bind(next.hash, next.salt, next.iterations, row.user_id),
@@ -466,7 +476,7 @@ async function createResetCode(request, env, userId) {
   const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString();
   // Maak het oude wachtwoord meteen ongeldig. De willekeurige tussenwaarde
   // wordt nergens bewaard; alleen de eenmalige resetcode kan nu nog herstellen.
-  const lockedPassword = await hashPassword(randomToken(48), Number(env.PBKDF2_ITERATIONS || 310000));
+  const lockedPassword = await hashPassword(passwordMaterial(randomToken(48), env), PASSWORD_ITERATIONS);
   await env.DB.batch([
     env.DB.prepare('UPDATE password_reset_codes SET used_at = CURRENT_TIMESTAMP WHERE user_id = ? AND used_at IS NULL').bind(userId),
     env.DB.prepare(`INSERT INTO password_reset_codes (id, user_id, code_hash, expires_at, created_by) VALUES (?, ?, ?, ?, ?)`)

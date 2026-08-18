@@ -44,7 +44,7 @@ export async function sha256(value) {
   return base64Url(new Uint8Array(digest));
 }
 
-export async function hashPassword(password, iterations = 310000, saltBase64 = null) {
+export async function hashPassword(password, iterations = 100000, saltBase64 = null) {
   const salt = saltBase64 ? fromBase64(saltBase64) : crypto.getRandomValues(new Uint8Array(16));
   const key = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits(

@@ -22,7 +22,7 @@ migrations_dir = "migrations"
 [vars]
 ADMIN_EMAIL = "amine.chtaiti@gmail.com"
 SESSION_DAYS = "14"
-PBKDF2_ITERATIONS = "310000"
+PBKDF2_ITERATIONS = "100000"
 COOKIE_SECURE = "true"
 GROQ_SPEECH_MODEL = "whisper-large-v3-turbo"
 SPEECH_MAX_SECONDS = "30"

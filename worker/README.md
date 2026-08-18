@@ -7,7 +7,8 @@ het admindashboard staan wanneer e-mail ontbreekt of faalt.
 
 ## Veiligheidsmodel
 
-- Wachtwoorden: PBKDF2-SHA-256, standaard 310.000 iteraties en een unieke salt.
+- Wachtwoorden: PBKDF2-SHA-256 met het workerd-maximum van 100.000 iteraties,
+  een unieke salt en `ADMIN_BOOTSTRAP_SECRET` als server-side pepper.
 - Sessies: 256-bit willekeurig token; alleen de SHA-256-hash staat in D1.
 - Cookie: `HttpOnly`, `SameSite=Strict`, productie `Secure`, pad `/api`.
 - Mutaties van een onbekende browser-origin worden geweigerd.
@@ -71,7 +72,9 @@ curl -X POST https://JOUW-WORKER/api/admin/bootstrap \
 ```
 
 Bewaar `ADMIN_BOOTSTRAP_SECRET` in een wachtwoordkluis als noodherstelgeheim en
-laat het uitsluitend als Worker secret staan. De database weigert technisch een
+laat het uitsluitend als Worker secret staan. Dit geheim beschermt ook de
+wachtwoordhashes; roteer het daarom niet zonder een geplande wachtwoordmigratie.
+De database weigert technisch een
 tweede admin. Als de enige admin zijn wachtwoord vergeet, kan hij zonder D1-edit
 een nieuw wachtwoord instellen:
 

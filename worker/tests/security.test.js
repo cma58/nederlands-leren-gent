@@ -26,6 +26,8 @@ test('wachtwoordgrenzen en PBKDF2-verificatie', async () => {
   const stored = await hashPassword('veilig-wachtwoord', 1000);
   assert.equal(await verifyPassword('veilig-wachtwoord', stored.hash, stored.salt, stored.iterations), true);
   assert.equal(await verifyPassword('ander-wachtwoord', stored.hash, stored.salt, stored.iterations), false);
+  const productionDefault = await hashPassword('veilig-wachtwoord');
+  assert.equal(productionDefault.iterations, 100000);
 });
 
 test('constante vergelijking verwerkt gelijke en ongelijke lengtes', () => {
