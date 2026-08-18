@@ -34,7 +34,7 @@ facturatie-integratie.
 
 ## Lokaal starten
 
-Vereisten: Node.js 20+ en een gratis Cloudflare-account voor D1.
+Vereisten: Node.js 22+ en een gratis Cloudflare-account voor D1.
 
 ```bash
 npm install
