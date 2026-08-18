@@ -322,10 +322,15 @@ async function sessionInfo(request, env) {
 }
 
 async function bootstrapAdmin(request, env) {
-  await rateLimit(env, request, 'admin-bootstrap', '*', 5, 60);
   if (!env.ADMIN_BOOTSTRAP_SECRET) throw new ApiError('FORBIDDEN', 403);
   const supplied = request.headers.get('x-bootstrap-secret') || '';
-  if (!constantTimeEqual(supplied, env.ADMIN_BOOTSTRAP_SECRET)) throw new ApiError('FORBIDDEN', 403);
+  if (!constantTimeEqual(supplied, env.ADMIN_BOOTSTRAP_SECRET)) {
+    await rateLimit(env, request, 'admin-bootstrap-invalid-v2', '*', 5, 15);
+    throw new ApiError('FORBIDDEN', 403);
+  }
+  // Gebruik voor geldige installatiepogingen een eigen kort venster. Zo
+  // blokkeren eerdere platformfouten een legitieme eerste installatie niet.
+  await rateLimit(env, request, 'admin-bootstrap-valid-v2', '*', 10, 15);
   const existing = await env.DB.prepare("SELECT 1 FROM users WHERE role = 'ADMIN' LIMIT 1").first();
   if (existing) throw new ApiError('FORBIDDEN', 409);
   const body = await readJson(request, 20_000);
