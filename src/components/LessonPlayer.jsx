@@ -8,6 +8,7 @@ import SpeakingExercise from './SpeakingExercise.jsx'
 import ListenExercise from './ListenExercise.jsx'
 import TypingExercise from './TypingExercise.jsx'
 import SoundText from './SoundText.jsx'
+import AiCoach from './AiCoach.jsx'
 
 /**
  * Volledige, interactieve lesspeler — werkt zonder API's of internet.
@@ -202,6 +203,8 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
           <span className="mt-1 text-sm text-slate-500">{t('tapToReveal')}</span>
         )}
       </button>
+
+      <AiCoach lesson={lesson} itemIndex={i} />
 
       <div className="flex items-center gap-2 py-4">
         <button onClick={prev} disabled={i === 0} className="btn-ghost h-12 w-12 !px-0" aria-label={t('back')}>

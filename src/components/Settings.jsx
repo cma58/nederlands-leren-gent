@@ -46,6 +46,11 @@ export default function Settings({ onClose }) {
             <h4 className="font-bold text-slate-800">🎙️ {t('settingsAudioTitle')}</h4>
             <p className="mt-1 text-sm leading-relaxed text-slate-600">{t('settingsAudioDesc')}</p>
           </section>
+
+          <section className="rounded-xl bg-violet-50 p-4">
+            <h4 className="font-bold text-violet-900">✨ {t('settingsCoachTitle')}</h4>
+            <p className="mt-1 text-sm leading-relaxed text-violet-800">{t('settingsCoachDesc')}</p>
+          </section>
         </div>
 
         <div className="border-t border-slate-100 p-4">

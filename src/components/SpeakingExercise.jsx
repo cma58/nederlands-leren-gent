@@ -7,6 +7,7 @@ import { assessPronunciation } from '../lib/speechCascade.js'
 import { itemKey, recordAttempt, isMastered } from '../lib/speakingProgress.js'
 import { recordLearningAttempt, recordSpeakingReview } from '../lib/attempts.js'
 import SoundText from './SoundText.jsx'
+import AiCoach from './AiCoach.jsx'
 
 /**
  * Spreek- & uitspraakoefening.
@@ -388,6 +389,9 @@ export default function SpeakingExercise({ lesson, onFinish }) {
                 <p className="mt-1 text-sm text-slate-600" dir="ltr">{item.tipDarijaLat}</p>
               )}
             </div>
+            {result !== PRONUNCIATION_RESULT.GOOD && (
+              <AiCoach lesson={lesson} itemIndex={i} mode="PRONUNCIATION" transcript={transcript} />
+            )}
           </>
         )}
       </div>

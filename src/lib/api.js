@@ -114,10 +114,18 @@ export const adminApi = {
   speakingReviews: (options) => fetchJSON('/api/admin/speaking-reviews', options),
   decideSpeakingReview: (id, decision, options) =>
     patch(`/api/admin/speaking-reviews/${encodeURIComponent(id)}`, { decision }, options),
+  coachFeedback: (options) => fetchJSON('/api/admin/coach-feedback', options),
+  resolveCoachFeedback: (id, decision, options) =>
+    patch(`/api/admin/coach-feedback/${encodeURIComponent(id)}`, { decision }, options),
 }
 
 export const learnerApi = {
   assignments: (options) => fetchJSON('/api/assignments', options),
   completeAssignment: (id, options) =>
     post(`/api/assignments/${encodeURIComponent(id)}/complete`, {}, options),
+}
+
+export const coachApi = {
+  explain: (payload, options) => post('/api/coach/explain', payload, { timeout: 30000, ...options }),
+  report: (responseId, options) => post('/api/coach/feedback', { responseId }, options),
 }

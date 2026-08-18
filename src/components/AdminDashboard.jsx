@@ -315,6 +315,78 @@ function SpeakingReviewManager({ c, lang }) {
   )
 }
 
+function CoachFeedbackManager({ c, lang }) {
+  const [items, setItems] = useState([])
+  const [status, setStatus] = useState('loading')
+  const [error, setError] = useState('')
+  const [busyId, setBusyId] = useState('')
+
+  async function load() {
+    setStatus('loading')
+    setError('')
+    try {
+      setItems(listFrom(await adminApi.coachFeedback(), 'feedback'))
+      setStatus('ready')
+    } catch (requestError) {
+      setError(apiErrorMessage(requestError, lang))
+      setStatus('error')
+    }
+  }
+
+  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function decide(item, decision) {
+    setBusyId(item.responseId)
+    setError('')
+    try {
+      await adminApi.resolveCoachFeedback(item.responseId, decision)
+      setItems((current) => current.filter((entry) => entry.responseId !== item.responseId))
+    } catch (requestError) {
+      setError(apiErrorMessage(requestError, lang))
+    } finally {
+      setBusyId('')
+    }
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="card p-4">
+        <h2 className="font-black text-slate-900">{c('aiFeedbackTitle')}</h2>
+        <p className="mt-1 text-xs text-slate-500">🔒 {c('aiFeedbackPrivacy')}</p>
+      </div>
+      {error && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error}<button onClick={load} className="ms-2 underline">{c('retry')}</button></div>}
+      {status === 'loading' && <p className="py-10 text-center text-sm font-semibold text-slate-500">{c('loading')}</p>}
+      {status === 'ready' && items.length === 0 && <div className="card p-8 text-center text-sm text-slate-500">{c('noAiFeedback')}</div>}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {items.map((item) => {
+          const coach = item.coach || {}
+          return (
+            <article key={item.responseId} className="card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-black text-slate-900">{c('aiLessonItem')}</h3>
+                  <p className="text-xs text-slate-500">{item.lessonId} · #{Number(item.itemIndex) + 1} · {item.mode}</p>
+                </div>
+                <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">{item.reports} {c('aiReports')}</span>
+              </div>
+              <div className="mt-4 space-y-3 rounded-xl bg-slate-50 p-3 text-sm">
+                <div><p className="font-bold text-slate-800" dir="ltr">{coach.meaning?.nl || '—'}</p><p className="mt-1 text-slate-600" dir="ltr">{coach.meaning?.darijaLat || '—'}</p></div>
+                <div className="border-t border-slate-200 pt-3"><p className="font-semibold text-slate-700" dir="ltr">{coach.usage?.nl || '—'}</p><p className="mt-1 text-slate-600" dir="ltr">{coach.usage?.darijaLat || '—'}</p></div>
+                <div className="border-t border-slate-200 pt-3"><p className="font-semibold text-violet-800" dir="ltr">{coach.pronunciationTip?.nl || '—'}</p><p className="mt-1 text-violet-700" dir="ltr">{coach.pronunciationTip?.darijaLat || '—'}</p></div>
+              </div>
+              <p className="mt-3 text-xs text-slate-400">{fmtDate(item.firstReportedAt, true)}</p>
+              <div className="mt-4 grid gap-2">
+                <button onClick={() => decide(item, 'RESOLVED')} disabled={busyId === item.responseId} className="btn-primary min-h-11">✓ {c('aiMarkChecked')}</button>
+                <button onClick={() => decide(item, 'REGENERATE')} disabled={busyId === item.responseId} className="btn-ghost min-h-11 text-amber-800">↻ {c('aiRegenerate')}</button>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 export default function AdminDashboard({ onClose }) {
   const { isAdmin, logout } = useAuth()
   const { lang } = useLang()
@@ -378,10 +450,11 @@ export default function AdminDashboard({ onClose }) {
           <LangToggle compact />
           <button onClick={logout} className="btn-ghost h-11 px-3 text-xs">{c('signOut')}</button>
         </div>
-        <nav className="mx-auto flex max-w-3xl gap-2 px-3 pb-2" aria-label={c('adminTitle')}>
-          <button onClick={() => setTab('users')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'users' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('users')}</button>
-          <button onClick={() => setTab('assignments')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'assignments' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('assignments')}</button>
-          <button onClick={() => setTab('speech')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'speech' ? 'bg-violet-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('pronunciationReviews')}</button>
+        <nav className="mx-auto grid max-w-3xl grid-cols-2 gap-2 px-3 pb-2 sm:grid-cols-4" aria-label={c('adminTitle')}>
+          <button onClick={() => setTab('users')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'users' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('users')}</button>
+          <button onClick={() => setTab('assignments')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'assignments' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('assignments')}</button>
+          <button onClick={() => setTab('speech')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'speech' ? 'bg-violet-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('pronunciationReviews')}</button>
+          <button onClick={() => setTab('coach')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'coach' ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-600'}`}>{c('aiFeedbackTab')}</button>
         </nav>
       </header>
 
@@ -398,7 +471,9 @@ export default function AdminDashboard({ onClose }) {
           </>
         ) : tab === 'assignments'
           ? <AssignmentManager users={users} c={c} lang={lang} />
-          : <SpeakingReviewManager c={c} lang={lang} />}
+          : tab === 'speech'
+            ? <SpeakingReviewManager c={c} lang={lang} />
+            : <CoachFeedbackManager c={c} lang={lang} />}
       </main>
 
       <ConfirmDialog action={action} onCancel={() => setAction(null)} onConfirm={confirmAction} busy={busy} c={c} />

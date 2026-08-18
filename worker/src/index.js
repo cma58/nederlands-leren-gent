@@ -13,6 +13,14 @@ import {
   verifyPassword,
 } from './security.js';
 import { messageFor } from './messages.js';
+import {
+  coachInput,
+  coachMessages,
+  coachResponseSchema,
+  fallbackCoach,
+  parseCoachResult,
+  validateCoachResponse,
+} from './coach.js';
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8' };
 const MAX_BODY_BYTES = 600_000;
@@ -776,6 +784,138 @@ async function decideSpeakingReview(request, env, eventId) {
   return ok({ eventId, decision, result: attemptResult });
 }
 
+async function reserveCoachGeneration(env, userId) {
+  const usageDay = new Date().toISOString().slice(0, 10);
+  const maxDaily = Math.min(50, Math.max(1, Number(env.AI_COACH_DAILY_GENERATIONS_PER_USER || 20)));
+  await env.DB.prepare('INSERT OR IGNORE INTO ai_coach_daily_usage (user_id, usage_day) VALUES (?, ?)')
+    .bind(userId, usageDay).run();
+  const reserved = await env.DB.prepare(`
+    UPDATE ai_coach_daily_usage SET generations = generations + 1
+    WHERE user_id = ? AND usage_day = ? AND generations < ?
+  `).bind(userId, usageDay, maxDaily).run();
+  return Number(reserved.meta?.changes || 0) > 0;
+}
+
+function coachCacheKey(input) {
+  return input.mode === 'WORD' ? `coach:v1:${input.lessonId}:${input.itemIndex}:word` : null;
+}
+
+async function coachExplain(request, env) {
+  const user = await requireUser(request, env);
+  const input = coachInput(await readJson(request, 10_000));
+  if (!input) throw new ApiError('BAD_REQUEST');
+  const cacheKey = coachCacheKey(input);
+  if (cacheKey) {
+    const cached = await env.DB.prepare(`
+      SELECT id, response_json FROM ai_coach_responses WHERE cache_key = ?
+    `).bind(cacheKey).first();
+    const coach = validateCoachResponse(safeParse(cached?.response_json, null));
+    if (cached && coach) return ok({ coach, responseId: cached.id, source: 'ai', cached: true });
+  }
+
+  const fallback = fallbackCoach(input.item, input.mode);
+  if (!env.AI || !(await reserveCoachGeneration(env, user.id))) {
+    return ok({ coach: fallback, responseId: null, source: 'fallback', limited: true });
+  }
+
+  const model = String(env.AI_COACH_MODEL || '@cf/qwen/qwen3-30b-a3b-fp8');
+  try {
+    const result = await env.AI.run(model, {
+      messages: coachMessages(input),
+      response_format: {
+        type: 'json_schema',
+        json_schema: { name: 'coach_response', strict: true, schema: coachResponseSchema },
+      },
+      max_tokens: 700,
+      temperature: 0.2,
+    });
+    const coach = parseCoachResult(result);
+    if (!coach) return ok({ coach: fallback, responseId: null, source: 'fallback' });
+    const responseId = randomId();
+    const inserted = await env.DB.prepare(`
+      INSERT OR IGNORE INTO ai_coach_responses
+        (id, cache_key, lesson_id, item_index, mode, model, response_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).bind(responseId, cacheKey, input.lessonId, input.itemIndex, input.mode, model, JSON.stringify(coach)).run();
+    if (cacheKey && Number(inserted.meta?.changes || 0) === 0) {
+      const winner = await env.DB.prepare('SELECT id, response_json FROM ai_coach_responses WHERE cache_key = ?')
+        .bind(cacheKey).first();
+      const winnerCoach = validateCoachResponse(safeParse(winner?.response_json, null));
+      if (winner && winnerCoach) return ok({ coach: winnerCoach, responseId: winner.id, source: 'ai', cached: true });
+    }
+    return ok({ coach, responseId, source: 'ai', cached: false });
+  } catch (error) {
+    console.error('AI_COACH_UNAVAILABLE', error?.message || error);
+    return ok({ coach: fallback, responseId: null, source: 'fallback' });
+  }
+}
+
+async function coachFeedback(request, env) {
+  const user = await requireUser(request, env);
+  const body = await readJson(request, 5_000);
+  const responseId = String(body.responseId || '');
+  if (!/^[A-Za-z0-9-]{16,80}$/.test(responseId)) throw new ApiError('BAD_REQUEST');
+  const id = randomId();
+  const inserted = await env.DB.prepare(`
+    INSERT OR IGNORE INTO ai_coach_feedback (id, user_id, response_id)
+    SELECT ?, ?, id FROM ai_coach_responses WHERE id = ?
+  `).bind(id, user.id, responseId).run();
+  if (Number(inserted.meta?.changes || 0) === 0) {
+    const exists = await env.DB.prepare('SELECT id FROM ai_coach_responses WHERE id = ?').bind(responseId).first();
+    if (!exists) throw new ApiError('NOT_FOUND', 404);
+  }
+  return ok({ reported: true });
+}
+
+async function listCoachFeedback(request, env) {
+  await requireAdmin(request, env);
+  const result = await env.DB.prepare(`
+    SELECT r.id AS response_id, r.lesson_id, r.item_index, r.mode, r.model, r.response_json,
+      MIN(f.created_at) AS first_reported_at, COUNT(f.id) AS reports
+    FROM ai_coach_feedback f JOIN ai_coach_responses r ON r.id = f.response_id
+    WHERE f.resolved_at IS NULL
+    GROUP BY r.id, r.lesson_id, r.item_index, r.mode, r.model, r.response_json
+    ORDER BY first_reported_at ASC LIMIT 100
+  `).all();
+  return ok({ feedback: result.results.map((row) => ({
+    responseId: row.response_id,
+    lessonId: row.lesson_id,
+    itemIndex: Number(row.item_index),
+    mode: row.mode,
+    model: row.model,
+    coach: validateCoachResponse(safeParse(row.response_json, null)),
+    reports: Number(row.reports),
+    firstReportedAt: row.first_reported_at,
+  })) });
+}
+
+async function resolveCoachFeedback(request, env, responseId) {
+  const admin = await requireAdmin(request, env);
+  const body = await readJson(request, 5_000);
+  const decision = String(body.decision || '').toUpperCase();
+  if (!['RESOLVED', 'REGENERATE'].includes(decision)) throw new ApiError('BAD_REQUEST');
+  const response = await env.DB.prepare('SELECT id, mode FROM ai_coach_responses WHERE id = ?').bind(responseId).first();
+  if (!response) throw new ApiError('NOT_FOUND', 404);
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE ai_coach_feedback SET resolved_at = CURRENT_TIMESTAMP, resolved_by = ?
+      WHERE response_id = ? AND resolved_at IS NULL`).bind(admin.id, responseId),
+    env.DB.prepare(`UPDATE ai_coach_responses SET cache_key = CASE WHEN ? = 'REGENERATE' THEN NULL ELSE cache_key END,
+      updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(decision, responseId),
+  ]);
+  await audit(env, admin.id, `AI_COACH_${decision}`, 'AI_COACH_RESPONSE', responseId);
+  return ok({ responseId, decision });
+}
+
+async function cleanupAiCoach(env) {
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM ai_coach_daily_usage WHERE date(usage_day) < date('now', '-14 days')"),
+    env.DB.prepare("DELETE FROM auth_rate_limits WHERE datetime(window_start) < datetime('now', '-2 days')"),
+    env.DB.prepare(`DELETE FROM ai_coach_responses
+      WHERE mode = 'PRONUNCIATION' AND datetime(created_at) < datetime('now', '-30 days')
+        AND id NOT IN (SELECT response_id FROM ai_coach_feedback WHERE resolved_at IS NULL)`),
+  ]);
+}
+
 async function transcribeSpeech(request, env) {
   const user = await requireUser(request, env);
   if (!env.GROQ_API_KEY) throw new ApiError('SPEECH_UNAVAILABLE', 503);
@@ -1044,10 +1184,13 @@ async function route(request, env, ctx) {
   if (request.method === 'POST' && pathname === '/api/activity/heartbeat') return heartbeat(request, env);
   if (request.method === 'POST' && pathname === '/api/attempts') return createAttempt(request, env);
   if (request.method === 'POST' && pathname === '/api/speaking-reviews') return createSpeakingReview(request, env);
+  if (request.method === 'POST' && pathname === '/api/coach/explain') return coachExplain(request, env);
+  if (request.method === 'POST' && pathname === '/api/coach/feedback') return coachFeedback(request, env);
   if (request.method === 'POST' && pathname === '/api/speech/transcribe') return transcribeSpeech(request, env);
   if (request.method === 'GET' && pathname === '/api/assignments') return listAssignments(request, env);
   if (request.method === 'GET' && pathname === '/api/admin/assignments') return listAssignments(request, env, true);
   if (request.method === 'GET' && pathname === '/api/admin/speaking-reviews') return listSpeakingReviews(request, env);
+  if (request.method === 'GET' && pathname === '/api/admin/coach-feedback') return listCoachFeedback(request, env);
   if (request.method === 'POST' && pathname === '/api/admin/assignments') return createAssignment(request, env);
 
   let match = pathname.match(/^\/api\/admin\/users\/([^/]+)\/(approve|reject|suspend|block|activate|unblock)$/);
@@ -1062,6 +1205,8 @@ async function route(request, env, ctx) {
   if (request.method === 'GET' && match) return speakingReviewAudio(request, env, decodeURIComponent(match[1]));
   match = pathname.match(/^\/api\/admin\/speaking-reviews\/([^/]+)$/);
   if (request.method === 'PATCH' && match) return decideSpeakingReview(request, env, decodeURIComponent(match[1]));
+  match = pathname.match(/^\/api\/admin\/coach-feedback\/([^/]+)$/);
+  if (request.method === 'PATCH' && match) return resolveCoachFeedback(request, env, decodeURIComponent(match[1]));
   match = pathname.match(/^\/api\/assignments\/([^/]+)\/complete$/);
   if (request.method === 'POST' && match) return completeAssignment(request, env, decodeURIComponent(match[1]));
   throw new ApiError('NOT_FOUND', 404);
@@ -1091,7 +1236,7 @@ export default {
     }
   },
   async scheduled(_controller, env, ctx) {
-    ctx.waitUntil(cleanupExpiredSpeakingReviews(env));
+    ctx.waitUntil(Promise.all([cleanupExpiredSpeakingReviews(env), cleanupAiCoach(env)]));
   },
 };
 

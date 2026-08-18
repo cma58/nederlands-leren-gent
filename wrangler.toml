@@ -15,6 +15,9 @@ run_worker_first = true
 [triggers]
 crons = ["17 * * * *"]
 
+[ai]
+binding = "AI"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "nederlands-leren-gent"
@@ -31,6 +34,8 @@ GROQ_SPEECH_MODEL = "whisper-large-v3-turbo"
 SPEECH_MAX_SECONDS = "30"
 SPEECH_DAILY_SECONDS_PER_USER = "600"
 SPEECH_DAILY_REQUESTS_PER_USER = "100"
+AI_COACH_MODEL = "@cf/qwen/qwen3-30b-a3b-fp8"
+AI_COACH_DAILY_GENERATIONS_PER_USER = "20"
 # Productie gebruikt automatisch dezelfde Worker-origin. Vul dit alleen in
 # wanneer bewust een extra externe frontend toegang nodig heeft.
 APP_ORIGIN = ""
