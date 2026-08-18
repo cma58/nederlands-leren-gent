@@ -79,12 +79,11 @@ namen toe:
 ## 5. Publiceren
 
 1. Controleer eerst dat de echte D1-ID in `wrangler.toml` op GitHub staat.
-2. Open [GitHub Actions](https://github.com/cma58/nederlands-leren-gent/actions).
-3. Kies **Controle en Cloudflare-deploy**.
-4. Kies **Run workflow** → branch `main` → **Run workflow**.
-5. De workflow voert automatisch tests, de productiebuild, D1-migraties en de
-   Worker-deploy uit.
-6. Open de geslaagde job. Onderaan staat de publieke URL, normaal
+2. Iedere push naar `main` voert automatisch tests, de productiebuild,
+   D1-migraties en de Worker-deploy uit. Je kunt dezelfde workflow zo nodig ook
+   handmatig starten via [GitHub Actions](https://github.com/cma58/nederlands-leren-gent/actions)
+   → **Controle en Cloudflare-deploy** → **Run workflow**.
+3. Open de geslaagde job. Onderaan staat de publieke URL, normaal
    `https://nederlands-leren-gent-api.<jouw-subdomein>.workers.dev`.
 
 ## 6. De enige beheerder aanmaken

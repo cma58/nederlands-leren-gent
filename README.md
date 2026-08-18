@@ -66,9 +66,10 @@ klikhandleiding en [worker/README.md](worker/README.md) voor het API-contract.
 Een push of pull request voert automatisch tests en de productiebuild uit. De
 oude GitHub Pages-deploy is verwijderd, omdat een statische host geen veilige
 accounts of `/api` kan leveren. Na het invullen van de echte D1-ID en de GitHub
-secret `CLOUDFLARE_API_TOKEN` kan de workflow `Controle en Cloudflare-deploy`
-handmatig naar Cloudflare publiceren. De niet-geheime Account ID staat in
-`wrangler.toml`.
+secret `CLOUDFLARE_API_TOKEN` publiceert de workflow
+`Controle en Cloudflare-deploy` iedere gevalideerde push naar `main`
+automatisch naar Cloudflare. De niet-geheime Account ID staat in
+`wrangler.toml`; een handmatige workflowstart blijft mogelijk.
 
 De workflow voert de D1-migraties uit en zet de twee verplichte Worker-secrets
 `ADMIN_BOOTSTRAP_SECRET` en `GROQ_API_KEY` tijdens de deploy veilig door.
