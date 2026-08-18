@@ -46,6 +46,8 @@ jobs:
           cache: npm
       - name: Dependencies installeren
         run: npm ci
+      - name: Productiebuild
+        run: npm run build
       - name: Bouwen en publiceren
         uses: cloudflare/wrangler-action@v4
         with:
