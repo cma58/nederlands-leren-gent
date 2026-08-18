@@ -24,7 +24,10 @@ import { uiCopy } from './lib/uiCopy.js'
 function findLesson(lessonId) {
   for (const level of curriculum.levels) {
     for (const module of level.modules) {
-      const lesson = module.lessons.find((item) => String(item.id) === String(lessonId))
+      const lesson = module.lessons.find(
+        (item) => String(item.id) === String(lessonId)
+          || item.legacyLessonIds?.some((legacyId) => String(legacyId) === String(lessonId)),
+      )
       if (lesson) return lesson
     }
   }
