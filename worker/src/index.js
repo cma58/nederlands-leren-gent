@@ -724,6 +724,18 @@ async function listSpeakingReviews(request, env) {
   })) });
 }
 
+function d1BlobToBytes(value) {
+  if (value instanceof Uint8Array) return value;
+  if (value instanceof ArrayBuffer) return new Uint8Array(value);
+  if (ArrayBuffer.isView(value)) {
+    return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+  }
+  // D1 leest een SQLite BLOB volgens de Workers Binding API terug als een
+  // gewone nummerarray. Response accepteert die array niet als binaire audio.
+  if (Array.isArray(value)) return Uint8Array.from(value);
+  return null;
+}
+
 async function speakingReviewAudio(request, env, eventId) {
   await requireAdmin(request, env);
   const row = await env.DB.prepare(`
@@ -731,9 +743,12 @@ async function speakingReviewAudio(request, env, eventId) {
     WHERE event_id = ? AND status = 'PENDING' AND audio_blob IS NOT NULL
   `).bind(eventId).first();
   if (!row) throw new ApiError('NOT_FOUND', 404);
-  return new Response(row.audio_blob, {
+  const audioBytes = d1BlobToBytes(row.audio_blob);
+  if (!audioBytes?.byteLength) throw new ApiError('NOT_FOUND', 404);
+  return new Response(audioBytes, {
     headers: {
       'content-type': row.audio_mime,
+      'content-length': String(audioBytes.byteLength),
       'cache-control': 'private, no-store',
       'content-disposition': 'inline',
     },
@@ -1080,4 +1095,4 @@ export default {
   },
 };
 
-export { assignmentInput, publicUser, safeParse };
+export { assignmentInput, d1BlobToBytes, publicUser, safeParse };
