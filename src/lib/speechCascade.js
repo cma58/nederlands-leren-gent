@@ -2,7 +2,9 @@ import { analyzeAudioQuality, AUDIO_QUALITY } from './audioQuality.js'
 import { transcribeAudio } from './groq.js'
 import {
   PRONUNCIATION_RESULT,
+  acceptedFor,
   isHighRiskPronunciation,
+  normalize,
   scoreTranscript,
 } from './pronunciation.js'
 import { transcribeWithLocalSecondOpinion } from './localSecondOpinion.js'
@@ -41,6 +43,14 @@ export async function assessPronunciation({ audioBlob, durationMs, item }) {
   const highRisk = isHighRiskPronunciation(item)
   const confidenceIsLow = primary.confidence !== null && primary.confidence < 0.62
   const noSpeechIsHigh = primary.noSpeechProbability !== null && primary.noSpeechProbability > 0.45
+  const transcriptIsExact = transcriptMatchesExactly(item, primary.text)
+
+  // Een exact herkend voorbeeldwoord (bv. appel → "Appel") is voldoende
+  // bewijs van verstaanbaarheid. Het vroegere algemene alfabetvlaggetje stuurde
+  // zelfs zulke perfecte matches onterecht naar docentcontrole.
+  if (transcriptIsExact && !noSpeechIsHigh) {
+    return assessment(PRONUNCIATION_RESULT.GOOD, quality, primary, null, 'PRIMARY_EXACT')
+  }
   const needsSecondOpinion = highRisk || confidenceIsLow || noSpeechIsHigh || primaryResult !== PRONUNCIATION_RESULT.GOOD
 
   if (!needsSecondOpinion) {
@@ -69,6 +79,10 @@ export async function assessPronunciation({ audioBlob, durationMs, item }) {
     return assessment(PRONUNCIATION_RESULT.ALMOST, quality, primary, secondary, 'SECONDARY_CAUTION')
   }
   return assessment(PRONUNCIATION_RESULT.REVIEW_PENDING, quality, primary, secondary, 'MODELS_DISAGREE')
+}
+
+export function transcriptMatchesExactly(item, transcript) {
+  return acceptedFor(item).includes(normalize(transcript))
 }
 
 function assessment(result, quality, primary, secondary, reason) {

@@ -240,6 +240,81 @@ function AssignmentManager({ users, c, lang }) {
   )
 }
 
+function SpeakingReviewManager({ c, lang }) {
+  const [reviews, setReviews] = useState([])
+  const [status, setStatus] = useState('loading')
+  const [error, setError] = useState('')
+  const [busyId, setBusyId] = useState('')
+
+  async function load() {
+    setStatus('loading')
+    setError('')
+    try {
+      setReviews(listFrom(await adminApi.speakingReviews(), 'reviews'))
+      setStatus('ready')
+    } catch (requestError) {
+      setError(apiErrorMessage(requestError, lang))
+      setStatus('error')
+    }
+  }
+
+  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function decide(review, decision) {
+    setBusyId(review.eventId)
+    setError('')
+    try {
+      await adminApi.decideSpeakingReview(review.eventId, decision)
+      // De audio is server-side al gewist; verwijder de kaart meteen zodat een
+      // oude afspeelknop niet lijkt te blijven werken.
+      setReviews((items) => items.filter((item) => item.eventId !== review.eventId))
+    } catch (requestError) {
+      setError(apiErrorMessage(requestError, lang))
+    } finally {
+      setBusyId('')
+    }
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="card p-4">
+        <h2 className="font-black text-slate-900">{c('pronunciationReviews')}</h2>
+        <p className="mt-1 text-xs text-slate-500">🔒 {c('reviewPrivacyAdmin')}</p>
+      </div>
+      {error && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error}<button onClick={load} className="ms-2 underline">{c('retry')}</button></div>}
+      {status === 'loading' && <p className="py-10 text-center text-sm font-semibold text-slate-500">{c('loading')}</p>}
+      {status === 'ready' && reviews.length === 0 && <div className="card p-8 text-center text-sm text-slate-500">{c('noPronunciationReviews')}</div>}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {reviews.map((review) => (
+          <article key={review.eventId} className="card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-black text-slate-900">{review.displayName || review.username}</h3>
+                <p className="text-xs text-slate-500">@{review.username} · {fmtDate(review.createdAt, true)}</p>
+              </div>
+              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">{c('pending')}</span>
+            </div>
+            <dl className="mt-4 space-y-2 rounded-xl bg-slate-50 p-3 text-sm">
+              <div><dt className="text-xs text-slate-400">{c('expectedSpeech')}</dt><dd className="font-bold text-slate-800" dir="ltr">{review.expectedText}</dd></div>
+              <div><dt className="text-xs text-slate-400">{c('recognizedSpeech')}</dt><dd className="font-semibold text-slate-700" dir="ltr">{review.transcript || '—'}</dd></div>
+            </dl>
+            <label className="mt-4 block text-xs font-bold text-slate-600">
+              {c('listenRecording')}
+              <audio className="mt-2 w-full" controls preload="none" src={review.audioUrl}>
+                {c('listenRecording')}
+              </audio>
+            </label>
+            <div className="mt-4 grid gap-2">
+              <button onClick={() => decide(review, 'APPROVED')} disabled={busyId === review.eventId} className="btn-primary min-h-11">✓ {c('approvePronunciation')}</button>
+              <button onClick={() => decide(review, 'RETRY')} disabled={busyId === review.eventId} className="btn-ghost min-h-11 text-amber-800">↻ {c('requestRetry')}</button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function AdminDashboard({ onClose }) {
   const { isAdmin, logout } = useAuth()
   const { lang } = useLang()
@@ -306,6 +381,7 @@ export default function AdminDashboard({ onClose }) {
         <nav className="mx-auto flex max-w-3xl gap-2 px-3 pb-2" aria-label={c('adminTitle')}>
           <button onClick={() => setTab('users')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'users' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('users')}</button>
           <button onClick={() => setTab('assignments')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'assignments' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('assignments')}</button>
+          <button onClick={() => setTab('speech')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'speech' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('pronunciationReviews')}</button>
         </nav>
       </header>
 
@@ -320,7 +396,9 @@ export default function AdminDashboard({ onClose }) {
             {status === 'ready' && shownUsers.length === 0 && <div className="card p-8 text-center text-sm text-slate-500">{c('noUsers')}</div>}
             <div className="grid gap-4 sm:grid-cols-2">{shownUsers.map((item) => <UserCard key={item.id} user={item} c={c} onAction={(target, type, label) => setAction({ user: target, type, label })} onReset={createReset} />)}</div>
           </>
-        ) : <AssignmentManager users={users} c={c} lang={lang} />}
+        ) : tab === 'assignments'
+          ? <AssignmentManager users={users} c={c} lang={lang} />
+          : <SpeakingReviewManager c={c} lang={lang} />}
       </main>
 
       <ConfirmDialog action={action} onCancel={() => setAction(null)} onConfirm={confirmAction} busy={busy} c={c} />

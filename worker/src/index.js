@@ -30,6 +30,7 @@ const ATTEMPT_METADATA_KEYS = new Set([
   'reason', 'model', 'quality', 'pronunciationStatus',
 ]);
 const AUDIO_TYPES = new Set(['audio/webm', 'audio/ogg', 'audio/wav', 'audio/x-wav', 'audio/mp4', 'audio/m4a', 'audio/x-m4a', 'audio/mpeg']);
+const REVIEW_AUDIO_MAX_BYTES = 1_500_000;
 // workerd weigert PBKDF2-aanvragen boven 100.000 iteraties. We gebruiken het
 // platformmaximum en voegen daarnaast een server-side pepper toe, zodat een
 // los D1-databaselek niet volstaat om wachtwoorden offline te kraken.
@@ -640,6 +641,126 @@ async function createAttempt(request, env) {
   return ok({ stored: Number(inserted.meta?.changes || 0) > 0, eventId }, { status: 201 });
 }
 
+async function cleanupExpiredSpeakingReviews(env) {
+  await env.DB.batch([
+    env.DB.prepare(`
+      UPDATE learning_attempts SET result = 'UNSCORABLE'
+      WHERE event_id IN (
+        SELECT event_id FROM speaking_reviews
+        WHERE status = 'PENDING' AND datetime(created_at) < datetime('now', '-7 days')
+      )
+    `),
+    env.DB.prepare(`
+      UPDATE speaking_reviews
+      SET status = 'RETRY', audio_blob = NULL, reviewed_at = CURRENT_TIMESTAMP
+      WHERE status = 'PENDING' AND datetime(created_at) < datetime('now', '-7 days')
+    `),
+  ]);
+}
+
+async function createSpeakingReview(request, env) {
+  const user = await requireUser(request, env);
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > REVIEW_AUDIO_MAX_BYTES + 50_000) throw new ApiError('PAYLOAD_TOO_LARGE', 413);
+  let form;
+  try { form = await request.formData(); } catch { throw new ApiError('BAD_REQUEST'); }
+
+  const eventId = String(form.get('eventId') || '');
+  const lessonId = String(form.get('lessonId') || '').trim();
+  const itemKey = String(form.get('itemKey') || '').trim().slice(0, 160) || null;
+  const expectedText = String(form.get('expectedText') || '').normalize('NFKC').trim().slice(0, 160);
+  const transcript = String(form.get('transcript') || '').normalize('NFKC').trim().slice(0, 300);
+  const reason = String(form.get('reason') || 'SECOND_OPINION_UNAVAILABLE').slice(0, 100);
+  const durationMs = Math.round(Number(form.get('durationMs')));
+  const audio = form.get('audio');
+  const audioType = audio instanceof File ? audio.type.split(';')[0].toLowerCase() : '';
+
+  if (!/^[A-Za-z0-9:_-]{8,100}$/.test(eventId) || !lessonId || lessonId.length > 160
+      || !expectedText || !(audio instanceof File) || audio.size < 300
+      || audio.size > REVIEW_AUDIO_MAX_BYTES || !AUDIO_TYPES.has(audioType)
+      || !Number.isFinite(durationMs) || durationMs < 250 || durationMs > 30_000) {
+    throw new ApiError('BAD_REQUEST');
+  }
+
+  await cleanupExpiredSpeakingReviews(env);
+  const audioBytes = await audio.arrayBuffer();
+  const metadata = JSON.stringify({ reason });
+  const results = await env.DB.batch([
+    env.DB.prepare(`
+      INSERT OR IGNORE INTO learning_attempts
+        (event_id, user_id, lesson_id, item_key, type, result, metadata_json)
+      VALUES (?, ?, ?, ?, 'SPEAKING', 'REVIEW_PENDING', ?)
+    `).bind(eventId, user.id, lessonId, itemKey, metadata),
+    env.DB.prepare(`
+      INSERT OR IGNORE INTO speaking_reviews
+        (event_id, user_id, expected_text, transcript_text, audio_mime, audio_blob, duration_ms, reason)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(eventId, user.id, expectedText, transcript || null, audioType, audioBytes, durationMs, reason),
+  ]);
+  return ok({ stored: Number(results[1]?.meta?.changes || 0) > 0, eventId }, { status: 201 });
+}
+
+async function listSpeakingReviews(request, env) {
+  await requireAdmin(request, env);
+  await cleanupExpiredSpeakingReviews(env);
+  const result = await env.DB.prepare(`
+    SELECT sr.event_id, sr.user_id, sr.expected_text, sr.transcript_text,
+      sr.duration_ms, sr.reason, sr.created_at, u.username, u.display_name
+    FROM speaking_reviews sr JOIN users u ON u.id = sr.user_id
+    WHERE sr.status = 'PENDING' AND sr.audio_blob IS NOT NULL
+    ORDER BY sr.created_at ASC LIMIT 250
+  `).all();
+  return ok({ reviews: result.results.map((row) => ({
+    eventId: row.event_id,
+    userId: row.user_id,
+    username: row.username,
+    displayName: row.display_name || row.username,
+    expectedText: row.expected_text,
+    transcript: row.transcript_text || '',
+    durationMs: Number(row.duration_ms),
+    reason: row.reason || '',
+    createdAt: row.created_at,
+    audioUrl: `/api/admin/speaking-reviews/${encodeURIComponent(row.event_id)}/audio`,
+  })) });
+}
+
+async function speakingReviewAudio(request, env, eventId) {
+  await requireAdmin(request, env);
+  const row = await env.DB.prepare(`
+    SELECT audio_blob, audio_mime FROM speaking_reviews
+    WHERE event_id = ? AND status = 'PENDING' AND audio_blob IS NOT NULL
+  `).bind(eventId).first();
+  if (!row) throw new ApiError('NOT_FOUND', 404);
+  return new Response(row.audio_blob, {
+    headers: {
+      'content-type': row.audio_mime,
+      'cache-control': 'private, no-store',
+      'content-disposition': 'inline',
+    },
+  });
+}
+
+async function decideSpeakingReview(request, env, eventId) {
+  const admin = await requireAdmin(request, env);
+  const body = await readJson(request, 10_000);
+  const decision = String(body.decision || '').toUpperCase();
+  if (!['APPROVED', 'RETRY'].includes(decision)) throw new ApiError('BAD_REQUEST');
+  const review = await env.DB.prepare('SELECT status, user_id FROM speaking_reviews WHERE event_id = ?')
+    .bind(eventId).first();
+  if (!review) throw new ApiError('NOT_FOUND', 404);
+  if (review.status !== 'PENDING') throw new ApiError('INVALID_STATUS', 409);
+  const attemptResult = decision === 'APPROVED' ? 'GOOD' : 'RETRY';
+  await env.DB.batch([
+    env.DB.prepare('UPDATE learning_attempts SET result = ? WHERE event_id = ?').bind(attemptResult, eventId),
+    env.DB.prepare(`
+      UPDATE speaking_reviews SET status = ?, reviewed_by = ?, reviewed_at = CURRENT_TIMESTAMP,
+        audio_blob = NULL WHERE event_id = ?
+    `).bind(decision, admin.id, eventId),
+  ]);
+  await audit(env, admin.id, `SPEAKING_REVIEW_${decision}`, 'ATTEMPT', eventId, { userId: review.user_id });
+  return ok({ eventId, decision, result: attemptResult });
+}
+
 async function transcribeSpeech(request, env) {
   const user = await requireUser(request, env);
   if (!env.GROQ_API_KEY) throw new ApiError('SPEECH_UNAVAILABLE', 503);
@@ -907,9 +1028,11 @@ async function route(request, env, ctx) {
   if (request.method === 'PUT' && pathname === '/api/progress') return putProgress(request, env);
   if (request.method === 'POST' && pathname === '/api/activity/heartbeat') return heartbeat(request, env);
   if (request.method === 'POST' && pathname === '/api/attempts') return createAttempt(request, env);
+  if (request.method === 'POST' && pathname === '/api/speaking-reviews') return createSpeakingReview(request, env);
   if (request.method === 'POST' && pathname === '/api/speech/transcribe') return transcribeSpeech(request, env);
   if (request.method === 'GET' && pathname === '/api/assignments') return listAssignments(request, env);
   if (request.method === 'GET' && pathname === '/api/admin/assignments') return listAssignments(request, env, true);
+  if (request.method === 'GET' && pathname === '/api/admin/speaking-reviews') return listSpeakingReviews(request, env);
   if (request.method === 'POST' && pathname === '/api/admin/assignments') return createAssignment(request, env);
 
   let match = pathname.match(/^\/api\/admin\/users\/([^/]+)\/(approve|reject|suspend|block|activate|unblock)$/);
@@ -920,6 +1043,10 @@ async function route(request, env, ctx) {
   if (request.method === 'GET' && match) return adminUserActivity(request, env, decodeURIComponent(match[1]));
   match = pathname.match(/^\/api\/admin\/assignments\/([^/]+)$/);
   if (request.method === 'PATCH' && match) return updateAssignment(request, env, decodeURIComponent(match[1]));
+  match = pathname.match(/^\/api\/admin\/speaking-reviews\/([^/]+)\/audio$/);
+  if (request.method === 'GET' && match) return speakingReviewAudio(request, env, decodeURIComponent(match[1]));
+  match = pathname.match(/^\/api\/admin\/speaking-reviews\/([^/]+)$/);
+  if (request.method === 'PATCH' && match) return decideSpeakingReview(request, env, decodeURIComponent(match[1]));
   match = pathname.match(/^\/api\/assignments\/([^/]+)\/complete$/);
   if (request.method === 'POST' && match) return completeAssignment(request, env, decodeURIComponent(match[1]));
   throw new ApiError('NOT_FOUND', 404);
@@ -947,6 +1074,9 @@ export default {
     } catch (error) {
       return withCors(failure(error), request, env);
     }
+  },
+  async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(cleanupExpiredSpeakingReviews(env));
   },
 };
 

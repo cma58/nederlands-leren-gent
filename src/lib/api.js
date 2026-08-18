@@ -111,6 +111,9 @@ export const adminApi = {
   createAssignment: (assignment, options) => post('/api/admin/assignments', assignment, options),
   updateAssignment: (id, changes, options) =>
     patch(`/api/admin/assignments/${encodeURIComponent(id)}`, changes, options),
+  speakingReviews: (options) => fetchJSON('/api/admin/speaking-reviews', options),
+  decideSpeakingReview: (id, decision, options) =>
+    patch(`/api/admin/speaking-reviews/${encodeURIComponent(id)}`, { decision }, options),
 }
 
 export const learnerApi = {

@@ -5,7 +5,7 @@ import { useLang } from '../context/LanguageContext.jsx'
 import { PRONUNCIATION_RESULT, tipsFor } from '../lib/pronunciation.js'
 import { assessPronunciation } from '../lib/speechCascade.js'
 import { itemKey, recordAttempt, isMastered } from '../lib/speakingProgress.js'
-import { recordLearningAttempt } from '../lib/attempts.js'
+import { recordLearningAttempt, recordSpeakingReview } from '../lib/attempts.js'
 import SoundText from './SoundText.jsx'
 
 /**
@@ -128,7 +128,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
     }
     setStatus('busy')
     assessPronunciation({ audioBlob: blob, durationMs, item })
-      .then((assessment) => {
+      .then(async (assessment) => {
         // De leerling ging al naar een volgend woord (of sloot de les): negeren.
         if (!mountedRef.current || idxRef.current !== startIdx) return
         const res = assessment.result
@@ -138,15 +138,27 @@ export default function SpeakingExercise({ lesson, onFinish }) {
         if ([PRONUNCIATION_RESULT.GOOD, PRONUNCIATION_RESULT.ALMOST, PRONUNCIATION_RESULT.RETRY].includes(res)) {
           recordAttempt(key, res.toLowerCase())
         }
-        // Alleen het pedagogische resultaat gaat naar de server; nooit de audio
-        // of het vrije transcript. REVIEW_PENDING wordt zo zichtbaar voor de docent.
-        recordLearningAttempt({
-          lessonId: lesson.id,
-          itemKey: key,
-          type: 'speaking',
-          result: res,
-          metadata: { reason: assessment.reason || 'UNKNOWN' },
-        }).catch(() => {})
+        if (res === PRONUNCIATION_RESULT.REVIEW_PENDING) {
+          // Alleen bij echte twijfel en met de vooraf getoonde privacyuitleg
+          // bewaren we deze opname tijdelijk voor de beheerder.
+          await recordSpeakingReview({
+            audioBlob: blob,
+            durationMs,
+            lessonId: lesson.id,
+            itemKey: key,
+            expectedText: speakable,
+            transcript: assessment.transcript,
+            reason: assessment.reason,
+          })
+        } else {
+          await recordLearningAttempt({
+            lessonId: lesson.id,
+            itemKey: key,
+            type: 'speaking',
+            result: res,
+            metadata: { reason: assessment.reason || 'UNKNOWN' },
+          })
+        }
         setStatus('result')
       })
       .catch((e) => {
@@ -271,7 +283,10 @@ export default function SpeakingExercise({ lesson, onFinish }) {
       </div>
 
       {isLetter && (
-        <p className="mt-4 text-center text-sm text-slate-500">{t('spkHighRiskHint')}</p>
+        <div className="mt-4 space-y-2 text-center text-sm text-slate-500">
+          <p>{t('spkHighRiskHint')}</p>
+          <p className="rounded-xl bg-blue-50 p-3 text-xs text-blue-800">🔒 {t('spkReviewPrivacy')}</p>
+        </div>
       )}
 
       {/* Korte uitleg vóór de allereerste opname: voorkomt schrik bij de
