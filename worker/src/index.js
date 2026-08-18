@@ -92,6 +92,15 @@ function withCors(response, request, env) {
   response.headers.set('x-content-type-options', 'nosniff');
   response.headers.set('referrer-policy', 'no-referrer');
   response.headers.set('cache-control', 'no-store');
+  // API-responses zijn nooit HTML; een strenge, minimale CSP + clickjacking- en
+  // HTTPS-afdwinging als defense-in-depth (consistent met de asset-responses).
+  response.headers.set('x-frame-options', 'DENY');
+  response.headers.set('strict-transport-security', 'max-age=31536000; includeSubDomains');
+  response.headers.set('permissions-policy', 'microphone=(), camera=(), geolocation=()');
+  response.headers.set(
+    'content-security-policy',
+    "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+  );
   return response;
 }
 
@@ -297,12 +306,27 @@ async function register(request, env, ctx) {
   return ok({ user: { id: user.id, username, displayName: displayName || '', role: 'STUDENT', status: 'PENDING' } }, { status: 201 });
 }
 
+// Vaste dummy-waarden zodat we ALTIJD een (dure) PBKDF2-verificatie kunnen doen,
+// ook als de gebruiker niet bestaat. De waarden zijn willekeurig; de vergelijking
+// faalt sowieso. Doel: de responstijd verraadt niet of een account bestaat.
+const DUMMY_PASSWORD_SALT = btoa('nl-gent-dummy-salt-16');
+const DUMMY_PASSWORD_HASH = btoa('nl-gent-dummy-hash-value-32-bytes!!');
+
 async function login(request, env) {
   const body = await readJson(request, 20_000);
   await rateLimit(env, request, 'login', body.username, 10, 15);
   const row = await env.DB.prepare('SELECT * FROM users WHERE username_normalized = ? LIMIT 1')
     .bind(normalizeUsername(body.username)).first();
-  if (!row || !validPassword(body.password) || !(await verifyPassword(passwordMaterial(body.password, env), row.password_hash, row.password_salt, row.password_iterations))) {
+  // Altijd verifiëren tegen een echte of dummy-hash: gelijk tijdsprofiel, ongeacht
+  // of het account bestaat (voorkomt username-enumeratie via timing).
+  const target = row || {
+    password_hash: DUMMY_PASSWORD_HASH,
+    password_salt: DUMMY_PASSWORD_SALT,
+    password_iterations: PASSWORD_ITERATIONS,
+  };
+  const passwordOk = validPassword(body.password)
+    && await verifyPassword(passwordMaterial(body.password, env), target.password_hash, target.password_salt, target.password_iterations);
+  if (!row || !passwordOk) {
     throw new ApiError('INVALID_CREDENTIALS', 401);
   }
   const statusErrors = { PENDING: 'ACCOUNT_PENDING', REJECTED: 'ACCOUNT_REJECTED', SUSPENDED: 'ACCOUNT_SUSPENDED' };
@@ -375,8 +399,14 @@ async function bootstrapAdmin(request, env) {
 async function recoverAdmin(request, env) {
   if (!env.ADMIN_BOOTSTRAP_SECRET) throw new ApiError('FORBIDDEN', 403);
   const supplied = request.headers.get('x-bootstrap-secret') || '';
-  if (!constantTimeEqual(supplied, env.ADMIN_BOOTSTRAP_SECRET)) throw new ApiError('FORBIDDEN', 403);
-  await rateLimit(env, request, 'admin-recover', '*', 5, 60);
+  // Rate-limit FOUTE pogingen vóór de afwijzing (zelfde patroon als bootstrapAdmin).
+  // Anders is het bootstrap-secret hier onbeperkt te brute-forcen → admin-overname.
+  if (!constantTimeEqual(supplied, env.ADMIN_BOOTSTRAP_SECRET)) {
+    await rateLimit(env, request, 'admin-recover-invalid', '*', 5, 15);
+    throw new ApiError('FORBIDDEN', 403);
+  }
+  // Geldige pogingen krijgen een eigen, ruimer venster.
+  await rateLimit(env, request, 'admin-recover-valid', '*', 10, 60);
   const body = await readJson(request, 20_000);
   if (!validPassword(body.newPassword)) throw new ApiError('PASSWORD_WEAK');
   const email = String(env.ADMIN_EMAIL || 'amine.chtaiti@gmail.com').trim().toLowerCase();
@@ -668,6 +698,10 @@ async function cleanupExpiredSpeakingReviews(env) {
 
 async function createSpeakingReview(request, env) {
   const user = await requireUser(request, env);
+  // Begrens het aantal audio-uploads per gebruiker (elk tot ~1,5MB in D1) om
+  // storage-misbruik te voorkomen. Reviews ontstaan alleen bij echte twijfel,
+  // dus 60/uur is ruim voldoende voor normaal gebruik.
+  await rateLimit(env, request, 'speaking-review', user.id, 60, 60);
   const contentLength = Number(request.headers.get('content-length') || 0);
   if (contentLength > REVIEW_AUDIO_MAX_BYTES + 50_000) throw new ApiError('PAYLOAD_TOO_LARGE', 413);
   let form;
@@ -936,52 +970,63 @@ async function transcribeSpeech(request, env) {
     throw new ApiError('AUDIO_INVALID');
   }
   const usageDay = new Date().toISOString().slice(0, 10);
-  const seconds = Math.max(1, Math.ceil(durationMs / 1000));
   const maxDailySeconds = Math.min(3600, Math.max(60, Number(env.SPEECH_DAILY_SECONDS_PER_USER || 600)));
   const maxDailyRequests = Math.min(500, Math.max(10, Number(env.SPEECH_DAILY_REQUESTS_PER_USER || 100)));
   await env.DB.prepare('INSERT OR IGNORE INTO speech_daily_usage (user_id, usage_day) VALUES (?, ?)')
     .bind(user.id, usageDay).run();
+  // Reserveer PESSIMISTISCH het platformmaximum (niet de door de client opgegeven
+  // duur). Anders kan een aanvaller met durationMs=250 tientallen parallelle
+  // verzoeken tegelijk door de dagcap heen laten glippen (race). Na afloop boeken
+  // we het ongebruikte deel terug — ook bij een fout, zodat een mislukte poging
+  // geen quotum verbruikt.
+  const reserveSeconds = maxSeconds;
   const reserved = await env.DB.prepare(`
     UPDATE speech_daily_usage SET requests = requests + 1, audio_seconds = audio_seconds + ?
     WHERE user_id = ? AND usage_day = ? AND requests < ? AND audio_seconds + ? <= ?
-  `).bind(seconds, user.id, usageDay, maxDailyRequests, seconds, maxDailySeconds).run();
+  `).bind(reserveSeconds, user.id, usageDay, maxDailyRequests, reserveSeconds, maxDailySeconds).run();
   if (Number(reserved.meta?.changes || 0) === 0) throw new ApiError('QUOTA_REACHED', 429);
 
-  const upstream = new FormData();
-  upstream.set('file', audio, audio.name || 'opname.webm');
-  upstream.set('model', env.GROQ_SPEECH_MODEL || 'whisper-large-v3-turbo');
-  upstream.set('language', 'nl');
-  upstream.set('response_format', 'verbose_json');
-  upstream.set('temperature', '0');
-  let response;
-  try {
-    response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: { authorization: `Bearer ${env.GROQ_API_KEY}` },
-      body: upstream,
-    });
-  } catch {
-    throw new ApiError('SPEECH_UNAVAILABLE', 503);
-  }
-  if (response.status === 429) throw new ApiError('QUOTA_REACHED', 429);
-  if (!response.ok) throw new ApiError('SPEECH_UNAVAILABLE', 503);
+  const refundSpeechSeconds = async (amount) => {
+    if (amount > 0) {
+      await env.DB.prepare(`UPDATE speech_daily_usage SET audio_seconds = max(0, audio_seconds - ?)
+        WHERE user_id = ? AND usage_day = ?`).bind(amount, user.id, usageDay).run();
+    }
+  };
+
   let data;
-  try { data = await response.json(); } catch { throw new ApiError('SPEECH_UNAVAILABLE', 503); }
-  // Het clientveld is alleen een vroege guard. Groq rapporteert na verwerking
-  // de gemeten duur; die gebruiken we voor het werkelijke dagquotum en om een
-  // vervalste korte duur na de eerste poging meteen af te sluiten.
-  const measuredSeconds = Number(data.duration);
-  if (!Number.isFinite(measuredSeconds) || measuredSeconds <= 0) {
-    throw new ApiError('SPEECH_UNAVAILABLE', 503);
-  }
-  {
-    const billedSeconds = Math.ceil(measuredSeconds);
-    const additionalSeconds = Math.max(0, billedSeconds - seconds);
-    if (additionalSeconds > 0) {
-      await env.DB.prepare(`UPDATE speech_daily_usage SET audio_seconds = audio_seconds + ?
-        WHERE user_id = ? AND usage_day = ?`).bind(additionalSeconds, user.id, usageDay).run();
+  try {
+    const upstream = new FormData();
+    upstream.set('file', audio, audio.name || 'opname.webm');
+    upstream.set('model', env.GROQ_SPEECH_MODEL || 'whisper-large-v3-turbo');
+    upstream.set('language', 'nl');
+    upstream.set('response_format', 'verbose_json');
+    upstream.set('temperature', '0');
+    let response;
+    try {
+      response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${env.GROQ_API_KEY}` },
+        body: upstream,
+      });
+    } catch {
+      throw new ApiError('SPEECH_UNAVAILABLE', 503);
+    }
+    if (response.status === 429) throw new ApiError('QUOTA_REACHED', 429);
+    if (!response.ok) throw new ApiError('SPEECH_UNAVAILABLE', 503);
+    try { data = await response.json(); } catch { throw new ApiError('SPEECH_UNAVAILABLE', 503); }
+    // Groq rapporteert de gemeten duur; die bepaalt het werkelijke verbruik.
+    const measuredSeconds = Number(data.duration);
+    if (!Number.isFinite(measuredSeconds) || measuredSeconds <= 0) {
+      throw new ApiError('SPEECH_UNAVAILABLE', 503);
     }
     if (measuredSeconds > maxSeconds + 1) throw new ApiError('AUDIO_INVALID', 413);
+    // Alleen het werkelijk verbruikte deel blijft staan; de rest terug.
+    const billedSeconds = Math.min(reserveSeconds, Math.max(1, Math.ceil(measuredSeconds)));
+    await refundSpeechSeconds(reserveSeconds - billedSeconds);
+  } catch (error) {
+    // Mislukte transcriptie: geef de volledige reservering terug.
+    await refundSpeechSeconds(reserveSeconds);
+    throw error;
   }
   const segments = Array.isArray(data.segments) ? data.segments : [];
   const logProbs = segments.map((segment) => Number(segment.avg_logprob)).filter(Number.isFinite);
