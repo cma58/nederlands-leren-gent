@@ -19,6 +19,9 @@ export default function LevelCard({ level, onOpen }) {
     level.accent === 'saffraan'
       ? 'bg-saffraan-100 text-saffraan-800'
       : 'bg-gent-100 text-gent-800'
+  const iconTone = level.accent === 'saffraan'
+    ? 'bg-saffraan-100 text-saffraan-900'
+    : 'bg-gent-100 text-gent-800'
 
   return (
     <button
@@ -26,7 +29,7 @@ export default function LevelCard({ level, onOpen }) {
       className={`card group w-full p-5 text-left hover:-translate-y-0.5 hover:shadow-md ${ring} hover:ring-2`}
     >
       <div className="flex items-start gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-100 text-2xl">
+        <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl ${iconTone}`}>
           {level.icon}
         </div>
         <div className="min-w-0 flex-1">

@@ -23,6 +23,13 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
   const isSpeaking = lesson?.type === 'speaking'
   const isListen = lesson?.type === 'listen'
   const isTyping = lesson?.type === 'typing'
+  const lessonTone = isSpeaking
+    ? 'border-violet-200 bg-violet-50'
+    : isListen
+      ? 'border-teal-200 bg-teal-50'
+      : isTyping
+        ? 'border-saffraan-200 bg-saffraan-50'
+        : 'border-gent-200 bg-gent-50'
   const quiz = useMemo(
     () => (isSpeaking || isListen || isTyping ? [] : buildQuiz(lesson)),
     [lesson, isSpeaking, isListen, isTyping],
@@ -45,12 +52,12 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
 
   return (
     <div
-      className="fixed inset-0 z-40 flex flex-col bg-slate-50"
+      className="fixed inset-0 z-40 flex flex-col bg-canvas"
       role="dialog"
       aria-modal="true"
       aria-label={isDarija && lesson.titleDarijaLat ? lesson.titleDarijaLat : lesson.title}
     >
-      <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
+      <div className={`flex items-center gap-3 border-b px-4 py-3 ${lessonTone}`}>
         <button ref={closeRef} onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={t('close')}>
           ✕
         </button>
@@ -155,7 +162,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
       {/* Het NL-woord blijft altijd links-naar-rechts (het is wat je leert) */}
       <button
         onClick={() => setRevealed((r) => !r)}
-        className="card flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500"
+        className="card flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center ring-gent-200/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500"
         dir="ltr"
       >
         <div className="flex items-center gap-2">

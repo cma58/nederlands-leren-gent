@@ -71,7 +71,7 @@ export default function ListenExercise({ lesson, onFinish }) {
           <span
             key={idx}
             className={`h-1.5 rounded-full transition-all ${
-              idx === i ? 'w-5 bg-gent-600' : idx < i ? 'w-1.5 bg-gent-300' : 'w-1.5 bg-slate-200'
+              idx === i ? 'w-5 bg-teal-700' : idx < i ? 'w-1.5 bg-teal-300' : 'w-1.5 bg-slate-200'
             }`}
           />
         ))}
@@ -89,7 +89,7 @@ export default function ListenExercise({ lesson, onFinish }) {
       <button
         onClick={play}
         disabled={!isTTSAvailable()}
-        className="flex h-24 w-full items-center justify-center gap-3 rounded-2xl bg-gent-600 text-2xl font-bold text-white transition hover:bg-gent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gent-500"
+        className="flex h-24 w-full items-center justify-center gap-3 rounded-2xl bg-teal-700 text-2xl font-bold text-white shadow-sm transition hover:bg-teal-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-teal-600"
       >
         🔊 {played ? t('listenAgain') : t('listenTapPlay')}
       </button>
@@ -97,7 +97,7 @@ export default function ListenExercise({ lesson, onFinish }) {
       {/* Keuzes */}
       <div className="mt-4 grid gap-2.5">
         {options.map((opt) => {
-          let style = 'border-slate-200 bg-white hover:border-gent-300'
+          let style = 'border-slate-200 bg-white hover:border-teal-400'
           if (answered) {
             if (opt === target) style = 'border-emerald-500 bg-emerald-50 text-emerald-800'
             else if (opt === picked) style = 'border-rose-400 bg-rose-50 text-rose-700'
@@ -109,7 +109,7 @@ export default function ListenExercise({ lesson, onFinish }) {
               onClick={() => choose(opt)}
               disabled={answered || !played}
               dir="ltr"
-              className={`flex items-center justify-between rounded-xl border-2 px-4 py-4 text-left text-lg font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500 disabled:opacity-60 ${style}`}
+              className={`flex items-center justify-between rounded-xl border-2 px-4 py-4 text-left text-lg font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 disabled:opacity-60 ${style}`}
             >
               <span><SoundText text={opt} /></span>
               {answered && opt === target && <span>✓</span>}
@@ -134,7 +134,7 @@ export default function ListenExercise({ lesson, onFinish }) {
       )}
 
       <div className="mt-auto py-4">
-        <button onClick={next} disabled={!answered} className="btn-primary h-12 w-full">
+        <button onClick={next} disabled={!answered} className="btn-listen h-12 w-full">
           {isLast ? `${t('finishArrow')} ${arrowFwd}` : `${t('next')} ${arrowFwd}`}
         </button>
       </div>

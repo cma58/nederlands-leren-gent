@@ -4,7 +4,13 @@
  */
 export default function ProgressBar({ ratio = 0, accent = 'gent', showLabel = true }) {
   const pct = Math.round(Math.min(1, Math.max(0, ratio)) * 100)
-  const fill = accent === 'saffraan' ? 'bg-saffraan-500' : 'bg-gent-600'
+  const fills = {
+    saffraan: 'bg-saffraan-500',
+    teal: 'bg-teal-700',
+    violet: 'bg-violet-600',
+    gent: 'bg-gent-600',
+  }
+  const fill = fills[accent] || fills.gent
 
   return (
     <div className="flex items-center gap-3">

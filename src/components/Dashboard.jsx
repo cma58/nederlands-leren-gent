@@ -24,12 +24,14 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
     <div className="mx-auto max-w-2xl px-4 py-6">
       {/* Welkom */}
       <section className="card overflow-hidden">
-        <div className="bg-gradient-to-br from-gent-700 to-gent-500 p-6 text-white">
-          <p className="text-sm font-medium text-gent-100">
+        <div className="relative overflow-hidden bg-gradient-to-br from-gent-800 via-gent-600 to-teal-600 p-6 text-white">
+          <span aria-hidden="true" className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/10" />
+          <span aria-hidden="true" className="absolute -bottom-12 right-16 h-24 w-24 rounded-full bg-saffraan-300/20" />
+          <p className="relative text-sm font-medium text-gent-100">
             {t('welcome')} · <span>Marhba</span>
           </p>
-          <h2 className="mt-1 text-2xl font-bold leading-tight">{t('dashTitle')}</h2>
-          <p className="mt-2 max-w-md text-sm text-gent-100">{t('dashSub')}</p>
+          <h2 className="relative mt-1 text-2xl font-bold leading-tight">{t('dashTitle')}</h2>
+          <p className="relative mt-2 max-w-md text-sm text-gent-100">{t('dashSub')}</p>
         </div>
         <div className="p-5">
           <div className="mb-2 flex items-center justify-between">
@@ -41,7 +43,7 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
 
       {/* Dagelijkse aanmoediging */}
       {goalToday && (
-        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-600 to-saffraan-700 p-4 text-white">
+        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-300 to-saffraan-500 p-4 text-saffraan-950 shadow-sm ring-1 ring-saffraan-600/20">
           <span className="text-2xl" aria-hidden="true">
             🌟
           </span>
@@ -53,14 +55,14 @@ export default function Dashboard({ onOpenLevel, onOpenReview, onOpenLesson }) {
       {due > 0 && (
         <button
           onClick={onOpenReview}
-          className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-500 to-saffraan-600 p-4 text-left text-white shadow-sm transition hover:from-saffraan-600 hover:to-saffraan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-saffraan-600"
+          className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-br from-saffraan-300 to-saffraan-500 p-4 text-left text-saffraan-950 shadow-sm ring-1 ring-saffraan-600/20 transition hover:from-saffraan-200 hover:to-saffraan-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-saffraan-600"
         >
           <span className="text-3xl" aria-hidden="true">
             🔁
           </span>
           <span className="min-w-0 flex-1">
             <span className="block font-bold">{t('review')}</span>
-            <span className="block text-sm text-saffraan-50">
+            <span className="block text-sm text-saffraan-900">
               {due} {t('reviewCta')}
             </span>
           </span>

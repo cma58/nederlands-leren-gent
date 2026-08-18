@@ -4,18 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Kleuren geïnspireerd op Gent/Vlaanderen (leeuw) en warme Marokkaanse tinten
+        // Toegankelijk leerpalet: rustig canvas, diep blauw voor structuur en
+        // saffraan als warme aandachtstint. De 600-kleur is de primaire knop.
         gent: {
-          50: '#eef6ff',
-          100: '#d9ebff',
-          200: '#bcdcff',
-          300: '#8ec6ff',
-          400: '#59a5ff',
-          500: '#3282ff',
-          600: '#1c62f5',
-          700: '#154ce1',
-          800: '#183fb6',
-          900: '#1a398f',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#2563eb',
+          600: '#1d4ed8',
+          700: '#1e40af',
+          800: '#1e3a8a',
+          900: '#172554',
         },
         saffraan: {
           50: '#fff8eb',
@@ -28,7 +29,10 @@ export default {
           700: '#b44d09',
           800: '#923c0e',
           900: '#78320f',
+          950: '#422006',
         },
+        canvas: '#fffdf7',
+        ink: '#172033',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif'],

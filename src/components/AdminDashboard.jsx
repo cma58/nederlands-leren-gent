@@ -370,7 +370,7 @@ export default function AdminDashboard({ onClose }) {
   if (!isAdmin) return null
 
   return (
-    <div className="min-h-dvh bg-slate-100" dir="ltr">
+    <div className="min-h-dvh bg-canvas" dir="ltr">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 py-2">
           <button onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={c('close')}>←</button>
@@ -380,8 +380,8 @@ export default function AdminDashboard({ onClose }) {
         </div>
         <nav className="mx-auto flex max-w-3xl gap-2 px-3 pb-2" aria-label={c('adminTitle')}>
           <button onClick={() => setTab('users')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'users' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('users')}</button>
-          <button onClick={() => setTab('assignments')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'assignments' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('assignments')}</button>
-          <button onClick={() => setTab('speech')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'speech' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('pronunciationReviews')}</button>
+          <button onClick={() => setTab('assignments')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'assignments' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('assignments')}</button>
+          <button onClick={() => setTab('speech')} className={`min-h-11 flex-1 rounded-xl text-sm font-bold ${tab === 'speech' ? 'bg-violet-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('pronunciationReviews')}</button>
         </nav>
       </header>
 

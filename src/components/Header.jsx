@@ -8,7 +8,7 @@ import LangToggle from './LangToggle.jsx'
 export default function Header({ onBack, subtitle, onSettings, onHelp }) {
   const { t } = useLang()
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-gent-100 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-2xl items-center gap-1.5 px-3 py-2">
         {onBack ? (
           <button onClick={onBack} className="btn-ghost -ml-1 h-11 w-11 !px-0" aria-label={t('back')}>
@@ -18,7 +18,7 @@ export default function Header({ onBack, subtitle, onSettings, onHelp }) {
           </button>
         ) : (
           <span
-            className="grid h-10 w-10 place-items-center rounded-xl bg-gent-600 text-sm font-bold text-saffraan-400"
+            className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-gent-600 to-teal-700 text-sm font-black text-saffraan-300 shadow-sm"
             aria-hidden="true"
           >
             NL

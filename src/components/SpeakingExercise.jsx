@@ -200,7 +200,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
     RETRY: { title: t('spkRetryTitle'), sub: t('spkRetrySub'), box: 'bg-rose-50', head: 'text-rose-700', icon: '🔁' },
     UNSCORABLE: { title: t('spkUnscorableTitle'), sub: t(`spkReason_${resultReason}`), box: 'bg-slate-100', head: 'text-slate-800', icon: '🎤' },
     TECHNICAL_ERROR: { title: t('spkTechnicalTitle'), sub: t(`spkReason_${resultReason}`), box: 'bg-slate-100', head: 'text-slate-800', icon: '⚠️' },
-    REVIEW_PENDING: { title: t('spkReviewTitle'), sub: t('spkReviewSub'), box: 'bg-blue-50', head: 'text-blue-800', icon: '👩‍🏫' },
+    REVIEW_PENDING: { title: t('spkReviewTitle'), sub: t('spkReviewSub'), box: 'bg-violet-50', head: 'text-violet-800', icon: '👩‍🏫' },
   }
 
   return (
@@ -211,14 +211,14 @@ export default function SpeakingExercise({ lesson, onFinish }) {
           <span
             key={idx}
             className={`h-1.5 rounded-full transition-all ${
-              idx === i ? 'w-5 bg-saffraan-500' : idx < i ? 'w-1.5 bg-saffraan-300' : 'w-1.5 bg-slate-200'
+              idx === i ? 'w-5 bg-violet-600' : idx < i ? 'w-1.5 bg-violet-300' : 'w-1.5 bg-slate-200'
             }`}
           />
         ))}
       </div>
 
       {/* 1+2 — Opdracht: NL + Darija */}
-      <div className="card p-5 text-center">
+      <div className="card p-5 text-center ring-violet-200/80">
         {mastered && (
           <p className="mb-1 text-xs font-bold text-emerald-600">{t('masteredBadge')}</p>
         )}
@@ -228,7 +228,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
               🎙️ {t('sayLetterWord')}
             </p>
             <div className="mt-2 flex items-center justify-center gap-4" dir="ltr">
-              <span className="text-6xl font-black text-gent-600">{item.nl}</span>
+              <span className="text-6xl font-black text-violet-600">{item.nl}</span>
               {item.icon && <span className="text-6xl" aria-hidden="true">{item.icon}</span>}
             </div>
             <p className="mt-2 text-xl font-bold text-slate-900" dir="ltr">
@@ -241,7 +241,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
               🎙️ {t(labelKey)}
             </p>
             {typeof item.value === 'number' && (
-              <span className="mt-1 block text-6xl font-black text-gent-600" dir="ltr">
+              <span className="mt-1 block text-6xl font-black text-violet-600" dir="ltr">
                 {item.value}
               </span>
             )}
@@ -285,7 +285,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
       {isLetter && (
         <div className="mt-4 space-y-2 text-center text-sm text-slate-500">
           <p>{t('spkHighRiskHint')}</p>
-          <p className="rounded-xl bg-blue-50 p-3 text-xs text-blue-800">🔒 {t('spkReviewPrivacy')}</p>
+          <p className="rounded-xl bg-violet-50 p-3 text-xs text-violet-800">🔒 {t('spkReviewPrivacy')}</p>
         </div>
       )}
 
@@ -304,8 +304,8 @@ export default function SpeakingExercise({ lesson, onFinish }) {
             onClick={toggleRecord}
             disabled={status === 'busy'}
             aria-pressed={recorder.recording}
-            className={`flex h-16 w-full items-center justify-center gap-3 rounded-2xl text-lg font-bold text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-saffraan-600 ${
-              recorder.recording ? 'animate-pulse bg-rose-600' : 'bg-saffraan-600 hover:bg-saffraan-700'
+            className={`flex h-16 w-full items-center justify-center gap-3 rounded-2xl text-lg font-bold text-white shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500 ${
+              recorder.recording ? 'animate-pulse bg-rose-700' : 'bg-violet-600 hover:bg-violet-700'
             } disabled:opacity-50`}
           >
             {recorder.recording
@@ -399,7 +399,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
             {t('skip')}
           </button>
         )}
-        <button onClick={next} disabled={status === 'busy'} className="btn-primary flex-1 h-12">
+        <button onClick={next} disabled={status === 'busy'} className="btn-speak flex-1 h-12">
           {isLast ? `${t('finishArrow')} ${arrowFwd}` : `${t('next')} ${arrowFwd}`}
         </button>
       </div>

@@ -24,8 +24,8 @@ export default defineConfig(() => ({
           'Leer Nederlands voor het dagelijkse leven in Gent, met hulp in Darija in Latijnse letters.',
         lang: 'nl-BE',
         dir: 'ltr',
-        theme_color: '#154ce1',
-        background_color: '#ffffff',
+        theme_color: '#1d4ed8',
+        background_color: '#fffdf7',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

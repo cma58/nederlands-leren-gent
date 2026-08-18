@@ -79,7 +79,7 @@ export default function AuthForm({ mode = 'login', onBack, onRegistered }) {
   }
 
   return (
-    <div className="min-h-dvh bg-slate-100 px-4 py-6" dir="ltr">
+    <div className="min-h-dvh bg-canvas px-4 py-6" dir="ltr">
       <div className="mx-auto max-w-md">
         <div className="mb-5 flex items-center justify-between">
           <button onClick={onBack} className="btn-ghost min-h-11">← {c('backHome')}</button>
@@ -87,7 +87,7 @@ export default function AuthForm({ mode = 'login', onBack, onRegistered }) {
         </div>
 
         <section className="card overflow-hidden">
-          <div className="bg-gradient-to-br from-gent-700 to-gent-500 p-6 text-white">
+          <div className="bg-gradient-to-br from-gent-800 via-gent-600 to-teal-600 p-6 text-white">
             <span className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-white/15 text-xl" aria-hidden="true">
               {isRegister ? '✦' : '↗'}
             </span>

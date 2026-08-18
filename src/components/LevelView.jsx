@@ -12,12 +12,15 @@ export default function LevelView({ level, onOpenLesson }) {
   const { ratioFor } = useProgress()
   const { t, isDarija } = useLang()
   const levelRatio = ratioFor(allLessonIds(level))
+  const levelTone = level.accent === 'saffraan'
+    ? 'bg-saffraan-100 text-saffraan-900'
+    : 'bg-gent-100 text-gent-800'
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
       {/* Kop van het niveau */}
       <div className="mb-6 flex items-center gap-4">
-        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-slate-100 text-3xl">
+        <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-3xl ${levelTone}`}>
           {level.icon}
         </div>
         <div className="min-w-0">

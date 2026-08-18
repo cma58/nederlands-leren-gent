@@ -6,7 +6,7 @@ export default function Welcome({ onBegin, onHelp }) {
   const { t, arrowFwd } = useLang()
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gradient-to-br from-gent-700 via-gent-600 to-gent-500 text-white">
+    <div className="flex min-h-dvh flex-col bg-gradient-to-br from-gent-800 via-gent-600 to-teal-600 text-white">
       {/* Taalkeuze bovenaan */}
       <div className="flex justify-end p-4">
         <LangToggle className="!border-white/30 !bg-white/10 !text-white hover:!bg-white/20" />

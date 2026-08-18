@@ -76,7 +76,7 @@ export default function TypingExercise({ lesson, onFinish }) {
           <span
             key={idx}
             className={`h-1.5 rounded-full transition-all ${
-              idx === i ? 'w-5 bg-gent-600' : idx < i ? 'w-1.5 bg-gent-300' : 'w-1.5 bg-slate-200'
+              idx === i ? 'w-5 bg-saffraan-500' : idx < i ? 'w-1.5 bg-saffraan-300' : 'w-1.5 bg-slate-200'
             }`}
           />
         ))}
@@ -87,7 +87,7 @@ export default function TypingExercise({ lesson, onFinish }) {
       )}
 
       {/* Het over te typen woord */}
-      <div className="card p-5 text-center">
+      <div className="card p-5 text-center ring-saffraan-200/80">
         <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
           ⌨️ {t('typeThisWord')}
         </p>
@@ -129,7 +129,7 @@ export default function TypingExercise({ lesson, onFinish }) {
           autoComplete="off"
           spellCheck={false}
           placeholder={t('typeYourAnswer')}
-          className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-center text-2xl font-bold text-slate-900 focus:border-gent-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500 disabled:opacity-60"
+          className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-center text-2xl font-bold text-slate-900 focus:border-saffraan-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-saffraan-600 disabled:opacity-60"
         />
         {hasArabic && (
           <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-center text-sm text-amber-900">
@@ -173,11 +173,11 @@ export default function TypingExercise({ lesson, onFinish }) {
           </button>
         )}
         {result ? (
-          <button onClick={next} className="btn-primary flex-1 h-12">
+          <button onClick={next} className="btn-write flex-1 h-12">
             {isLast ? `${t('finishArrow')} ${arrowFwd}` : `${t('next')} ${arrowFwd}`}
           </button>
         ) : (
-          <button onClick={check} disabled={!value.trim()} className="btn-primary flex-1 h-12">
+          <button onClick={check} disabled={!value.trim()} className="btn-write flex-1 h-12">
             ✓ {t('check')}
           </button>
         )}

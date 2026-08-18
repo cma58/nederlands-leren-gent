@@ -26,12 +26,12 @@ export default function ReviewSession({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-40 flex flex-col bg-slate-50"
+      className="fixed inset-0 z-40 flex flex-col bg-canvas"
       role="dialog"
       aria-modal="true"
       aria-label={t('review')}
     >
-      <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-saffraan-200 bg-saffraan-50 px-4 py-3">
         <button ref={closeRef} onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={t('close')}>
           ✕
         </button>
@@ -45,7 +45,7 @@ export default function ReviewSession({ onClose }) {
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
             <div className="grid h-20 w-20 place-items-center rounded-full bg-slate-100 text-4xl">🌙</div>
             <p className="max-w-xs text-slate-500">{t('reviewEmpty')}</p>
-            <button onClick={onClose} className="btn-primary h-12 px-6">
+            <button onClick={onClose} className="btn-write h-12 px-6">
               ✓ {t('finishAndBack')}
             </button>
           </div>
@@ -100,7 +100,7 @@ function ReviewQuiz({ questions, onClose }) {
         <p className="text-sm font-semibold text-slate-500">
           {t('score')}: {score}/{questions.length}
         </p>
-        <button onClick={onClose} className="btn-primary mt-2 h-12 px-6">
+        <button onClick={onClose} className="btn-write mt-2 h-12 px-6">
           ✓ {t('finishAndBack')}
         </button>
       </div>
@@ -115,7 +115,7 @@ function ReviewQuiz({ questions, onClose }) {
         </span>
       </div>
 
-      <div className="card flex flex-col items-center gap-2 p-6 text-center">
+      <div className="card flex flex-col items-center gap-2 p-6 text-center ring-saffraan-200/80">
         <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t('reviewPrompt')}</p>
         <p
           className={`text-3xl font-bold text-slate-900 ${q.promptRtl ? 'rtl' : ''}`}
@@ -127,7 +127,7 @@ function ReviewQuiz({ questions, onClose }) {
 
       <div className="mt-4 grid gap-2.5">
         {q.options.map((option) => {
-          let style = 'border-slate-200 bg-white hover:border-gent-300'
+          let style = 'border-slate-200 bg-white hover:border-saffraan-500'
           if (answered) {
             if (option === q.answer) style = 'border-emerald-500 bg-emerald-50 text-emerald-800'
             else if (option === picked) style = 'border-rose-400 bg-rose-50 text-rose-700'
@@ -139,7 +139,7 @@ function ReviewQuiz({ questions, onClose }) {
               onClick={() => choose(option)}
               disabled={answered}
               dir={q.optionsRtl ? 'rtl' : 'ltr'}
-              className={`flex items-center justify-between rounded-xl border-2 px-4 py-3.5 text-left font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gent-500 ${
+              className={`flex items-center justify-between rounded-xl border-2 px-4 py-3.5 text-left font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-saffraan-600 ${
                 q.optionsRtl ? 'rtl' : ''
               } ${style}`}
             >
@@ -159,7 +159,7 @@ function ReviewQuiz({ questions, onClose }) {
       )}
 
       <div className="mt-auto py-4">
-        <button onClick={next} disabled={!answered} className="btn-primary h-12 w-full">
+        <button onClick={next} disabled={!answered} className="btn-write h-12 w-full">
           {isLast ? `${t('seeResult')} ${arrowFwd}` : `${t('nextQuestion')} ${arrowFwd}`}
         </button>
       </div>

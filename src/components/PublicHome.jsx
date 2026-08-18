@@ -7,13 +7,13 @@ export default function PublicHome({ onLogin, onRegister, onHelp }) {
   const c = (key) => uiCopy(lang, key)
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-slate-950 text-white" dir="ltr">
-      <div aria-hidden="true" className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-gent-500/25 blur-3xl" />
-      <div aria-hidden="true" className="absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-saffraan-500/15 blur-3xl" />
+    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-gradient-to-br from-slate-950 via-gent-900 to-teal-950 text-white" dir="ltr">
+      <div aria-hidden="true" className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-violet-500/25 blur-3xl" />
+      <div aria-hidden="true" className="absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-saffraan-400/20 blur-3xl" />
 
       <header className="relative z-10 mx-auto flex w-full max-w-2xl items-center justify-between p-4">
         <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gent-500 font-black text-saffraan-300 shadow-lg shadow-gent-950/40">
+          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-gent-500 to-teal-600 font-black text-saffraan-300 shadow-lg shadow-slate-950/40">
             NL
           </span>
           <span className="text-sm font-bold leading-tight">
@@ -34,7 +34,7 @@ export default function PublicHome({ onLogin, onRegister, onHelp }) {
         <p className="mt-5 max-w-lg text-base leading-relaxed text-slate-300 sm:text-lg">{c('publicSubtitle')}</p>
 
         <div className="mt-9 grid gap-3 sm:grid-cols-2">
-          <button onClick={onLogin} className="h-14 rounded-2xl bg-gent-500 px-5 text-base font-bold shadow-lg shadow-gent-950/30 transition hover:bg-gent-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+          <button onClick={onLogin} className="h-14 rounded-2xl bg-gent-600 px-5 text-base font-bold shadow-lg shadow-slate-950/30 transition hover:bg-gent-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
             {c('signIn')} →
           </button>
           <button onClick={onRegister} className="h-14 rounded-2xl border border-white/20 bg-white/10 px-5 text-base font-bold transition hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
