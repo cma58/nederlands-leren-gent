@@ -53,6 +53,7 @@ export default function LevelView({ level, onOpenLesson }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
                     <span className="text-xs font-bold text-slate-400">{t('module')} {module.id}</span>
+                    {module.optional ? <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-bold text-violet-800">{t('optional')}</span> : null}
                   </div>
                   <h3 className="text-base font-bold text-slate-900">
                     {isDarija && module.titleDarijaLat ? module.titleDarijaLat : module.title}

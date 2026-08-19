@@ -8,6 +8,9 @@ export const LESSON_TYPES = {
   QUIZ: 'quiz',
   LISTEN: 'listen',
   TYPING: 'typing',
+  ALPHABET: 'alphabet',
+  ALPHABET_OVERVIEW: 'alphabet-overview',
+  NAME_SPELLING: 'name-spelling',
 }
 
 const curriculum = {
@@ -5547,12 +5550,283 @@ const curriculum = {
   ]
 }
 
+const ALPHABET_NAMES = {
+  A: 'aa', B: 'bee', C: 'cee', D: 'dee', E: 'ee', F: 'ef', G: 'gee',
+  H: 'haa', I: 'ie', J: 'jee', K: 'kaa', L: 'el', M: 'em', N: 'en', O: 'oo',
+  P: 'pee', Q: 'kuu', R: 'er', S: 'es', T: 'tee', U: 'uu', V: 'vee', W: 'wee',
+  X: 'iks', Y: 'i-grec / Griekse ij', Z: 'zet',
+}
+
+const ALPHABET_SOUNDS = {
+  A: 'In appel hoor je een korte a.',
+  B: 'In bal hoor je b.',
+  C: 'In cadeau klinkt c als k.',
+  D: 'In deur hoor je d.',
+  E: 'In eend hoor je ee.',
+  F: 'In fiets hoor je f.',
+  G: 'In geit hoor je g. Die kan per regio anders klinken.',
+  H: 'In huis hoor je h.',
+  I: 'In iglo hoor je een korte i.',
+  J: 'In jas hoor je j.',
+  K: 'In kat hoor je k.',
+  L: 'In lamp hoor je l.',
+  M: 'In maan hoor je m.',
+  N: 'In neus hoor je n.',
+  O: 'In oog hoor je oo.',
+  P: 'In paard hoor je p. Deze klank is in Darija vaak minder vertrouwd.',
+  Q: 'In quiz klinkt q als kw. Deze letter komt niet vaak voor.',
+  R: 'In roos hoor je r. Verschillende Vlaamse r-klanken zijn goed.',
+  S: 'In ster hoor je s.',
+  T: 'In tafel hoor je t.',
+  U: 'In uur hoor je uu.',
+  V: 'In vis hoor je v. De uitspraak verschilt per regio.',
+  W: 'In water hoor je een Nederlandse w.',
+  X: 'In taxi staat x midden in het woord en klinkt hij als ks.',
+  Y: 'In yoghurt klinkt y als j. De letter heet ook i-grec of Griekse ij.',
+  Z: 'In zon hoor je z.',
+}
+
+const ALPHABET_SOUNDS_DARIJA = {
+  A: 'F kelmet appel kaytsem3 a 9sira.', B: 'F kelmet bal kaytsem3 b.',
+  C: 'F cadeau, C katnt9 b7al k.', D: 'F deur kaytsem3 d.', E: 'F eend kaytsem3 ee.',
+  F: 'F fiets kaytsem3 f.', G: 'F geit kaytsem3 g. N-not9 kaykhtalef 7sab l-manta9a.',
+  H: 'F huis kaytsem3 h.', I: 'F iglo kaytsem3 i 9sira.', J: 'F jas kaytsem3 j.',
+  K: 'F kat kaytsem3 k.', L: 'F lamp kaytsem3 l.', M: 'F maan kaytsem3 m.',
+  N: 'F neus kaytsem3 n.', O: 'F oog kaytsem3 oo.',
+  P: 'F paard kaytsem3 p. Had s-sout momkin ykoun a9all ma3rouf f Darija.',
+  Q: 'F quiz, Q katnt9 kw. Had l7arf ma kayjich bzaf.',
+  R: 'F roos kaytsem3 r. Kaynin toro9 Vlaamse mokhtalfa w kolhom m9bolin.',
+  S: 'F ster kaytsem3 s.', T: 'F tafel kaytsem3 t.', U: 'F uur kaytsem3 uu.',
+  V: 'F vis kaytsem3 v. N-not9 kaykhtalef 7sab l-manta9a.',
+  W: 'F water kaytsem3 w Nederlands.',
+  X: 'F taxi, X kayna f west l-kelma w katnt9 ks.',
+  Y: 'F yoghurt, Y katnt9 b7al j. Smit l7arf 7ta i-grec wela Griekse ij.',
+  Z: 'F zon kaytsem3 z.',
+}
+
+function stripArabicFields(value) {
+  if (Array.isArray(value)) return value.map(stripArabicFields)
+  if (typeof value === 'string') return value.replace(/[\u0600-\u06ff]+/g, '').replace(/\s{2,}/g, ' ').trim()
+  if (!value || typeof value !== 'object') return value
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !/darija/i.test(key) || /darijaLat/i.test(key))
+      .map(([key, child]) => [key, stripArabicFields(child)]),
+  )
+}
+
+function alphabetLesson(source, displayId) {
+  const lesson = stripArabicFields(source)
+  return {
+    ...lesson,
+    displayId,
+    type: LESSON_TYPES.ALPHABET,
+    intro: 'Leer de naam van de letter, luister naar het voorbeeldwoord en kies daarna de juiste letter. Je wordt hier nooit automatisch afgekeurd.',
+    introDarijaLat: 'T3ellmo smit l7arf, sm3o kelmet l-mital, w men be3d khtaro l7arf s7i7. Ma kayn 7ta rfos automatique hna.',
+    items: lesson.items.map((item) => ({
+      letter: item.nl,
+      lowercase: item.nl.toLowerCase(),
+      letterName: ALPHABET_NAMES[item.nl],
+      letterNameHint: item.nl === 'C' ? 'klinkt als “see”' : '',
+      letterNameHintDarijaLat: item.nl === 'C' ? 'kattsme3 b7al “see”' : '',
+      exampleWord: item.word,
+      exampleSound: ALPHABET_SOUNDS[item.nl],
+      exampleSoundDarijaLat: ALPHABET_SOUNDS_DARIJA[item.nl],
+      speakPrompt: `${item.nl} van ${item.word}`,
+      icon: item.icon,
+      darijaLat: item.darijaLat,
+    })),
+  }
+}
+
+function lessonPart(source, { id = source.id, displayId, title, titleDarijaLat, items, type = source.type, intro, introDarijaLat }) {
+  return {
+    ...stripArabicFields(source),
+    id,
+    displayId,
+    title: title || source.title,
+    titleDarijaLat: titleDarijaLat || source.titleDarijaLat,
+    type,
+    intro: intro || source.intro,
+    introDarijaLat: introDarijaLat || source.introDarijaLat,
+    items: stripArabicFields(items ?? source.items ?? []),
+  }
+}
+
+function rebuildBeginnerRoute() {
+  const level0 = curriculum.levels.find((level) => level.id === 'niveau-0')
+  const level1 = curriculum.levels.find((level) => level.id === 'niveau-1')
+  if (!level0 || !level1) return
+
+  const oldModules = new Map(level0.modules.map((module) => [module.id, module]))
+  const oldLessons = new Map(level0.modules.flatMap((module) => module.lessons.map((lesson) => [lesson.id, lesson])))
+  const alphabetSources = ['0.0.1', '0.0.2', '0.0.3', '0.0.4', '0.0.5'].map((id) => oldLessons.get(id))
+  const alphabetDisplayIds = ['0.2.2', '0.3.1', '0.4.1', '0.5.1', '0.6.1']
+  const alphabetLessons = alphabetSources.map((lesson, index) => alphabetLesson(lesson, alphabetDisplayIds[index]))
+  const alphabetItems = alphabetLessons.flatMap((lesson) => lesson.items)
+
+  const yesNo = oldLessons.get('0.2.0')
+  const greetings = oldLessons.get('0.2.1')
+  const politeness = oldLessons.get('0.2.2')
+  const numbers = oldLessons.get('0.3.1')
+  const questions = oldLessons.get('0.4.1')
+  const survival = oldLessons.get('0.6.1')
+  const cognates = oldLessons.get('0.5.1')
+  const listenPairs = oldLessons.get('0.1.0')
+  const allowedPairs = new Set(['man|maan', 'bos|boos', 'pit|piet', 'zon|zoon', 'vis|vies', 'pen|ben', 'pak|bak'])
+
+  const firstWords = {
+    id: '0.start.1', displayId: '0.1.1', title: 'Je eerste vijf woorden',
+    titleDarijaLat: 'Awwel khamsa d l-kelmat', type: LESSON_TYPES.VOCAB,
+    intro: 'Begin met woorden die je vandaag meteen kunt gebruiken.',
+    introDarijaLat: 'Bdao b kelmat li t9dro tst3mlohom lyoum.',
+    listenFirst: true,
+    items: [
+      { nl: 'hallo', darijaLat: 'salam', icon: '👋' },
+      { nl: 'dag', darijaLat: 'salam / bslama', icon: '🙂' },
+      { nl: 'ja', darijaLat: 'iyyeh', icon: '✅' },
+      { nl: 'nee', darijaLat: 'la', icon: '❌' },
+      { nl: 'dank u', darijaLat: 'chokran', icon: '🙏' },
+    ],
+  }
+  const overview = {
+    id: '0.alphabet.overview', displayId: '0.2.1', title: 'Bekijk en beluister A tot Z',
+    titleDarijaLat: 'Chofo w sm3o A 7tta Z', type: LESSON_TYPES.ALPHABET_OVERVIEW,
+    intro: 'Dit is een eerste kennismaking. Je hoeft nog niets uit het hoofd te kennen.',
+    introDarijaLat: 'Hadi ghir awwel m3rifa. Ma khasskom t7fdo walo daba.',
+    items: alphabetItems,
+    displayItemCount: 26,
+  }
+  const selfIntro = {
+    id: '0.self.1', displayId: '0.3.2', title: 'Zeg wie je bent',
+    titleDarijaLat: '3erfo b raskom', type: LESSON_TYPES.PHRASES,
+    intro: 'Luister naar vier korte zinnen om jezelf voor te stellen.', introDarijaLat: 'Sm3o rb3a d jomal 9sar bach t3erfo b raskom.',
+    items: [
+      { nl: 'Ik heet …', darijaLat: 'Smiyti …' },
+      { nl: 'Mijn naam is …', darijaLat: 'Smiti hiya …' },
+      { nl: 'Hoe heet u?', darijaLat: 'Chno smitk?' },
+      { nl: 'Aangenaam.', darijaLat: 'Mtcherfin.' },
+    ],
+  }
+  const spellName = {
+    id: '0.spell.1', displayId: '0.6.2', title: 'Spel je eigen naam',
+    titleDarijaLat: 'Hajjio smitkom b l7orof', type: LESSON_TYPES.NAME_SPELLING,
+    intro: 'Typ eerst je naam. Zeg daarna de letters rustig één voor één.',
+    introDarijaLat: 'Ktbo smitkom luwel. Men be3d 9olo l7orof wa7ed b wa7ed.',
+    items: alphabetItems,
+    displayItemCount: 1,
+  }
+
+  const modules = [
+    {
+      id: '0.1', title: 'Meteen beginnen', titleDarijaLat: 'Bidaya daba', icon: '👋',
+      goal: 'Vijf woorden gebruiken en zeggen wanneer je iets niet begrijpt.',
+      goalDarijaLat: 'St3mlo khamsa d l-kelmat w 9olo ila ma fhemtouch.',
+      lessons: [firstWords, lessonPart(survival, { displayId: '0.1.2' })],
+    },
+    {
+      id: '0.2', title: 'Alfabet A tot E', titleDarijaLat: 'L7orof A 7tta E', icon: '🔤',
+      goal: 'Het alfabet eerst bekijken en de eerste vijf letters herkennen.',
+      goalDarijaLat: 'Chofo l7orof kamlin w t3erfo 3la awwel khamsa.',
+      lessons: [overview, alphabetLessons[0]],
+    },
+    {
+      id: '0.3', title: 'F tot J en jezelf voorstellen', titleDarijaLat: 'F 7tta J w ta3rif b n-nafs', icon: '🙋',
+      goal: 'Vijf letters leren en je naam zeggen.', goalDarijaLat: 'T3ellmo khamsa d l7orof w 9olo smitkom.',
+      lessons: [alphabetLessons[1], selfIntro],
+    },
+    {
+      id: '0.4', title: 'K tot O en tellen tot vijf', titleDarijaLat: 'K 7tta O w l7sab 7tta khamsa', icon: '🖐️',
+      goal: 'Vijf letters leren en de getallen 0 tot 5 gebruiken.',
+      goalDarijaLat: 'T3ellmo khamsa d l7orof w st3mlo l-ar9am 0 7tta 5.',
+      lessons: [alphabetLessons[2], lessonPart(numbers, { id: '0.3.1', displayId: '0.4.2', title: 'Tellen van 0 tot 5', titleDarijaLat: 'L7sab men 0 7tta 5', items: numbers.items.slice(0, 6) })],
+    },
+    {
+      id: '0.5', title: 'Alfabet P tot T', titleDarijaLat: 'L7orof P 7tta T', icon: '✍️',
+      goal: 'Vijf nieuwe letters herkennen, beluisteren en kiezen.',
+      goalDarijaLat: 'T3erfo 3la khamsa d l7orof jdod, sm3ohom w khtarohom.',
+      lessons: [alphabetLessons[3]],
+    },
+    {
+      id: '0.6', title: 'U tot Z en tellen tot tien', titleDarijaLat: 'U 7tta Z w l7sab 7tta 3chra', icon: '🔡',
+      goal: 'De laatste zes letters leren, je naam spellen en tellen van 6 tot 10.',
+      goalDarijaLat: 'T3ellmo akher setta d l7orof, hajjio smitkom w 7sbo men 6 7tta 10.',
+      lessons: [
+        alphabetLessons[4],
+        spellName,
+        { ...lessonPart(numbers, { id: '0.3.1b', displayId: '0.6.3', title: 'Tellen van 6 tot 10', titleDarijaLat: 'L7sab men 6 7tta 10', items: numbers.items.slice(6, 11) }), legacyLessonIds: ['0.3.2'] },
+      ],
+    },
+    {
+      id: '0.7', title: 'Praten in het dagelijks leven', titleDarijaLat: 'Lhdra f l7ayat lyoumiya', icon: '💬',
+      goal: 'Groeten, beleefd antwoorden en eenvoudige vragen begrijpen.',
+      goalDarijaLat: 'T7iya, jawabat b adab w fahm dyal as2ila sahlin.',
+      lessons: [
+        lessonPart(greetings, { displayId: '0.7.1', items: greetings.items.slice(0, 5) }),
+        lessonPart(greetings, { id: '0.2.1b', displayId: '0.7.2', title: 'Afscheid nemen', titleDarijaLat: '9olo bslama', items: greetings.items.slice(5, 8) }),
+        lessonPart(greetings, { id: '0.2.1c', displayId: '0.7.3', title: 'Welkom: hoe gaat het?', titleDarijaLat: 'Mar7ba: kif dayrin?', items: greetings.items.slice(8) }),
+        { ...lessonPart(politeness, { displayId: '0.7.4', items: politeness.items.slice(0, 6) }), legacyLessonIds: ['0.2.3'] },
+        lessonPart(politeness, { id: '0.2.2b', displayId: '0.7.5', title: 'Nog meer beleefde woorden', titleDarijaLat: 'Kelmat zyada b adab', items: politeness.items.slice(6) }),
+        lessonPart(questions, { displayId: '0.7.6', items: [questions.items[1], questions.items[2], questions.items[0], questions.items[4], { nl: 'Hoeveel?', darijaLat: 'Ch7al?' }] }),
+        lessonPart(yesNo, { displayId: '0.7.7', items: yesNo.items.slice(0, 6) }),
+        lessonPart(cognates, { displayId: '0.7.8' }),
+      ],
+    },
+    {
+      id: '0.8', title: 'Extra uitspraak', titleDarijaLat: 'N-not9 zyada', icon: '👂',
+      goal: 'Alleen na de basis: luister naar enkele belangrijke klankverschillen.',
+      goalDarijaLat: 'Ghir men be3d l-asas: sm3o chi forou9 mohimma f n-not9.',
+      optional: true,
+      lessons: [{ ...lessonPart(listenPairs, {
+        displayId: '0.8.1', title: 'Luister naar echte klankparen', titleDarijaLat: 'Sm3o lforou9 bin l-kelmat',
+        items: listenPairs.items
+          .filter((item) => allowedPairs.has(`${item.nl}|${item.pair}`))
+          .slice(0, 6)
+          .map((item) => ({
+            ...item,
+            tip: item.nl === 'pen'
+              ? 'De lipstand blijft gelijk: p is zonder stem en met meer lucht; b is met stem.'
+              : `${item.nl}/${item.pair}: de klinkerkwaliteit verandert en meestal ook de duur.`,
+            tipDarijaLat: item.nl === 'pen'
+              ? 'Chfayef kayb9aw kifkif: p bla sout w b hwa kter; b m3a sout.'
+              : `F ${item.nl}/${item.pair}, naw3 s-sout kaytbddel w ghaliban 7ta t-toul.`,
+            noSlowAudio: true,
+          })),
+        intro: 'Telkens verandert één belangrijk klankkenmerk. Bij de klinkerparen veranderen de klankkwaliteit en vaak de duur; bij pen–ben vooral stem en lucht.',
+        introDarijaLat: 'Kol marra kaytbddel wa7ed lfar9 mohim. F l7orof ssawtiya kaytbddel naw3 s-sout w ghaliban t-toul; f pen-ben lfar9 f s-sout w l-hwa.',
+      }), legacyLessonIds: ['0.1.1', '0.1.2', '0.1.3', '0.1.4'] }],
+    },
+  ]
+
+  level0.titleDarijaLat = 'Niveau 0'
+  delete level0.titleDarija
+  level0.subtitle = 'Eerste woorden, alfabet & praktische basis'
+  level0.subtitleDarijaLat = 'Awwel kelmat, l7orof w l-asas l3amali'
+  level0.description = 'Een rustige route voor wie nog geen Nederlands kent: eerst bruikbare woorden, daarna het alfabet in kleine stappen.'
+  level0.descriptionDarijaLat = 'Tri9a b chwia llli mazal ma kay3refch Nederlands: kelmat mofida luwel, w men be3d l7orof b khotwat sghar.'
+  level0.modules = modules
+
+  const movedModule = {
+    id: '1.0', title: 'Uitbreiding na niveau 0', titleDarijaLat: 'Ziyada men be3d niveau 0',
+    goal: 'Tellen tot twintig en woorden voor in en om het huis.',
+    goalDarijaLat: 'L7sab 7tta 20 w kelmat dyal ddar w 7daha.', icon: '🏠',
+    lessons: [
+      lessonPart(numbers, { id: '1.0.1', displayId: '1.0.1', title: 'Tellen van 11 tot 20', titleDarijaLat: 'L7sab men 11 7tta 20', items: numbers.items.slice(11) }),
+      { ...lessonPart(oldLessons.get('0.4.2'), { id: '1.0.2', displayId: '1.0.2' }), legacyLessonIds: ['0.4.2', '0.4.3'] },
+    ],
+  }
+  level1.modules = [movedModule, ...level1.modules.filter((module) => module.id !== movedModule.id)]
+  curriculum.meta.version = '0.2.0-workversion'
+}
+
+rebuildBeginnerRoute()
+
 export function countLessons(level) {
-  return level.modules.reduce((sum, m) => sum + m.lessons.length, 0)
+  return level.modules.reduce((sum, module) => sum + (module.optional ? 0 : module.lessons.length), 0)
 }
 
 export function allLessonIds(level) {
-  return level.modules.flatMap((m) => m.lessons.map((l) => l.id))
+  return level.modules.filter((module) => !module.optional).flatMap((module) => module.lessons.map((lesson) => lesson.id))
 }
 
 export function getLevel(id) {
