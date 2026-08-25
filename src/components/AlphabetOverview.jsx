@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { canProbablySpeak, speak } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
+import { playReferenceAudio } from '../lib/referenceAudio.js'
 
 export default function AlphabetOverview({ lesson, onFinish }) {
   const { t, isDarija, arrowFwd } = useLang()
@@ -8,13 +8,16 @@ export default function AlphabetOverview({ lesson, onFinish }) {
   const [audioError, setAudioError] = useState(false)
   const item = lesson.items[selectedIndex]
 
-  function play(text) {
-    if (!canProbablySpeak()) {
-      setAudioError(true)
-      return
-    }
+  async function play(promptId, text, options) {
     setAudioError(false)
-    speak(text)
+    try {
+      const result = await playReferenceAudio(promptId, text, options)
+      setAudioError(!result.played)
+      return result.played
+    } catch {
+      setAudioError(true)
+      return false
+    }
   }
 
   return (
@@ -24,6 +27,12 @@ export default function AlphabetOverview({ lesson, onFinish }) {
         <p className="mt-1">{isDarija ? lesson.introDarijaLat : lesson.intro}</p>
       </div>
 
+      {isDarija ? (
+        <button type="button" onClick={() => play('darija-instruction-tap-letter', '', { fallbackToTts: false })} className="btn-ghost mb-3 min-h-11 w-full" dir="ltr">
+          🔊 Dghato 3la l7arf.
+        </button>
+      ) : null}
+
       <div className="grid grid-cols-6 gap-2 sm:grid-cols-7" aria-label={t('alphabetOverviewTitle')}>
         {lesson.items.map((letter, index) => (
           <button
@@ -31,7 +40,7 @@ export default function AlphabetOverview({ lesson, onFinish }) {
             type="button"
             onClick={() => {
               setSelectedIndex(index)
-              play(letter.letterName.split(' / ')[0])
+              play(letter.letterNameAudioId, letter.letterName.split(' / ')[0])
             }}
             className={`min-h-12 rounded-xl border-2 text-lg font-black focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
               index === selectedIndex
@@ -62,17 +71,16 @@ export default function AlphabetOverview({ lesson, onFinish }) {
           </p>
         ) : null}
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          <button type="button" onClick={() => play(item.letterName.split(' / ')[0])} className="btn-ghost min-h-12">
+          <button type="button" onClick={() => play(item.letterNameAudioId, item.letterName.split(' / ')[0])} className="btn-ghost min-h-12">
             🔊 {t('alphabetListenLetter')}
           </button>
-          <button type="button" onClick={() => play(item.speakPrompt)} className="btn-ghost min-h-12">
+          <button type="button" onClick={() => play(item.letterExampleAudioId, item.speakPrompt)} className="btn-ghost min-h-12">
             🔊 {t('alphabetListenWord')}
           </button>
         </div>
       </section>
 
       {audioError ? <p role="status" className="mt-3 text-center text-sm text-amber-800">{t('alphabetAudioUnavailable')}</p> : null}
-      <p className="mt-3 text-center text-xs text-slate-500">{t('alphabetAudioDraft')}</p>
       <p className="mt-2 rounded-xl bg-slate-100 p-3 text-center text-xs text-slate-700">{t('alphabetIjNote')}</p>
 
       <button type="button" onClick={onFinish} className="btn-primary mt-4 min-h-12 w-full">

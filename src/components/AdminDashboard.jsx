@@ -5,6 +5,7 @@ import { useLang } from '../context/LanguageContext.jsx'
 import { adminApi, apiErrorMessage } from '../lib/api.js'
 import { uiCopy } from '../lib/uiCopy.js'
 import LangToggle from './LangToggle.jsx'
+import ReferenceAudioRecorder from './ReferenceAudioRecorder.jsx'
 
 const FILTERS = ['ALL', 'PENDING', 'ACTIVE', 'REJECTED', 'SUSPENDED']
 
@@ -399,6 +400,15 @@ export default function AdminDashboard({ onClose }) {
   const [action, setAction] = useState(null)
   const [busy, setBusy] = useState(false)
   const [reset, setReset] = useState(null)
+  const [audioHasDraft, setAudioHasDraft] = useState(false)
+
+  function canLeaveAudio() {
+    return tab !== 'audio' || !audioHasDraft || window.confirm(c('discardRecordingConfirm'))
+  }
+
+  function selectTab(nextTab) {
+    if (nextTab === tab || canLeaveAudio()) setTab(nextTab)
+  }
 
   async function loadUsers() {
     setStatus('loading'); setError('')
@@ -445,16 +455,17 @@ export default function AdminDashboard({ onClose }) {
     <div className="min-h-dvh bg-canvas" dir="ltr">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 py-2">
-          <button onClick={onClose} className="btn-ghost h-11 w-11 !px-0" aria-label={c('close')}>←</button>
+          <button onClick={() => { if (canLeaveAudio()) onClose() }} className="btn-ghost h-11 w-11 !px-0" aria-label={c('close')}>←</button>
           <div className="min-w-0 flex-1"><h1 className="truncate font-black text-slate-900">{c('adminTitle')}</h1><p className="truncate text-xs text-slate-500">{c('adminSubtitle')}</p></div>
           <LangToggle compact />
-          <button onClick={logout} className="btn-ghost h-11 px-3 text-xs">{c('signOut')}</button>
+          <button onClick={() => { if (canLeaveAudio()) logout() }} className="btn-ghost h-11 px-3 text-xs">{c('signOut')}</button>
         </div>
-        <nav className="mx-auto grid max-w-3xl grid-cols-2 gap-2 px-3 pb-2 sm:grid-cols-4" aria-label={c('adminTitle')}>
-          <button onClick={() => setTab('users')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'users' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('users')}</button>
-          <button onClick={() => setTab('assignments')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'assignments' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('assignments')}</button>
-          <button onClick={() => setTab('speech')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'speech' ? 'bg-violet-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('pronunciationReviews')}</button>
-          <button onClick={() => setTab('coach')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'coach' ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-600'}`}>{c('aiFeedbackTab')}</button>
+        <nav className="mx-auto grid max-w-3xl grid-cols-2 gap-2 px-3 pb-2 sm:grid-cols-5" aria-label={c('adminTitle')}>
+          <button aria-current={tab === 'users' ? 'page' : undefined} onClick={() => selectTab('users')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'users' ? 'bg-gent-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('users')}</button>
+          <button aria-current={tab === 'assignments' ? 'page' : undefined} onClick={() => selectTab('assignments')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'assignments' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('assignments')}</button>
+          <button aria-current={tab === 'speech' ? 'page' : undefined} onClick={() => selectTab('speech')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'speech' ? 'bg-violet-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('pronunciationReviews')}</button>
+          <button aria-current={tab === 'coach' ? 'page' : undefined} onClick={() => selectTab('coach')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'coach' ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-600'}`}>{c('aiFeedbackTab')}</button>
+          <button aria-current={tab === 'audio' ? 'page' : undefined} onClick={() => selectTab('audio')} className={`min-h-11 rounded-xl text-sm font-bold ${tab === 'audio' ? 'bg-fuchsia-700 text-white' : 'bg-slate-100 text-slate-600'}`}>{c('referenceAudioTab')}</button>
         </nav>
       </header>
 
@@ -473,7 +484,9 @@ export default function AdminDashboard({ onClose }) {
           ? <AssignmentManager users={users} c={c} lang={lang} />
           : tab === 'speech'
             ? <SpeakingReviewManager c={c} lang={lang} />
-            : <CoachFeedbackManager c={c} lang={lang} />}
+            : tab === 'coach'
+              ? <CoachFeedbackManager c={c} lang={lang} />
+              : <ReferenceAudioRecorder onDraftStateChange={setAudioHasDraft} />}
       </main>
 
       <ConfirmDialog action={action} onCancel={() => setAction(null)} onConfirm={confirmAction} busy={busy} c={c} />

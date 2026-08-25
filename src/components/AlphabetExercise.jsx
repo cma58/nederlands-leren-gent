@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { canProbablySpeak, speak } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
+import { playReferenceAudio } from '../lib/referenceAudio.js'
 
 function choicesFor(items, index) {
   const current = items[index]
@@ -30,19 +30,22 @@ export default function AlphabetExercise({ lesson, onFinish }) {
     if (mode === 'choose') chooseHeadingRef.current?.focus()
   }, [mode])
 
-  function play(text) {
-    if (!canProbablySpeak()) {
-      setAudioError(true)
-      return
-    }
+  async function play(promptId, text, options) {
     setAudioError(false)
-    speak(text)
+    try {
+      const result = await playReferenceAudio(promptId, text, options)
+      setAudioError(!result.played)
+      return result.played
+    } catch {
+      setAudioError(true)
+      return false
+    }
   }
 
   function next() {
     if (mode === 'learn') {
       setMode('choose')
-      play(item.letterName.split(' / ')[0])
+      play(item.letterNameAudioId, item.letterName.split(' / ')[0])
       return
     }
     if (isLast) {
@@ -66,6 +69,25 @@ export default function AlphabetExercise({ lesson, onFinish }) {
         </div>
       </div>
 
+      {isDarija ? (
+        <button
+          type="button"
+          onClick={() => play(
+            mode === 'learn'
+              ? 'darija-instruction-listen'
+              : answered
+                ? 'darija-instruction-next'
+                : 'darija-instruction-choose',
+            '',
+            { fallbackToTts: false },
+          )}
+          className="btn-ghost mb-3 min-h-11 w-full"
+          dir="ltr"
+        >
+          🔊 {mode === 'learn' ? 'Sm3o mzyan.' : answered ? 'Dghato 3la li men be3d.' : 'Khtaro l7arf s7i7.'}
+        </button>
+      ) : null}
+
       {mode === 'learn' ? (
         <section className="flex flex-1 flex-col items-center justify-center rounded-3xl border-2 border-indigo-100 bg-white p-5 text-center shadow-sm">
           <div className="flex items-center gap-5">
@@ -85,10 +107,10 @@ export default function AlphabetExercise({ lesson, onFinish }) {
             {isDarija ? item.exampleSoundDarijaLat : item.exampleSound}
           </p>
           <div className="mt-5 grid w-full gap-2 sm:grid-cols-2">
-            <button type="button" onClick={() => play(item.letterName.split(' / ')[0])} className="btn-ghost min-h-12">
+            <button type="button" onClick={() => play(item.letterNameAudioId, item.letterName.split(' / ')[0])} className="btn-ghost min-h-12">
               🔊 {t('alphabetListenLetter')}
             </button>
-            <button type="button" onClick={() => play(item.speakPrompt)} className="btn-ghost min-h-12">
+            <button type="button" onClick={() => play(item.letterExampleAudioId, item.speakPrompt)} className="btn-ghost min-h-12">
               🔊 {t('alphabetListenWord')}
             </button>
           </div>
@@ -100,7 +122,7 @@ export default function AlphabetExercise({ lesson, onFinish }) {
           <h3 ref={chooseHeadingRef} tabIndex={-1} className="mt-3 text-xl font-bold text-slate-900 outline-none">{t('alphabetListenChoose')}</h3>
           {audioError ? <p className="mt-2 text-4xl font-black text-teal-800">{item.lowercase}</p> : null}
           {audioError ? <p className="mt-1 text-sm text-slate-600">{t('alphabetVisualChoose')}</p> : null}
-          <button type="button" onClick={() => play(item.letterName.split(' / ')[0])} className="btn-ghost mt-4 min-h-12 w-full">
+          <button type="button" onClick={() => play(item.letterNameAudioId, item.letterName.split(' / ')[0])} className="btn-ghost mt-4 min-h-12 w-full">
             🔊 {t('listenAgain')}
           </button>
           <div className="mt-4 grid w-full grid-cols-3 gap-3">

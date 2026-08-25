@@ -12,6 +12,7 @@ import AiCoach from './AiCoach.jsx'
 import AlphabetExercise from './AlphabetExercise.jsx'
 import AlphabetOverview from './AlphabetOverview.jsx'
 import NameSpellingExercise from './NameSpellingExercise.jsx'
+import { playReferenceAudio, stopReferenceAudio } from '../lib/referenceAudio.js'
 
 /**
  * Volledige, interactieve lesspeler — werkt zonder API's of internet.
@@ -66,8 +67,15 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
     window.addEventListener('keydown', onKey)
     // Zet de focus in het venster zodat toetsenbord/schermlezer erin belandt.
     closeRef.current?.focus()
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      stopReferenceAudio()
+    }
   }, [onClose])
+
+  useEffect(() => {
+    stopReferenceAudio()
+  }, [lesson?.id, phase])
 
   if (!lesson) return null
 
@@ -179,8 +187,15 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
     setRevealed(false)
   }, [i])
 
-  const next = () => (isLast ? onFinish() : setI((n) => n + 1))
-  const prev = () => setI((n) => Math.max(0, n - 1))
+  const next = () => {
+    stopReferenceAudio()
+    if (isLast) onFinish()
+    else setI((n) => n + 1)
+  }
+  const prev = () => {
+    stopReferenceAudio()
+    setI((n) => Math.max(0, n - 1))
+  }
 
   if (!hasItems) {
     return <p className="p-6 text-center text-slate-500">{t('lessonEmpty')}</p>
@@ -255,7 +270,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
           {arrowBack}
         </button>
         {isTTSAvailable() && (
-          <button onClick={() => speak(item.nl)} className={`${lesson.listenFirst ? 'btn-primary' : 'btn-ghost'} flex-1 h-12`} aria-label={t('listen')}>
+          <button onClick={() => playReferenceAudio(item.audioId, item.nl)} className={`${lesson.listenFirst ? 'btn-primary' : 'btn-ghost'} flex-1 h-12`} aria-label={t('listen')}>
             🔊 {t('listen')}
           </button>
         )}

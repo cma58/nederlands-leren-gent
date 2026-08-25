@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { isTTSAvailable, speak, canProbablySpeak } from '../lib/speech.js'
+import { canProbablySpeak } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import SoundText from './SoundText.jsx'
 import { recordLearningAttempt } from '../lib/attempts.js'
+import { playReferenceAudio, stopReferenceAudio } from '../lib/referenceAudio.js'
 
 /**
  * Luister-discriminatie ("Welk woord hoor je?").
@@ -22,6 +23,8 @@ export default function ListenExercise({ lesson, onFinish }) {
   const options = [item?.nl, item?.pair].filter(Boolean)
   const [target, setTarget] = useState(item?.nl ?? '')
   const [played, setPlayed] = useState(false)
+  const [audioBusy, setAudioBusy] = useState(false)
+  const [audioError, setAudioError] = useState(false)
   const [picked, setPicked] = useState(null)
   const answered = picked !== null
 
@@ -30,13 +33,24 @@ export default function ListenExercise({ lesson, onFinish }) {
     const opts = [item?.nl, item?.pair].filter(Boolean)
     if (opts.length) setTarget(opts[Math.floor(Math.random() * opts.length)])
     setPlayed(false)
+    setAudioError(false)
     setPicked(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i])
 
-  function play() {
-    speak(target)
-    setPlayed(true)
+  async function play() {
+    setAudioBusy(true)
+    setAudioError(false)
+    try {
+      const result = await playReferenceAudio(target === item.nl ? item.audioId : item.pairAudioId, target)
+      setPlayed(result.played)
+      setAudioError(!result.played)
+    } catch {
+      setPlayed(false)
+      setAudioError(true)
+    } finally {
+      setAudioBusy(false)
+    }
   }
 
   function choose(opt) {
@@ -51,10 +65,11 @@ export default function ListenExercise({ lesson, onFinish }) {
       score: correct ? 1 : 0,
       maxScore: 1,
     }).catch(() => {})
-    speak(target)
+    playReferenceAudio(target === item.nl ? item.audioId : item.pairAudioId, target)
   }
 
   function next() {
+    stopReferenceAudio()
     if (isLast) onFinish()
     else setI((n) => n + 1)
   }
@@ -84,14 +99,19 @@ export default function ListenExercise({ lesson, onFinish }) {
           ⚠️ {t('ttsOffline')}
         </p>
       )}
+      {audioError && canProbablySpeak() ? (
+        <p role="alert" className="mb-3 rounded-lg bg-amber-50 p-3 text-center text-sm text-amber-800">
+          ⚠️ {t('ttsOffline')}
+        </p>
+      ) : null}
 
       {/* Luisterknop */}
       <button
         onClick={play}
-        disabled={!isTTSAvailable()}
+        disabled={audioBusy}
         className="flex h-24 w-full items-center justify-center gap-3 rounded-2xl bg-teal-700 text-2xl font-bold text-white shadow-sm transition hover:bg-teal-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-teal-600"
       >
-        🔊 {played ? t('listenAgain') : t('listenTapPlay')}
+        🔊 {audioBusy ? t('loading') : played ? t('listenAgain') : t('listenTapPlay')}
       </button>
 
       {/* Keuzes */}

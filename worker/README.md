@@ -17,6 +17,8 @@ het admindashboard staan wanneer e-mail ontbreekt of faalt.
 - Adminresets tonen een eenmalige code; het bestaande wachtwoord is nooit leesbaar.
 - Meerdere tabbladen tellen dezelfde actieve 30-secondenbucket niet dubbel.
 - Pogingsmetadata gebruikt een allowlist en accepteert nooit audiobestanden.
+- Vaste lesaudio kan alleen door de admin worden toegevoegd of vervangen;
+  alleen aangemelde gebruikers kunnen de bestanden beluisteren.
 - Alle beheeracties komen in `audit_log`.
 
 API-fouten zijn altijd:
@@ -124,8 +126,42 @@ laatste 90 seconden) en `openAssignments` toe.
 | POST | `/api/admin/users/:id/password-reset` | `{resetCode,expiresAt}`; code eenmalig zichtbaar |
 | GET | `/api/admin/users/:id/activity` | actieve seconden + laatste 100 pogingen |
 | GET | `/api/admin/audit` | laatste 250 beheer-/veiligheidsacties |
+| GET | `/api/admin/reference-audio` | 74 opnameprompts met opname-/voortgangsstatus |
+| POST | `/api/admin/reference-audio` | multipart: `promptId`, `durationMs`, `consentConfirmed=yes`, `audio`; maakt of vervangt één vaste lesopname |
+| DELETE | `/api/admin/reference-audio/:promptId` | verwijdert één vaste lesopname; de les valt terug op TTS |
 
 `suspend` en `activate` bestaan als expliciete aliassen van `block` en `unblock`.
+
+### Vaste lesaudio opnemen
+
+Open als beheerder **Beheer → Lesaudio**. De studio toont vijf reeksen met in
+totaal 74 korte clips: 26 letternamen, 26 letterzinnen, 12 klankwoorden, vijf
+eerste woorden en vijf Darija-instructies. Per clip:
+
+1. lees de getoonde tekst exact voor;
+2. beluister de volledige nieuwe opname;
+3. bevestig dat de stem met toestemming als lesaudio gebruikt mag worden;
+4. kies **Goedkeuren en opslaan**;
+5. ga naar **Volgende ontbrekende**.
+
+Een opgeslagen clip is direct gekoppeld via zijn vaste `promptId`. Een nieuwe
+versie vervangt de oude koppeling; er is geen codewijziging of bestandsnaamwerk
+nodig. Ontbreekt een clip, dan valt de les terug op de bestaande toestel-/online
+computerstem. De downloadroute is `GET /api/reference-audio/:promptId`.
+
+Per clip geldt maximaal 750 kB en maximaal acht seconden. Zelfs wanneer alle 74
+clips de volledige 750 kB gebruiken, is dat ongeveer 56 MB. Dit blijft ruim
+onder de D1 Free-limiet van 500 MB per database en iedere rij blijft onder de
+D1-limiet van 2 MB. Controleer vóór publieke livegang alle clips op een echte
+iPhone en Android-telefoon.
+
+De Worker controleert naast het opgegeven MIME-type ook de echte
+WebM/Ogg/WAV/MP4/MP3-container en bewaart een SHA-256-checksum. Een veranderde
+prompttekst maakt de bestaande clip automatisch ongeldig totdat ze opnieuw is
+opgenomen. De admin kan een clip expliciet verwijderen. Door D1 Time Travel kan
+verwijderde of vervangen data op het gratis plan nog maximaal zeven dagen in
+een herstelpunt aanwezig zijn; leg dit ook uit aan een eventuele tweede
+stemacteur.
 
 ### Voortgang
 

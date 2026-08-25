@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import curriculum, { allLessonIds, countLessons } from '../../src/data/curriculum.js'
+import { referenceAudioPrompt } from '../../src/data/referenceAudio.js'
 
 const level0 = curriculum.levels.find((level) => level.id === 'niveau-0')
 const beginnerLessons = level0.modules.flatMap((module) => module.lessons)
@@ -28,6 +29,9 @@ test('all 26 letters have one graded learning card with explicit name and exampl
     assert.ok(item.exampleWord)
     assert.ok(item.speakPrompt)
     assert.equal(item.speakPrompt, `${item.letter} van ${item.exampleWord}`)
+    assert.equal(referenceAudioPrompt(item.letterNameAudioId)?.category, 'letter-names')
+    assert.equal(referenceAudioPrompt(item.letterExampleAudioId)?.category, 'letter-examples')
+    assert.equal(referenceAudioPrompt(item.letterExampleAudioId)?.text, item.speakPrompt)
   }
 })
 
@@ -80,7 +84,14 @@ test('question words and sound pairs match the beginner review', () => {
   const pairLesson = beginnerLessons.find((lesson) => lesson.id === '0.1.0')
   assert.deepEqual(pairLesson.items.map((item) => `${item.nl}|${item.pair}`), ['man|maan', 'bos|boos', 'pit|piet', 'zon|zoon', 'vis|vies', 'pen|ben'])
   assert.ok(pairLesson.items.every((item) => item.noSlowAudio === true))
+  assert.ok(pairLesson.items.every((item) => referenceAudioPrompt(item.audioId)?.text === item.nl))
+  assert.ok(pairLesson.items.every((item) => referenceAudioPrompt(item.pairAudioId)?.text === item.pair))
   assert.ok(!JSON.stringify(pairLesson).includes('Vlaamse g'))
+})
+
+test('the first five practical words use fixed human-audio ids', () => {
+  const firstWords = beginnerLessons.find((lesson) => lesson.id === '0.start.1')
+  assert.ok(firstWords.items.every((item) => referenceAudioPrompt(item.audioId)?.text === item.nl))
 })
 
 test('old assigned lesson ids have a destination', () => {

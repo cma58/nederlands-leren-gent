@@ -1,25 +1,15 @@
 import { useMemo, useState } from 'react'
-import { canProbablySpeak, speak } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
+import { playReferenceAudio, playReferenceSequence } from '../lib/referenceAudio.js'
 
 export default function NameSpellingExercise({ lesson, onFinish, onSkip }) {
-  const { t, arrowFwd } = useLang()
+  const { t, arrowFwd, isDarija } = useLang()
   const [name, setName] = useState('')
   const [audioError, setAudioError] = useState(false)
+  const letterItems = useMemo(() => new Map(lesson.items.map((item) => [item.letter, item])), [lesson.items])
   const letterNames = useMemo(() => new Map(lesson.items.map((item) => [item.letter, item.letterName.split(' / ')[0]])), [lesson.items])
   const letters = useMemo(
     () => name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().split('').filter((letter) => letterNames.has(letter)),
-    [letterNames, name],
-  )
-  const spellingText = useMemo(
-    () => name
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toUpperCase()
-      .split('')
-      .map((character) => letterNames.get(character) || (character === '-' || character === ' ' ? ',' : ''))
-      .filter(Boolean)
-      .join(', '),
     [letterNames, name],
   )
   const unsupportedCharacters = useMemo(() => {
@@ -28,12 +18,18 @@ export default function NameSpellingExercise({ lesson, onFinish, onSkip }) {
   }, [letterNames, name])
 
   function playName() {
-    if (!canProbablySpeak()) {
-      setAudioError(true)
-      return
-    }
     setAudioError(false)
-    speak(spellingText, { rate: 0.85 })
+    const sequence = name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+      .split('')
+      .map((character) => letterItems.get(character))
+      .filter(Boolean)
+      .map((item) => ({ promptId: item.letterNameAudioId, fallbackText: item.letterName.split(' / ')[0] }))
+    playReferenceSequence(sequence, { rate: 0.85 })
+      .then((played) => setAudioError(!played))
+      .catch(() => setAudioError(true))
   }
 
   return (
@@ -81,6 +77,11 @@ export default function NameSpellingExercise({ lesson, onFinish, onSkip }) {
           {t('practiceLater')} {arrowFwd}
         </button>
       )}
+      {isDarija && !letters.length ? (
+        <button type="button" onClick={() => playReferenceAudio('darija-instruction-later', '', { fallbackToTts: false })} className="btn-ghost mt-3 min-h-11 w-full" dir="ltr">
+          🔊 Ila mazal s3ib, khlliwh l morra jaya.
+        </button>
+      ) : null}
     </div>
   )
 }

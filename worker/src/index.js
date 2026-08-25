@@ -21,6 +21,7 @@ import {
   parseCoachResult,
   validateCoachResponse,
 } from './coach.js';
+import { REFERENCE_AUDIO_PROMPTS, referenceAudioPrompt } from '../../src/data/referenceAudio.js';
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8' };
 const MAX_BODY_BYTES = 600_000;
@@ -39,10 +40,45 @@ const ATTEMPT_METADATA_KEYS = new Set([
 ]);
 const AUDIO_TYPES = new Set(['audio/webm', 'audio/ogg', 'audio/wav', 'audio/x-wav', 'audio/mp4', 'audio/m4a', 'audio/x-m4a', 'audio/mpeg']);
 const REVIEW_AUDIO_MAX_BYTES = 1_500_000;
+const REFERENCE_AUDIO_MAX_BYTES = 750_000;
 // workerd weigert PBKDF2-aanvragen boven 100.000 iteraties. We gebruiken het
 // platformmaximum en voegen daarnaast een server-side pepper toe, zodat een
 // los D1-databaselek niet volstaat om wachtwoorden offline te kraken.
 const PASSWORD_ITERATIONS = 100_000;
+
+function asciiAt(bytes, offset, text) {
+  if (bytes.length < offset + text.length) return false;
+  return [...text].every((character, index) => bytes[offset + index] === character.charCodeAt(0));
+}
+
+function detectAudioContainer(value) {
+  const bytes = value instanceof Uint8Array ? value : new Uint8Array(value || 0);
+  if (bytes.length >= 4 && bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3) return 'webm';
+  if (asciiAt(bytes, 0, 'OggS')) return 'ogg';
+  if (asciiAt(bytes, 0, 'RIFF') && asciiAt(bytes, 8, 'WAVE')) return 'wav';
+  if (asciiAt(bytes, 4, 'ftyp')) return 'mp4';
+  if (asciiAt(bytes, 0, 'ID3') || (bytes.length >= 2 && bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0)) return 'mpeg';
+  return '';
+}
+
+function audioContainerMatches(mime, value) {
+  const expected = {
+    'audio/webm': 'webm',
+    'audio/ogg': 'ogg',
+    'audio/wav': 'wav',
+    'audio/x-wav': 'wav',
+    'audio/mp4': 'mp4',
+    'audio/m4a': 'mp4',
+    'audio/x-m4a': 'mp4',
+    'audio/mpeg': 'mpeg',
+  }[mime];
+  return Boolean(expected && detectAudioContainer(value) === expected);
+}
+
+async function bytesSha256Hex(value) {
+  const digest = await crypto.subtle.digest('SHA-256', value);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+}
 
 class ApiError extends Error {
   constructor(code, status = 400, details = undefined) {
@@ -91,7 +127,7 @@ function withCors(response, request, env) {
   }
   response.headers.set('x-content-type-options', 'nosniff');
   response.headers.set('referrer-policy', 'no-referrer');
-  response.headers.set('cache-control', 'no-store');
+  if (!response.headers.has('cache-control')) response.headers.set('cache-control', 'no-store');
   return response;
 }
 
@@ -784,6 +820,156 @@ async function decideSpeakingReview(request, env, eventId) {
   return ok({ eventId, decision, result: attemptResult });
 }
 
+async function listReferenceAudioPrompts(request, env) {
+  await requireAdmin(request, env);
+  const result = await env.DB.prepare(`
+    SELECT prompt_id, category, locale, spoken_text, audio_mime, duration_ms,
+      size_bytes, version, updated_at
+    FROM reference_audio
+  `).all();
+  const stored = new Map(result.results.map((row) => [row.prompt_id, row]));
+  const prompts = REFERENCE_AUDIO_PROMPTS.map((prompt) => {
+    const row = stored.get(prompt.id);
+    const needsRerecording = Boolean(row && (
+      row.category !== prompt.category || row.locale !== prompt.locale || row.spoken_text !== prompt.text
+    ));
+    return {
+      ...prompt,
+      recorded: Boolean(row) && !needsRerecording,
+      hasStoredAudio: Boolean(row),
+      needsRerecording,
+      audioMime: row?.audio_mime || null,
+      durationMs: row ? Number(row.duration_ms) : null,
+      sizeBytes: row ? Number(row.size_bytes) : null,
+      version: row ? Number(row.version) : 0,
+      updatedAt: row?.updated_at || null,
+      audioUrl: row && !needsRerecording ? `/api/reference-audio/${encodeURIComponent(prompt.id)}` : null,
+    };
+  });
+  return ok({
+    prompts,
+    orphanedAudio: result.results
+      .filter((row) => !referenceAudioPrompt(row.prompt_id))
+      .map((row) => ({
+        promptId: row.prompt_id,
+        durationMs: Number(row.duration_ms),
+        sizeBytes: Number(row.size_bytes),
+        updatedAt: row.updated_at,
+      })),
+    summary: {
+      total: prompts.length,
+      recorded: prompts.filter((prompt) => prompt.recorded).length,
+      required: prompts.filter((prompt) => prompt.requiredForLive).length,
+      requiredRecorded: prompts.filter((prompt) => prompt.requiredForLive && prompt.recorded).length,
+    },
+  });
+}
+
+async function uploadReferenceAudio(request, env) {
+  const admin = await requireAdmin(request, env);
+  await rateLimit(env, request, 'reference-audio-upload', admin.id, 200, 60);
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > REFERENCE_AUDIO_MAX_BYTES + 50_000) throw new ApiError('PAYLOAD_TOO_LARGE', 413);
+  let form;
+  try { form = await request.formData(); } catch { throw new ApiError('BAD_REQUEST'); }
+
+  const promptId = String(form.get('promptId') || '');
+  const prompt = referenceAudioPrompt(promptId);
+  const durationMs = Math.round(Number(form.get('durationMs')));
+  const consentConfirmed = form.get('consentConfirmed') === 'yes';
+  const audio = form.get('audio');
+  const audioType = audio instanceof File ? audio.type.split(';')[0].toLowerCase() : '';
+  if (!prompt || !(audio instanceof File) || audio.size < 300 || audio.size > REFERENCE_AUDIO_MAX_BYTES
+      || !AUDIO_TYPES.has(audioType) || !Number.isFinite(durationMs)
+      || durationMs < 300 || durationMs > Math.min(10_000, prompt.maxDurationMs)
+      || !consentConfirmed) {
+    throw new ApiError('AUDIO_INVALID');
+  }
+
+  const audioBytes = await audio.arrayBuffer();
+  if (!audioContainerMatches(audioType, audioBytes)) throw new ApiError('AUDIO_INVALID');
+  const contentSha256 = await bytesSha256Hex(audioBytes);
+  await env.DB.prepare(`
+    INSERT INTO reference_audio
+      (prompt_id, category, locale, spoken_text, audio_mime, audio_blob,
+       duration_ms, size_bytes, content_sha256, consent_confirmed, uploaded_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+    ON CONFLICT(prompt_id) DO UPDATE SET
+      category = excluded.category,
+      locale = excluded.locale,
+      spoken_text = excluded.spoken_text,
+      audio_mime = excluded.audio_mime,
+      audio_blob = excluded.audio_blob,
+      duration_ms = excluded.duration_ms,
+      size_bytes = excluded.size_bytes,
+      content_sha256 = excluded.content_sha256,
+      consent_confirmed = 1,
+      uploaded_by = excluded.uploaded_by,
+      version = reference_audio.version + 1,
+      updated_at = CURRENT_TIMESTAMP
+  `).bind(
+    prompt.id,
+    prompt.category,
+    prompt.locale,
+    prompt.text,
+    audioType,
+    audioBytes,
+    durationMs,
+    audio.size,
+    contentSha256,
+    admin.id,
+  ).run();
+  await audit(env, admin.id, 'REFERENCE_AUDIO_UPSERT', 'REFERENCE_AUDIO', prompt.id, {
+    locale: prompt.locale,
+    durationMs,
+    sizeBytes: audio.size,
+  });
+  const row = await env.DB.prepare(`
+    SELECT version, updated_at FROM reference_audio WHERE prompt_id = ?
+  `).bind(prompt.id).first();
+  return ok({
+    promptId: prompt.id,
+    recorded: true,
+    version: Number(row?.version || 1),
+    updatedAt: row?.updated_at || isoNow(),
+    audioUrl: `/api/reference-audio/${encodeURIComponent(prompt.id)}`,
+  }, { status: 201 });
+}
+
+async function deleteReferenceAudio(request, env, promptId) {
+  const admin = await requireAdmin(request, env);
+  if (!/^[a-z0-9-]{1,100}$/.test(promptId)) throw new ApiError('NOT_FOUND', 404);
+  const result = await env.DB.prepare('DELETE FROM reference_audio WHERE prompt_id = ?').bind(promptId).run();
+  if (Number(result.meta?.changes || 0) === 0) throw new ApiError('NOT_FOUND', 404);
+  await audit(env, admin.id, 'REFERENCE_AUDIO_DELETE', 'REFERENCE_AUDIO', promptId);
+  return ok({ promptId, deleted: true });
+}
+
+async function referenceAudioFile(request, env, promptId) {
+  await requireUser(request, env);
+  if (!referenceAudioPrompt(promptId)) throw new ApiError('NOT_FOUND', 404);
+  const row = await env.DB.prepare(`
+    SELECT audio_blob, audio_mime, size_bytes, version, category, locale, spoken_text
+    FROM reference_audio WHERE prompt_id = ?
+  `).bind(promptId).first();
+  if (!row) throw new ApiError('NOT_FOUND', 404);
+  const prompt = referenceAudioPrompt(promptId);
+  if (row.category !== prompt.category || row.locale !== prompt.locale || row.spoken_text !== prompt.text) {
+    throw new ApiError('NOT_FOUND', 404);
+  }
+  const audioBytes = d1BlobToBytes(row.audio_blob);
+  if (!audioBytes?.byteLength) throw new ApiError('NOT_FOUND', 404);
+  return new Response(audioBytes, {
+    headers: {
+      'content-type': row.audio_mime,
+      'content-length': String(audioBytes.byteLength),
+      'cache-control': 'private, no-cache',
+      'content-disposition': 'inline',
+      etag: `"reference-${promptId}-v${Number(row.version || 1)}"`,
+    },
+  });
+}
+
 async function reserveCoachGeneration(env, userId) {
   const usageDay = new Date().toISOString().slice(0, 10);
   const maxDaily = Math.min(50, Math.max(1, Number(env.AI_COACH_DAILY_GENERATIONS_PER_USER || 20)));
@@ -1191,6 +1377,8 @@ async function route(request, env, ctx) {
   if (request.method === 'GET' && pathname === '/api/admin/assignments') return listAssignments(request, env, true);
   if (request.method === 'GET' && pathname === '/api/admin/speaking-reviews') return listSpeakingReviews(request, env);
   if (request.method === 'GET' && pathname === '/api/admin/coach-feedback') return listCoachFeedback(request, env);
+  if (request.method === 'GET' && pathname === '/api/admin/reference-audio') return listReferenceAudioPrompts(request, env);
+  if (request.method === 'POST' && pathname === '/api/admin/reference-audio') return uploadReferenceAudio(request, env);
   if (request.method === 'POST' && pathname === '/api/admin/assignments') return createAssignment(request, env);
 
   let match = pathname.match(/^\/api\/admin\/users\/([^/]+)\/(approve|reject|suspend|block|activate|unblock)$/);
@@ -1207,6 +1395,10 @@ async function route(request, env, ctx) {
   if (request.method === 'PATCH' && match) return decideSpeakingReview(request, env, decodeURIComponent(match[1]));
   match = pathname.match(/^\/api\/admin\/coach-feedback\/([^/]+)$/);
   if (request.method === 'PATCH' && match) return resolveCoachFeedback(request, env, decodeURIComponent(match[1]));
+  match = pathname.match(/^\/api\/admin\/reference-audio\/([^/]+)$/);
+  if (request.method === 'DELETE' && match) return deleteReferenceAudio(request, env, decodeURIComponent(match[1]));
+  match = pathname.match(/^\/api\/reference-audio\/([^/]+)$/);
+  if (request.method === 'GET' && match) return referenceAudioFile(request, env, decodeURIComponent(match[1]));
   match = pathname.match(/^\/api\/assignments\/([^/]+)\/complete$/);
   if (request.method === 'POST' && match) return completeAssignment(request, env, decodeURIComponent(match[1]));
   throw new ApiError('NOT_FOUND', 404);
@@ -1240,4 +1432,4 @@ export default {
   },
 };
 
-export { assignmentInput, d1BlobToBytes, publicUser, safeParse };
+export { assignmentInput, audioContainerMatches, d1BlobToBytes, detectAudioContainer, publicUser, safeParse };

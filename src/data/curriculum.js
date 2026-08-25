@@ -1,3 +1,5 @@
+import { letterExampleAudioId, letterNameAudioId, pairWordAudioId } from './referenceAudio.js'
+
 export const LESSON_TYPES = {
   PHONETICS: 'phonetics',
   VOCAB: 'vocab',
@@ -5627,12 +5629,14 @@ function alphabetLesson(source, displayId) {
       letter: item.nl,
       lowercase: item.nl.toLowerCase(),
       letterName: ALPHABET_NAMES[item.nl],
+      letterNameAudioId: letterNameAudioId(item.nl),
       letterNameHint: item.nl === 'C' ? 'klinkt als “see”' : '',
       letterNameHintDarijaLat: item.nl === 'C' ? 'kattsme3 b7al “see”' : '',
       exampleWord: item.word,
       exampleSound: ALPHABET_SOUNDS[item.nl],
       exampleSoundDarijaLat: ALPHABET_SOUNDS_DARIJA[item.nl],
       speakPrompt: `${item.nl} van ${item.word}`,
+      letterExampleAudioId: letterExampleAudioId(item.nl),
       icon: item.icon,
       darijaLat: item.darijaLat,
     })),
@@ -5682,11 +5686,11 @@ function rebuildBeginnerRoute() {
     introDarijaLat: 'Bdao b kelmat li t9dro tst3mlohom lyoum.',
     listenFirst: true,
     items: [
-      { nl: 'hallo', darijaLat: 'salam', icon: '👋' },
-      { nl: 'dag', darijaLat: 'salam / bslama', icon: '🙂' },
-      { nl: 'ja', darijaLat: 'iyyeh', icon: '✅' },
-      { nl: 'nee', darijaLat: 'la', icon: '❌' },
-      { nl: 'dank u', darijaLat: 'chokran', icon: '🙏' },
+      { nl: 'hallo', darijaLat: 'salam', icon: '👋', audioId: 'first-word-hallo' },
+      { nl: 'dag', darijaLat: 'salam / bslama', icon: '🙂', audioId: 'first-word-dag' },
+      { nl: 'ja', darijaLat: 'iyyeh', icon: '✅', audioId: 'first-word-ja' },
+      { nl: 'nee', darijaLat: 'la', icon: '❌', audioId: 'first-word-nee' },
+      { nl: 'dank u', darijaLat: 'chokran', icon: '🙏', audioId: 'first-word-dank-u' },
     ],
   }
   const overview = {
@@ -5784,6 +5788,8 @@ function rebuildBeginnerRoute() {
           .slice(0, 6)
           .map((item) => ({
             ...item,
+            audioId: pairWordAudioId(item.nl),
+            pairAudioId: pairWordAudioId(item.pair),
             tip: item.nl === 'pen'
               ? 'De lipstand blijft gelijk: p is zonder stem en met meer lucht; b is met stem.'
               : `${item.nl}/${item.pair}: de klinkerkwaliteit verandert en meestal ook de duur.`,

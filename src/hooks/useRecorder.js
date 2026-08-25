@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * Geeft terug:
  *   supported   – of opnemen mogelijk is in deze browser
  *   recording   – of er nu opgenomen wordt
+ *   starting    – of de browser nog op microfoontoestemming wacht
  *   elapsedMs   – hoe lang de huidige opname al loopt (voor een timer)
  *   error       – foutcode voor vertaling (micNoPermission/micNoStart/micNotSupported)
  *   start(opts) – begin met opnemen. opts = { maxMs, onComplete(blob, durationMs) }.
@@ -21,6 +22,7 @@ export function useRecorder() {
     'MediaRecorder' in window
 
   const [recording, setRecording] = useState(false)
+  const [starting, setStarting] = useState(false)
   const [error, setError] = useState(null)
   const [elapsedMs, setElapsedMs] = useState(0)
 
@@ -66,6 +68,20 @@ export function useRecorder() {
     }
   }, [])
 
+  // Mobiele browsers pauzeren timers wanneer het scherm vergrendelt. Stop de
+  // opname daarom meteen zodra de pagina naar de achtergrond gaat; zo wordt
+  // een clip nooit onbedoeld minutenlang.
+  useEffect(() => {
+    const stopWhenHidden = () => {
+      const rec = mediaRef.current
+      if (document.visibilityState === 'hidden' && rec?.state === 'recording') {
+        try { rec.stop() } catch { /* best effort */ }
+      }
+    }
+    document.addEventListener('visibilitychange', stopWhenHidden)
+    return () => document.removeEventListener('visibilitychange', stopWhenHidden)
+  }, [])
+
   const start = useCallback(
     async ({ maxMs = 12000, onComplete } = {}) => {
       setError(null)
@@ -78,6 +94,7 @@ export function useRecorder() {
       if (startingRef.current) return
       if (mediaRef.current && mediaRef.current.state === 'recording') return
       startingRef.current = true
+      setStarting(true)
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
@@ -111,11 +128,13 @@ export function useRecorder() {
           const durationMs = Math.max(0, Date.now() - startedAtRef.current)
           const blob = new Blob(chunksRef.current, { type: rec.mimeType || 'audio/webm' })
           teardownStream()
-          setRecording(false)
-          setElapsedMs(0)
+          if (!unmountedRef.current) {
+            setRecording(false)
+            setElapsedMs(0)
+          }
           const cb = onCompleteRef.current
           onCompleteRef.current = null
-          if (cb) cb(blob.size ? blob : null, durationMs)
+          if (cb && !unmountedRef.current) cb(blob.size ? blob : null, durationMs)
         }
         mediaRef.current = rec
         rec.start()
@@ -137,6 +156,7 @@ export function useRecorder() {
       } finally {
         // Startvenster voorbij: vanaf hier bewaakt de 'recording'-status re-entry.
         startingRef.current = false
+        if (!unmountedRef.current) setStarting(false)
       }
     },
     [supported],
@@ -153,5 +173,5 @@ export function useRecorder() {
 
   const reset = useCallback(() => setError(null), [])
 
-  return { supported, recording, error, elapsedMs, start, stop, reset }
+  return { supported, starting, recording, error, elapsedMs, start, stop, reset }
 }
