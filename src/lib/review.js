@@ -8,6 +8,7 @@
  * Aparte opslag — raakt de lesvoortgang of het spreekonderdeel niet.
  */
 import { shuffle } from './quiz.js'
+import { lessonAudioId } from '../data/audioIds.js'
 
 const KEY = 'nl-gent:review:v1'
 // Dagen tot de volgende herhaling per box (box 1..6).
@@ -109,6 +110,7 @@ export function buildReviewSession(curriculum, isDone, max = 15) {
         promptRtl: false,
         answer: it.darijaLat,
         say: it.nl,
+        audioId: it.audioId || lessonAudioId(it.nl),
         optionsRtl: false,
         options: shuffle([it.darijaLat, ...distract]),
       })
@@ -122,6 +124,7 @@ export function buildReviewSession(curriculum, isDone, max = 15) {
         promptRtl: false,
         answer: it.nl,
         say: it.nl,
+        audioId: it.audioId || lessonAudioId(it.nl),
         optionsRtl: false,
         options: shuffle([it.nl, ...distract]),
       })

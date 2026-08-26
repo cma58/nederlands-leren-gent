@@ -3,7 +3,7 @@ import curriculum from '../data/curriculum.js'
 import { buildReviewSession, grade } from '../lib/review.js'
 import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
-import { speak } from '../lib/speech.js'
+import { playReferenceAudio, stopReferenceAudio } from '../lib/referenceAudio.js'
 import SoundText from './SoundText.jsx'
 import { recordLearningAttempt } from '../lib/attempts.js'
 
@@ -21,7 +21,10 @@ export default function ReviewSession({ onClose }) {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
     closeRef.current?.focus()
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      stopReferenceAudio()
+    }
   }, [onClose])
 
   return (
@@ -79,10 +82,11 @@ function ReviewQuiz({ questions, onClose }) {
       score: correct ? 1 : 0,
       maxScore: 1,
     }).catch(() => {})
-    speak(q.say)
+    playReferenceAudio(q.audioId, q.say)
   }
 
   function next() {
+    stopReferenceAudio()
     if (isLast) {
       setDone(true)
       return

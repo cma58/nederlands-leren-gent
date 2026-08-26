@@ -56,6 +56,7 @@ function playOne(promptId, fallbackText, options, generation) {
     audio = new Audio(referenceAudioUrl(promptId))
     currentAudio = audio
     audio.preload = 'auto'
+    if (options.rate) audio.playbackRate = options.rate
     audio.onended = () => finish({ played: true, source: 'reference' })
     audio.onerror = fallback
     timeout = setTimeout(() => {

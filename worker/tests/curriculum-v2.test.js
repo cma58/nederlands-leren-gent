@@ -94,6 +94,31 @@ test('the first five practical words use fixed human-audio ids', () => {
   assert.ok(firstWords.items.every((item) => referenceAudioPrompt(item.audioId)?.text === item.nl))
 })
 
+test('ieder item in niveau 1 en 2 is aan menselijke lesaudio gekoppeld', () => {
+  for (const levelId of ['niveau-1', 'niveau-2']) {
+    const level = curriculum.levels.find((item) => item.id === levelId)
+    for (const module of level.modules) {
+      for (const lesson of module.lessons) {
+        for (const item of lesson.items || []) {
+          assert.equal(referenceAudioPrompt(item.audioId)?.text, item.nl)
+          const target = item.answer && !item.answer.includes('...') ? item.answer : item.nl
+          assert.equal(referenceAudioPrompt(item.speakAudioId)?.text, target)
+          if (item.pair) assert.equal(referenceAudioPrompt(item.pairAudioId)?.text, item.pair)
+        }
+      }
+    }
+  }
+})
+
+test('dezelfde Nederlandse tekst hergebruikt dezelfde opname', () => {
+  const occurrences = curriculum.levels
+    .filter((level) => ['niveau-1', 'niveau-2'].includes(level.id))
+    .flatMap((level) => level.modules.flatMap((module) => module.lessons.flatMap((lesson) => lesson.items || [])))
+    .filter((item) => item.nl === 'Sorry dat ik te laat ben.')
+  assert.ok(occurrences.length >= 2)
+  assert.equal(new Set(occurrences.map((item) => item.audioId)).size, 1)
+})
+
 test('old assigned lesson ids have a destination', () => {
   const aliases = new Set(beginnerLessons.flatMap((lesson) => lesson.legacyLessonIds || []))
   for (const oldId of ['0.1.1', '0.1.2', '0.1.3', '0.1.4', '0.2.3', '0.3.2']) assert.ok(aliases.has(oldId))

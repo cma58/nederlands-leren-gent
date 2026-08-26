@@ -909,11 +909,12 @@ async function uploadReferenceAudio(request, env) {
 
   const promptId = String(form.get('promptId') || '');
   const prompt = referenceAudioPrompt(promptId);
+  const promptMaxBytes = Math.min(REFERENCE_AUDIO_MAX_BYTES, Number(prompt?.maxSizeBytes || REFERENCE_AUDIO_MAX_BYTES));
   const durationMs = Math.round(Number(form.get('durationMs')));
   const consentConfirmed = form.get('consentConfirmed') === 'yes';
   const audio = form.get('audio');
   const audioType = audio instanceof File ? audio.type.split(';')[0].toLowerCase() : '';
-  if (!prompt || !(audio instanceof File) || audio.size < 300 || audio.size > REFERENCE_AUDIO_MAX_BYTES
+  if (!prompt || !(audio instanceof File) || audio.size < 300 || audio.size > promptMaxBytes
       || !AUDIO_TYPES.has(audioType) || !Number.isFinite(durationMs)
       || durationMs < 300 || durationMs > Math.min(10_000, prompt.maxDurationMs)
       || !consentConfirmed) {

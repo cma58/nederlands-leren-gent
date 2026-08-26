@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   REFERENCE_AUDIO_BY_ID,
+  REFERENCE_AUDIO_CATEGORIES,
   REFERENCE_AUDIO_PROMPTS,
   letterExampleAudioId,
   letterNameAudioId,
@@ -9,18 +10,27 @@ import {
   referenceAudioPrompt,
 } from '../../src/data/referenceAudio.js'
 
-test('reference audio manifest has 74 unique, safe prompts', () => {
-  assert.equal(REFERENCE_AUDIO_PROMPTS.length, 74)
-  assert.equal(REFERENCE_AUDIO_BY_ID.size, 74)
-  assert.equal(new Set(REFERENCE_AUDIO_PROMPTS.map((prompt) => prompt.id)).size, 74)
+test('reference audio manifest has 585 unique, safe prompts', () => {
+  assert.equal(REFERENCE_AUDIO_PROMPTS.length, 585)
+  assert.equal(REFERENCE_AUDIO_BY_ID.size, 585)
+  assert.equal(new Set(REFERENCE_AUDIO_PROMPTS.map((prompt) => prompt.id)).size, 585)
   for (const prompt of REFERENCE_AUDIO_PROMPTS) {
     assert.match(prompt.id, /^[a-z0-9-]+$/)
     assert.ok(['nl-BE', 'ary-MA'].includes(prompt.locale))
     assert.ok(prompt.text)
-    assert.ok(prompt.maxDurationMs >= 5000 && prompt.maxDurationMs <= 8000)
+    assert.ok(prompt.maxDurationMs >= 5000 && prompt.maxDurationMs <= 10_000)
     assert.equal(prompt.requiredForLive, true)
     assert.equal(/[\u0600-\u06ff]/.test(JSON.stringify(prompt)), false)
   }
+})
+
+test('niveau 1 en 2 zijn per module georganiseerd en blijven binnen de gratis opslaggrens', () => {
+  const lessonPrompts = REFERENCE_AUDIO_PROMPTS.filter((prompt) => prompt.id.startsWith('lesson-'))
+  assert.equal(lessonPrompts.length, 511)
+  assert.ok(lessonPrompts.every((prompt) => prompt.maxSizeBytes === 300_000))
+  assert.equal(REFERENCE_AUDIO_CATEGORIES.length, 24)
+  assert.ok(REFERENCE_AUDIO_CATEGORIES.some((category) => category.titleNl === 'Niveau 1 · Uitbreiding na niveau 0'))
+  assert.ok(REFERENCE_AUDIO_CATEGORIES.some((category) => category.titleNl.startsWith('Niveau 2 · ')))
 })
 
 test('reference audio categories contain the agreed recordings', () => {
