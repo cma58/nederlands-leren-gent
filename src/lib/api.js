@@ -117,6 +117,19 @@ export const adminApi = {
   coachFeedback: (options) => fetchJSON('/api/admin/coach-feedback', options),
   resolveCoachFeedback: (id, decision, options) =>
     patch(`/api/admin/coach-feedback/${encodeURIComponent(id)}`, { decision }, options),
+  referenceAudio: (options) => fetchJSON('/api/admin/reference-audio', options),
+  uploadReferenceAudio: (form, options) =>
+    fetchJSON('/api/admin/reference-audio', {
+      ...options,
+      method: 'POST',
+      body: form,
+      timeout: 30000,
+    }),
+  deleteReferenceAudio: (promptId, options) =>
+    fetchJSON(`/api/admin/reference-audio/${encodeURIComponent(promptId)}`, {
+      ...options,
+      method: 'DELETE',
+    }),
 }
 
 export const learnerApi = {

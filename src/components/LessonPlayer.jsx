@@ -9,6 +9,10 @@ import ListenExercise from './ListenExercise.jsx'
 import TypingExercise from './TypingExercise.jsx'
 import SoundText from './SoundText.jsx'
 import AiCoach from './AiCoach.jsx'
+import AlphabetExercise from './AlphabetExercise.jsx'
+import AlphabetOverview from './AlphabetOverview.jsx'
+import NameSpellingExercise from './NameSpellingExercise.jsx'
+import { playReferenceAudio, stopReferenceAudio } from '../lib/referenceAudio.js'
 
 /**
  * Volledige, interactieve lesspeler — werkt zonder API's of internet.
@@ -24,20 +28,37 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
   const isSpeaking = lesson?.type === 'speaking'
   const isListen = lesson?.type === 'listen'
   const isTyping = lesson?.type === 'typing'
+  const isAlphabet = lesson?.type === 'alphabet'
+  const isAlphabetOverview = lesson?.type === 'alphabet-overview'
+  const isNameSpelling = lesson?.type === 'name-spelling'
   const lessonTone = isSpeaking
     ? 'border-violet-200 bg-violet-50'
     : isListen
       ? 'border-teal-200 bg-teal-50'
       : isTyping
         ? 'border-saffraan-200 bg-saffraan-50'
-        : 'border-gent-200 bg-gent-50'
+        : isAlphabet || isAlphabetOverview
+          ? 'border-indigo-200 bg-indigo-50'
+          : 'border-gent-200 bg-gent-50'
   const quiz = useMemo(
-    () => (isSpeaking || isListen || isTyping ? [] : buildQuiz(lesson)),
-    [lesson, isSpeaking, isListen, isTyping],
+    () => (isSpeaking || isListen || isTyping || isAlphabet || isAlphabetOverview || isNameSpelling ? [] : buildQuiz(lesson)),
+    [lesson, isSpeaking, isListen, isTyping, isAlphabet, isAlphabetOverview, isNameSpelling],
   )
 
   const [phase, setPhase] = useState(
-    isSpeaking ? 'speaking' : isListen ? 'listen' : isTyping ? 'typing' : 'learn',
+    isSpeaking
+      ? 'speaking'
+      : isListen
+        ? 'listen'
+        : isTyping
+          ? 'typing'
+          : isAlphabet
+            ? 'alphabet'
+            : isAlphabetOverview
+              ? 'alphabet-overview'
+              : isNameSpelling
+                ? 'name-spelling'
+                : 'learn',
   )
   const closeRef = useRef(null)
 
@@ -46,8 +67,15 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
     window.addEventListener('keydown', onKey)
     // Zet de focus in het venster zodat toetsenbord/schermlezer erin belandt.
     closeRef.current?.focus()
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      stopReferenceAudio()
+    }
   }, [onClose])
+
+  useEffect(() => {
+    stopReferenceAudio()
+  }, [lesson?.id, phase])
 
   if (!lesson) return null
 
@@ -64,7 +92,7 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
         </button>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            {t('lesson')} {lesson.id}
+            {t('lesson')} {lesson.displayId || lesson.id}
           </p>
           <h2 className="truncate text-base font-bold text-slate-900">
             {isDarija && lesson.titleDarijaLat ? lesson.titleDarijaLat : lesson.title}
@@ -85,6 +113,15 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
         )}
         {phase === 'typing' && (
           <TypingExercise lesson={lesson} onFinish={() => setPhase('done')} />
+        )}
+        {phase === 'alphabet' && (
+          <AlphabetExercise lesson={lesson} onFinish={() => setPhase('done')} />
+        )}
+        {phase === 'alphabet-overview' && (
+          <AlphabetOverview lesson={lesson} onFinish={() => setPhase('done')} />
+        )}
+        {phase === 'name-spelling' && (
+          <NameSpellingExercise lesson={lesson} onFinish={() => setPhase('done')} onSkip={onClose} />
         )}
         {phase === 'learn' && (
           <LearnPhase
@@ -110,7 +147,21 @@ export default function LessonPlayer({ lesson, onClose, onOpenSettings, onComple
               else onClose()
             }}
             onRestart={() =>
-              setPhase(isSpeaking ? 'speaking' : isListen ? 'listen' : isTyping ? 'typing' : 'learn')
+              setPhase(
+                isSpeaking
+                  ? 'speaking'
+                  : isListen
+                    ? 'listen'
+                    : isTyping
+                      ? 'typing'
+                      : isAlphabet
+                        ? 'alphabet'
+                        : isAlphabetOverview
+                          ? 'alphabet-overview'
+                          : isNameSpelling
+                            ? 'name-spelling'
+                            : 'learn',
+              )
             }
           />
         )}
@@ -136,8 +187,15 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
     setRevealed(false)
   }, [i])
 
-  const next = () => (isLast ? onFinish() : setI((n) => n + 1))
-  const prev = () => setI((n) => Math.max(0, n - 1))
+  const next = () => {
+    stopReferenceAudio()
+    if (isLast) onFinish()
+    else setI((n) => n + 1)
+  }
+  const prev = () => {
+    stopReferenceAudio()
+    setI((n) => Math.max(0, n - 1))
+  }
 
   if (!hasItems) {
     return <p className="p-6 text-center text-slate-500">{t('lessonEmpty')}</p>
@@ -170,6 +228,7 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
           {item.article && (
             <span className="text-lg font-semibold text-gent-500">{item.article}</span>
           )}
+          {item.icon ? <span className="text-6xl" aria-hidden="true">{item.icon}</span> : null}
           <span className="text-3xl font-bold text-slate-900">
             <SoundText text={item.nl} />
           </span>
@@ -211,11 +270,11 @@ function LearnPhase({ lesson, onFinish, hasQuiz }) {
           {arrowBack}
         </button>
         {isTTSAvailable() && (
-          <button onClick={() => speak(item.nl)} className="btn-ghost flex-1 h-12" aria-label={t('listen')}>
+          <button onClick={() => playReferenceAudio(item.audioId, item.nl)} className={`${lesson.listenFirst ? 'btn-primary' : 'btn-ghost'} flex-1 h-12`} aria-label={t('listen')}>
             🔊 {t('listen')}
           </button>
         )}
-        <button onClick={next} className="btn-primary flex-1 h-12">
+        <button onClick={next} className={`${lesson.listenFirst ? 'btn-ghost' : 'btn-primary'} flex-1 h-12`}>
           {isLast
             ? hasQuiz
               ? `${t('toExercise')} ${arrowFwd}`

@@ -114,6 +114,34 @@ noodherstel en hoort daarom in je wachtwoordbeheerder te blijven.
 6. Controleer activiteit, voortgang en de opdrachtstatus in het adminoverzicht.
 7. Test een korte spreekopname. Bij een ontbrekende key of bereikt gratis quota
    moet de app veilig `niet kunnen meten` tonen en nooit de oefening blokkeren.
+8. Open als admin **Beheer → Lesaudio**. Neem eerst één testclip op, beluister
+   hem volledig en sla hem op. Open daarna de bijbehorende les met een
+   testaccount en controleer dat precies die menselijke opname wordt afgespeeld.
+
+## 8. De 74 vaste lesopnames maken
+
+Je hebt geen aparte opnameserver of betaalde opslag nodig. De bestaande Worker
+ontvangt de opname en bewaart ze in dezelfde D1-database. De migratie
+`0004_reference_audio.sql` maakt daarvoor automatisch de veilige tabel aan
+wanneer de GitHub-deploy naar `main` wordt uitgevoerd.
+
+Werk in **Beheer → Lesaudio** reeks per reeks. Gebruik een stille kamer, houd de
+telefoon 15–20 cm van je mond en spreek op een natuurlijk tempo. De knop om op
+te slaan blijft bewust uitgeschakeld totdat je de volledige opname hebt
+beluisterd en toestemming voor het stemgebruik hebt bevestigd. Voor de vijf Darija-instructies gebruik je bij voorkeur een
+natuurlijke Darija-spreker. Een opnieuw opgeslagen prompt vervangt automatisch
+de vorige versie in alle gekoppelde lessen.
+
+Een opgeslagen clip kan in dezelfde studio ook worden verwijderd. De les valt
+dan automatisch terug op de computerstem. Cloudflare D1 Time Travel houdt op
+het gratis plan herstelpunten tot zeven dagen bij; een gewiste of vervangen
+stemclip kan gedurende die hersteltermijn nog in een back-up zitten.
+
+De ingestelde grens is 750 kB per clip. Voor 74 clips is het theoretische
+maximum ongeveer 56 MB, ruim onder de 500 MB per D1-database op Workers Free.
+Wanneer een gratis daglimiet ooit wordt bereikt, stopt D1 tijdelijk met nieuwe
+handelingen tot de dagelijkse reset; er wordt zonder een betaald abonnement
+niets aangerekend.
 
 ## Later, optioneel
 
