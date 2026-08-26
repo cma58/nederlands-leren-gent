@@ -99,9 +99,15 @@ function speakNative(text, opts) {
     u.lang = opts.lang || 'nl-BE'
   }
   u.rate = opts.rate ?? 0.9
-  const finish = once(opts.onEnd)
-  u.onend = finish
-  u.onerror = finish
+  let settled = false
+  const finish = (successful) => {
+    if (settled) return
+    settled = true
+    if (successful) opts.onEnd?.()
+    else (opts.onError || opts.onEnd)?.()
+  }
+  u.onend = () => finish(true)
+  u.onerror = () => finish(false)
   synth.speak(u)
   try {
     synth.resume() // Chrome-nudge tegen 'hangende' spraak
@@ -130,34 +136,31 @@ function speakOnline(text, opts = {}) {
   audio.src = url
   currentAudio = audio
   audio.onended = once(opts.onEnd)
-  // Als de online stem niet lukt (bv. geblokkeerd), val terug op native.
-  audio.onerror = () => {
+  let fallbackStarted = false
+  const fallbackToNative = () => {
+    if (fallbackStarted) return
+    fallbackStarted = true
     if (currentAudio === audio) currentAudio = null
     try {
       if (window.speechSynthesis) speakNative(text, opts)
-      else once(opts.onEnd)()
+      else (opts.onError || opts.onEnd)?.()
     } catch {
-      once(opts.onEnd)()
+      (opts.onError || opts.onEnd)?.()
     }
   }
+  // Als de online stem niet lukt (bv. geblokkeerd), val terug op native.
+  audio.onerror = fallbackToNative
   const p = audio.play()
   if (p && typeof p.catch === 'function') {
-    p.catch(() => {
-      // play() geweigerd (bv. geen gebruikersinteractie) — probeer native.
-      try {
-        if (window.speechSynthesis) speakNative(text, opts)
-        else once(opts.onEnd)()
-      } catch {
-        once(opts.onEnd)()
-      }
-    })
+    // play() geweigerd (bv. geen gebruikersinteractie) — probeer native.
+    p.catch(fallbackToNative)
   }
 }
 
 /**
  * Lees een tekst voor in het Nederlands.
  * @param {string} text
- * @param {{ rate?: number, lang?: string, onEnd?: () => void }} [opts]
+ * @param {{ rate?: number, lang?: string, onEnd?: () => void, onError?: () => void }} [opts]
  *   rate < 1 = langzamer. onEnd wordt aangeroepen als het voorlezen klaar is
  *   (handig om daarna de eigen opname af te spelen).
  */

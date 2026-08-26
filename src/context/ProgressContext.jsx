@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useAuth } from './AuthContext.jsx'
 import { fetchJSON } from '../lib/api.js'
+import { expandLegacyCompletion } from '../lib/progressAliases.js'
 import {
   clearLegacyLearningState,
   hasLegacyLearningState,
@@ -68,7 +69,7 @@ export function ProgressProvider({ children }) {
       try {
         const data = await fetchJSON('/api/progress', { method: 'PUT', body: request })
         clearQueue(activeUser.id)
-        if (data.completed) setCompleted(data.completed)
+        if (data.completed) setCompleted(expandLegacyCompletion(data.completed).completed)
         if (data.reviewState || data.speakingState) {
           hydrateLocalPracticeState(data.reviewState || {}, data.speakingState || {})
         }
@@ -116,7 +117,15 @@ export function ProgressProvider({ children }) {
     fetchJSON('/api/progress')
       .then((data) => {
         if (cancelled) return
-        setCompleted(data.completed || {})
+        const normalized = expandLegacyCompletion(data.completed || {})
+        setCompleted(normalized.completed)
+        if (normalized.changed) {
+          persist({
+            completed: normalized.completed,
+            merge: true,
+            eventId: `lesson-aliases-v2:${activeUser.id}`,
+          }).catch(() => {})
+        }
         hydrateLocalPracticeState(data.reviewState || {}, data.speakingState || {})
         setUpdatedAt(data.updatedAt || null)
         setSyncStatus('synced')
@@ -124,7 +133,7 @@ export function ProgressProvider({ children }) {
       .catch(() => {
         if (cancelled) return
         const queued = readQueue(activeUser.id)
-        setCompleted(queued?.completed || {})
+        setCompleted(expandLegacyCompletion(queued?.completed || {}).completed)
         setSyncStatus(queued ? 'pending' : 'error')
       })
 

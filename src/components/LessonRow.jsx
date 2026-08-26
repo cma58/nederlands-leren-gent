@@ -11,6 +11,9 @@ const TYPE_META = {
   listen: { key: 'type_listen', icon: '👂' },
   typing: { key: 'type_typing', icon: '⌨️' },
   quiz: { key: 'type_quiz', icon: '✅' },
+  alphabet: { key: 'type_alphabet', icon: '🔤' },
+  'alphabet-overview': { key: 'type_alphabet_overview', icon: '🔡' },
+  'name-spelling': { key: 'type_name_spelling', icon: '✍️' },
 }
 
 /**
@@ -51,7 +54,7 @@ export default function LessonRow({ lesson, index, onOpen }) {
             {done && <span className="sr-only"> ({t('completed')})</span>}
           </span>
           <span className="block truncate text-sm text-slate-500">
-            {icon} {label} · {lesson.items.length} {t('items')}
+            {icon} {label} · {lesson.displayItemCount ?? lesson.items.length} {t('items')}
           </span>
         </span>
       </button>
