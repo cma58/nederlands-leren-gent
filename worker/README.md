@@ -126,7 +126,7 @@ laatste 90 seconden) en `openAssignments` toe.
 | POST | `/api/admin/users/:id/password-reset` | `{resetCode,expiresAt}`; code eenmalig zichtbaar |
 | GET | `/api/admin/users/:id/activity` | actieve seconden + laatste 100 pogingen |
 | GET | `/api/admin/audit` | laatste 250 beheer-/veiligheidsacties |
-| GET | `/api/admin/reference-audio` | 74 opnameprompts met opname-/voortgangsstatus |
+| GET | `/api/admin/reference-audio` | 585 opnameprompts met opname-/voortgangsstatus |
 | POST | `/api/admin/reference-audio` | multipart: `promptId`, `durationMs`, `consentConfirmed=yes`, `audio`; maakt of vervangt één vaste lesopname |
 | DELETE | `/api/admin/reference-audio/:promptId` | verwijdert één vaste lesopname; de les valt terug op TTS |
 
@@ -134,9 +134,9 @@ laatste 90 seconden) en `openAssignments` toe.
 
 ### Vaste lesaudio opnemen
 
-Open als beheerder **Beheer → Lesaudio**. De studio toont vijf reeksen met in
-totaal 74 korte clips: 26 letternamen, 26 letterzinnen, 12 klankwoorden, vijf
-eerste woorden en vijf Darija-instructies. Per clip:
+Open als beheerder **Beheer → Lesaudio**. De studio toont 585 korte clips: 74
+basisclips voor Niveau 0 en 511 unieke woorden, zinnen en lidwoordcombinaties
+voor Niveau 1 en 2. Dubbele teksten delen één opname. Per clip:
 
 1. lees de getoonde tekst exact voor;
 2. beluister de volledige nieuwe opname;
@@ -149,8 +149,9 @@ versie vervangt de oude koppeling; er is geen codewijziging of bestandsnaamwerk
 nodig. Ontbreekt een clip, dan valt de les terug op de bestaande toestel-/online
 computerstem. De downloadroute is `GET /api/reference-audio/:promptId`.
 
-Per clip geldt maximaal 750 kB en maximaal acht seconden. Zelfs wanneer alle 74
-clips de volledige 750 kB gebruiken, is dat ongeveer 56 MB. Dit blijft ruim
+Voor de basisclips geldt maximaal 750 kB; voor Niveau 1 en 2 maximaal 300 kB.
+De maximale duur is acht seconden, of tien seconden voor langere zinnen. Zelfs
+wanneer alle clips hun volledige grens gebruiken, is dat ongeveer 209 MB. Dit blijft ruim
 onder de D1 Free-limiet van 500 MB per database en iedere rij blijft onder de
 D1-limiet van 2 MB. Controleer vóór publieke livegang alle clips op een echte
 iPhone en Android-telefoon.

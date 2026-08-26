@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { isTTSAvailable, speak, stopAll } from '../lib/speech.js'
+import { isTTSAvailable } from '../lib/speech.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import { scoreTranscript, tipsFor } from '../lib/pronunciation.js'
 import { recordLearningAttempt } from '../lib/attempts.js'
 import SoundText from './SoundText.jsx'
+import { playReferenceAudio, stopReferenceAudio } from '../lib/referenceAudio.js'
 
 /**
  * Typ-oefening (lestype 'typing'): de leerling typt het Nederlandse woord over.
@@ -27,7 +28,7 @@ export default function TypingExercise({ lesson, onFinish }) {
   }, [i])
 
   // Stop het voorlezen als de les gesloten wordt.
-  useEffect(() => () => stopAll(), [])
+  useEffect(() => () => stopReferenceAudio(), [])
 
   if (!hasItems) {
     return <p className="p-6 text-center text-slate-500">{t('lessonEmpty')}</p>
@@ -48,7 +49,7 @@ export default function TypingExercise({ lesson, onFinish }) {
       type: 'typing',
       result: res === 'GOOD' ? 'correct' : res === 'ALMOST' ? 'almost' : 'incorrect',
     }).catch(() => {})
-    if (isTTSAvailable()) speak(item.nl)
+    if (isTTSAvailable()) playReferenceAudio(item.audioId, item.nl)
   }
 
   function retry() {
@@ -58,6 +59,7 @@ export default function TypingExercise({ lesson, onFinish }) {
   }
 
   function next() {
+    stopReferenceAudio()
     if (isLast) onFinish()
     else setI((n) => n + 1)
   }
@@ -101,10 +103,10 @@ export default function TypingExercise({ lesson, onFinish }) {
         )}
         {isTTSAvailable() && (
           <div className="mt-3 flex justify-center gap-2">
-            <button onClick={() => speak(item.nl)} className="btn-ghost">
+            <button onClick={() => playReferenceAudio(item.audioId, item.nl)} className="btn-ghost">
               🔊 {t('listen')}
             </button>
-            <button onClick={() => speak(item.nl, { rate: 0.5 })} className="btn-ghost">
+            <button onClick={() => playReferenceAudio(item.audioId, item.nl, { rate: 0.5 })} className="btn-ghost">
               🐢 {t('listenSlow')}
             </button>
           </div>

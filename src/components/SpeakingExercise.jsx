@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { isTTSAvailable, speak, canProbablySpeak, stopAll } from '../lib/speech.js'
+import { isTTSAvailable, canProbablySpeak } from '../lib/speech.js'
 import { useRecorder } from '../hooks/useRecorder.js'
 import { useLang } from '../context/LanguageContext.jsx'
 import { PRONUNCIATION_RESULT, tipsFor } from '../lib/pronunciation.js'
@@ -8,6 +8,7 @@ import { itemKey, recordAttempt, isMastered } from '../lib/speakingProgress.js'
 import { recordLearningAttempt, recordSpeakingReview } from '../lib/attempts.js'
 import SoundText from './SoundText.jsx'
 import AiCoach from './AiCoach.jsx'
+import { playReferenceAudio, stopReferenceAudio } from '../lib/referenceAudio.js'
 
 /**
  * Spreek- & uitspraakoefening.
@@ -58,7 +59,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
     mountedRef.current = true
     return () => {
       mountedRef.current = false
-      stopAll() // stop voorbeeld-spraak (TTS/online) bij het verlaten van de les
+      stopReferenceAudio() // stop menselijke lesaudio of TTS bij het verlaten van de les
       try {
         playbackRef.current?.pause()
       } catch {
@@ -94,16 +95,18 @@ export default function SpeakingExercise({ lesson, onFinish }) {
   const hasRecording = Boolean(recUrl)
 
   /* -------- audio -------- */
-  const listen = (rate) => speak(speakable, rate ? { rate } : {})
+  const exampleAudioId = item?.speakAudioId || item?.audioId
+  const listen = (rate) => playReferenceAudio(exampleAudioId, speakable, rate ? { rate } : {})
   const playMine = () => {
     if (!recUrl) return
     if (!playbackRef.current) playbackRef.current = new Audio()
     playbackRef.current.src = recUrl
     playbackRef.current.play().catch(() => {})
   }
-  const playBoth = () => {
+  const playBoth = async () => {
     // Eerst het voorbeeld, daarna automatisch de eigen opname.
-    speak(speakable, { onEnd: () => setTimeout(playMine, 250) })
+    const result = await playReferenceAudio(exampleAudioId, speakable)
+    if (result.played) setTimeout(playMine, 250)
   }
 
   /* -------- opnemen -------- */
@@ -183,6 +186,7 @@ export default function SpeakingExercise({ lesson, onFinish }) {
   }
 
   function next() {
+    stopReferenceAudio()
     if (isLast) onFinish()
     else setI((n) => n + 1)
   }

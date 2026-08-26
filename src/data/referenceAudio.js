@@ -85,12 +85,58 @@ export const REFERENCE_AUDIO_PROMPTS = [
   })),
 ]
 
+const curriculumCategories = []
+const curriculumPrompts = new Map()
+
+for (const level of curriculum.levels.filter((item) => Number(item.order) >= 1)) {
+  for (const module of level.modules) {
+    const category = `lessons-${level.id}-${module.id}`
+    curriculumCategories.push({
+      id: category,
+      titleNl: `${level.title} · ${module.title}`,
+      titleDarijaLat: `${level.title} · ${module.titleDarijaLat || module.title}`,
+    })
+    let order = 0
+    const addPrompt = (text) => {
+      const normalized = normalizedAudioText(text)
+      const id = lessonAudioId(normalized)
+      if (!id || curriculumPrompts.has(id)) return
+      order += 1
+      curriculumPrompts.set(id, {
+        id,
+        category,
+        locale: 'nl-BE',
+        text: normalized,
+        label: normalized,
+        translationNl: '',
+        instructionNl: `Zeg exact: “${normalized}”`,
+        instructionDarijaLat: `9olo bddabt: “${normalized}”`,
+        maxDurationMs: normalized.split(/\s+/).length >= 5 ? 10_000 : 8000,
+        maxSizeBytes: 300_000,
+        order,
+        requiredForLive: true,
+      })
+    }
+    for (const lesson of module.lessons) {
+      for (const item of lesson.items || []) {
+        addPrompt(item.nl)
+        if (item.answer && !item.answer.includes('...')) addPrompt(item.answer)
+        if (item.pair) addPrompt(item.pair)
+        if (item.article && item.nl) addPrompt(`${item.article} ${item.nl}`)
+      }
+    }
+  }
+}
+
+REFERENCE_AUDIO_PROMPTS.push(...curriculumPrompts.values())
+
 export const REFERENCE_AUDIO_CATEGORIES = [
   { id: 'letter-names', titleNl: '26 letternamen', titleDarijaLat: '26 smiyat dyal l7orof' },
   { id: 'letter-examples', titleNl: '26 letters met voorbeeldwoord', titleDarijaLat: '26 7arf m3a kelmet l-mital' },
   { id: 'sound-pairs', titleNl: '12 woorden uit klankparen', titleDarijaLat: '12 kelma bach tferreq bin l-aswat' },
   { id: 'first-words', titleNl: '5 eerste woorden', titleDarijaLat: 'Awwel 5 kelmat' },
   { id: 'darija-instructions', titleNl: '5 gesproken Darija-instructies', titleDarijaLat: '5 ta3limat b Darija w s-sout' },
+  ...curriculumCategories,
 ]
 
 export const REFERENCE_AUDIO_BY_ID = new Map(REFERENCE_AUDIO_PROMPTS.map((prompt) => [prompt.id, prompt]))
@@ -99,14 +145,12 @@ export function referenceAudioPrompt(id) {
   return REFERENCE_AUDIO_BY_ID.get(String(id || '')) || null
 }
 
-export function letterNameAudioId(letter) {
-  return `letter-name-${String(letter).toLowerCase()}`
-}
-
-export function letterExampleAudioId(letter) {
-  return `letter-example-${String(letter).toLowerCase()}`
-}
-
-export function pairWordAudioId(word) {
-  return `pair-word-${String(word).toLowerCase()}`
-}
+export { lessonAudioId, letterExampleAudioId, letterNameAudioId, pairWordAudioId }
+import curriculum from './curriculum.js'
+import {
+  lessonAudioId,
+  letterExampleAudioId,
+  letterNameAudioId,
+  normalizedAudioText,
+  pairWordAudioId,
+} from './audioIds.js'

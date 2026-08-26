@@ -1,4 +1,4 @@
-import { letterExampleAudioId, letterNameAudioId, pairWordAudioId } from './referenceAudio.js'
+import { letterExampleAudioId, letterNameAudioId, lessonAudioId, pairWordAudioId } from './audioIds.js'
 
 export const LESSON_TYPES = {
   PHONETICS: 'phonetics',
@@ -5826,6 +5826,30 @@ function rebuildBeginnerRoute() {
 }
 
 rebuildBeginnerRoute()
+
+// Niveau 1 en hoger gebruiken één stabiele audio-ID per unieke Nederlandse
+// tekst. Daardoor hoeft dezelfde uitspraak maar één keer opgenomen te worden,
+// ook wanneer ze in meerdere lessen, toetsen of herhalingen terugkomt.
+function attachLessonAudioIds() {
+  for (const level of curriculum.levels.filter((item) => Number(item.order) >= 1)) {
+    for (const module of level.modules) {
+      for (const lesson of module.lessons) {
+        lesson.items = (lesson.items || []).map((item) => {
+          const audioId = item.audioId || lessonAudioId(item.nl)
+          const target = item.answer && !item.answer.includes('...') ? item.answer : item.nl
+          return {
+            ...item,
+            ...(audioId ? { audioId } : {}),
+            ...(target ? { speakAudioId: lessonAudioId(target) } : {}),
+            ...(item.pair && !item.pairAudioId ? { pairAudioId: lessonAudioId(item.pair) } : {}),
+          }
+        })
+      }
+    }
+  }
+}
+
+attachLessonAudioIds()
 
 export function countLessons(level) {
   return level.modules.reduce((sum, module) => sum + (module.optional ? 0 : module.lessons.length), 0)

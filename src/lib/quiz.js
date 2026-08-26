@@ -1,3 +1,5 @@
+import { lessonAudioId } from '../data/audioIds.js'
+
 /**
  * Maakt automatisch meerkeuzevragen uit de items van een les.
  * Werkt volledig lokaal — geen API of internet nodig.
@@ -49,6 +51,7 @@ export function buildQuiz(lesson) {
         rtl,
         answer: item.nl,
         say: item.nl,
+        audioId: item.audioId || lessonAudioId(item.nl),
         options: shuffle([item.nl, ...distractors]),
       })
     }
@@ -69,6 +72,7 @@ export function buildQuiz(lesson) {
       rtl: false,
       answer: item.article,
       say: `${item.article} ${item.nl}`,
+      audioId: lessonAudioId(`${item.article} ${item.nl}`),
       options: ['de', 'het'],
     })
   }

@@ -118,7 +118,7 @@ noodherstel en hoort daarom in je wachtwoordbeheerder te blijven.
    hem volledig en sla hem op. Open daarna de bijbehorende les met een
    testaccount en controleer dat precies die menselijke opname wordt afgespeeld.
 
-## 8. De 74 vaste lesopnames maken
+## 8. De 585 vaste lesopnames maken
 
 Je hebt geen aparte opnameserver of betaalde opslag nodig. De bestaande Worker
 ontvangt de opname en bewaart ze in dezelfde D1-database. De migratie
@@ -137,8 +137,10 @@ dan automatisch terug op de computerstem. Cloudflare D1 Time Travel houdt op
 het gratis plan herstelpunten tot zeven dagen bij; een gewiste of vervangen
 stemclip kan gedurende die hersteltermijn nog in een back-up zitten.
 
-De ingestelde grens is 750 kB per clip. Voor 74 clips is het theoretische
-maximum ongeveer 56 MB, ruim onder de 500 MB per D1-database op Workers Free.
+De 74 basisclips hebben een grens van 750 kB. De 511 extra clips voor Niveau 1
+en 2 zijn begrensd op 300 kB. Zelfs wanneer iedere clip zijn volledige grens
+bereikt, is dat samen ongeveer 209 MB, ruim onder de 500 MB per D1-database op
+Workers Free. Dubbele woorden delen automatisch één opname.
 Wanneer een gratis daglimiet ooit wordt bereikt, stopt D1 tijdelijk met nieuwe
 handelingen tot de dagelijkse reset; er wordt zonder een betaald abonnement
 niets aangerekend.

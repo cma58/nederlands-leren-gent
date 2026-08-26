@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import worker from '../src/index.js'
+import { lessonAudioId } from '../../src/data/audioIds.js'
 
 function mockDb({ role = 'ADMIN' } = {}) {
   const state = { audio: null, attempts: 0 }
@@ -199,4 +200,7 @@ test('upload weigert verkeerde container, ontbrekende toestemming en onbekende p
   validWebm.set([0x1a, 0x45, 0xdf, 0xa3])
   assert.equal((await upload({ bytes: validWebm, consent: 'no' })).status, 400)
   assert.equal((await upload({ bytes: validWebm, promptId: 'unknown' })).status, 400)
+  const oversizedLessonClip = new Uint8Array(300_001)
+  oversizedLessonClip.set([0x1a, 0x45, 0xdf, 0xa3])
+  assert.equal((await upload({ bytes: oversizedLessonClip, promptId: lessonAudioId('elf') })).status, 400)
 })

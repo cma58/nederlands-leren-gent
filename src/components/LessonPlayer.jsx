@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { isTTSAvailable, speak } from '../lib/speech.js'
+import { isTTSAvailable } from '../lib/speech.js'
 import { buildQuiz } from '../lib/quiz.js'
 import { useProgress } from '../context/ProgressContext.jsx'
 import { useLang } from '../context/LanguageContext.jsx'
@@ -302,10 +302,11 @@ function QuizPhase({ lesson, quiz, onFinish, onBack }) {
     if (answered) return
     setPicked(option)
     if (option === q.answer) setScore((s) => s + 1)
-    speak(q.say || q.answer)
+    playReferenceAudio(q.audioId, q.say || q.answer)
   }
 
   function next() {
+    stopReferenceAudio()
     if (isLast) {
       recordLearningAttempt({
         lessonId: lesson.id,
