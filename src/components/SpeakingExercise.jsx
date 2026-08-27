@@ -279,9 +279,11 @@ export default function SpeakingExercise({ lesson, onFinish }) {
             <button onClick={() => listen()} className="btn-ghost">
               🔊 {t('listenExample')}
             </button>
-            <button onClick={() => listen(0.5)} className="btn-ghost">
-              🐢 {t('listenSlow')}
-            </button>
+            {!item.noSlowAudio && (
+              <button onClick={() => listen(0.8)} className="btn-ghost">
+                🐢 {t('listenSlow')}
+              </button>
+            )}
           </div>
         )}
         {ttsSilent && <p className="mt-2 text-xs text-amber-700">⚠️ {t('ttsOffline')}</p>}

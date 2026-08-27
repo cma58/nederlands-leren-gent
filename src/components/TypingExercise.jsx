@@ -106,9 +106,11 @@ export default function TypingExercise({ lesson, onFinish }) {
             <button onClick={() => playReferenceAudio(item.audioId, item.nl)} className="btn-ghost">
               🔊 {t('listen')}
             </button>
-            <button onClick={() => playReferenceAudio(item.audioId, item.nl, { rate: 0.5 })} className="btn-ghost">
-              🐢 {t('listenSlow')}
-            </button>
+            {!item.noSlowAudio && (
+              <button onClick={() => playReferenceAudio(item.audioId, item.nl, { rate: 0.8 })} className="btn-ghost">
+                🐢 {t('listenSlow')}
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -3,6 +3,14 @@
 Een mobiele, tweetalige leerapp voor Nederlands in Gent. De volledige interface
 is beschikbaar in Nederlands en Darija met Latijnse letters.
 
+## Live app
+
+[Open Nederlands leren in Gent](https://nederlands-leren-gent-api.amine-chtaiti.workers.dev)
+
+De app is gemaakt voor echte beginners die zo snel mogelijk bruikbaar
+Nederlands willen leren voor het dagelijkse leven in Gent. De leerroute
+combineert korte lessen, luisteren, spreken, typen, herhalen en praktijksituaties.
+
 ## Wat deze versie bevat
 
 - zelfregistratie met gebruikersnaam en wachtwoord;
@@ -12,6 +20,12 @@ is beschikbaar in Nederlands en Darija met Latijnse letters.
 - geschatte actieve leertijd zonder dubbel tellen van tabbladen;
 - adminoverzicht voor gebruikers, activiteit en recente pogingen;
 - tweetalige extra en verplichte opdrachten;
+- Niveau 0 met praktische eerste woorden en een verweven alfabetroute;
+- Niveau 1 en 2 met menselijke Vlaamse lesaudio en computerstem als reserve;
+- een beveiligde admin-opnamestudio die audio automatisch aan lessen koppelt;
+- uitspraakopnames met automatische herkenning en menselijke controle bij twijfel;
+- herhaling volgens het Leitner-principe;
+- optionele, begrensde AI-uitleg bij woorden en algemene uitspraaktips;
 - Groq Whisper via een beveiligde serverroute, nooit met een sleutel in de browser;
 - lokale audiokwaliteitscontrole en expliciete onzekere/technische uitkomsten;
 - een veilige eenmalige import van voortgang uit de vroegere lokale versie.
@@ -31,6 +45,31 @@ providerkeys zijn verwijderd.
 
 Er is geen betaalde fallback en de app bevat geen betaalkaart- of
 facturatie-integratie.
+
+## Ontwikkelroute na kritische beoordeling
+
+Twintig expertrollen uit NT2-didactiek, geheugenonderzoek, uitspraak,
+Darija, toegankelijkheid, privacy, AI en mobiele UX hebben de leerroute
+kritisch naast elkaar gelegd. Hun gezamenlijke prioriteiten zijn:
+
+1. Een dagelijkse adaptieve sessie van 3, 7 of 12 minuten: eerst herhalen,
+   daarna enkele nieuwe taalblokken, spreken en een korte Gentse missie.
+2. Praktijkscenario's zoals de bakker, bus, dokter, gemeente, school en werk.
+3. `Bekeken` en `beheerst` afzonderlijk meten voor luisteren, spreken, lezen
+   en zelf gebruiken.
+4. Niveau 1 opdelen in kleinere lessen van maximaal 5–7 nieuwe elementen en
+   Niveau 2 uitbreiden met luisteren, spreken en dialogen.
+5. Ook luister-, spreek- en typefouten opnemen in de gespreide herhaling.
+6. Darija-hulp geleidelijk afbouwen: eerst zichtbaar, daarna op aanvraag en
+   uiteindelijk Nederlands met beeld en context.
+7. Een knop `Ik zit vast` met tragere audio, eenvoudige uitleg en één concrete
+   volgende stap.
+8. Een persoonlijk overzicht van de vijf moeilijkste woorden of klanken,
+   zonder straffende streaks of een ondoorzichtige AI-route.
+
+De vaste leerlus voor nieuwe onderdelen wordt:
+
+`kort leren → zonder hulp ophalen → fout uitleggen → opnieuw proberen → in een praktijksituatie gebruiken → later herhalen`.
 
 ## Lokaal starten
 
